@@ -1,0 +1,33 @@
+{
+  "name": "spaces",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "vitest run",
+    "build": "node build.mjs",
+    "dev": "node build.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "e2e": "npm run build && node e2e/smoke.mjs && node e2e/features.mjs"
+  },
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "idb": "^8.0.3",
+    "jotai": "^3.0.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.3.0",
+    "@types/node": "^26.6.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "esbuild": "^0.28.2",
+    "fake-indexeddb": "^6.2.5",
+    "jsdom": "^30.1.1",
+    "playwright": "^1.63.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.2"
+  },
+  "private": true
+}

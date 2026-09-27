@@ -1,0 +1,75 @@
+import type { SVGProps } from 'react';
+
+/** One authored set: 16px grid, 1.5 stroke, round joins, currentColor. */
+function Svg(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      className="icon"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+      {...props}
+    />
+  );
+}
+
+export const SearchIcon = () => (
+  <Svg>
+    <circle cx="7" cy="7" r="4.25" />
+    <path d="M10.2 10.2 13.5 13.5" />
+  </Svg>
+);
+
+/** Turn the card over. */
+export const FlipIcon = () => (
+  <Svg>
+    <path d="M3 6.5h8.5a2 2 0 0 1 0 4H9" />
+    <path d="M5.5 4 3 6.5 5.5 9" />
+  </Svg>
+);
+
+export const UpIcon = () => (
+  <Svg>
+    <path d="M4.5 9.5 8 6l3.5 3.5" />
+  </Svg>
+);
+
+export const DownIcon = () => (
+  <Svg>
+    <path d="M4.5 6.5 8 10l3.5-3.5" />
+  </Svg>
+);
+
+export const CloseIcon = () => (
+  <Svg>
+    <path d="M4.5 4.5l7 7M11.5 4.5l-7 7" />
+  </Svg>
+);
+
+export const PlusIcon = () => (
+  <Svg>
+    <path d="M8 3.5v9M3.5 8h9" />
+  </Svg>
+);
+
+/** Open the full-page catalog. */
+export const CabinetIcon = () => (
+  <Svg>
+    <rect x="2.75" y="2.5" width="10.5" height="11" rx="1" />
+    <path d="M2.75 8h10.5" />
+    <path d="M6.5 5.25h3M6.5 10.75h3" />
+  </Svg>
+);
+
+/** A saved link with no favicon. */
+export const LinkIcon = () => (
+  <Svg>
+    <path d="M6.75 9.25a2.5 2.5 0 0 0 3.54 0l2-2a2.5 2.5 0 0 0-3.54-3.54l-.75.75" />
+    <path d="M9.25 6.75a2.5 2.5 0 0 0-3.54 0l-2 2a2.5 2.5 0 0 0 3.54 3.54l.75-.75" />
+  </Svg>
+);

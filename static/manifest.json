@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "Spaces",
+  "version": "1.0.0",
+  "description": "Personal workspace switcher: save, switch and suspend tab contexts.",
+  "minimum_chrome_version": "121",
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "tabs",
+    "tabGroups",
+    "storage",
+    "unlimitedStorage",
+    "alarms",
+    "idle",
+    "system.memory",
+    "sidePanel",
+    "scripting"
+  ],
+  "optional_host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_title": "Spaces"
+  },
+  "side_panel": {
+    "default_path": "panel.html"
+  },
+  "commands": {
+    "open-dashboard": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S",
+        "mac": "Command+Shift+S"
+      },
+      "description": "Open the Spaces dashboard"
+    },
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+S",
+        "mac": "Alt+Shift+S"
+      },
+      "description": "Open the Spaces side panel"
+    }
+  }
+}
