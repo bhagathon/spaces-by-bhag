@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Spaces",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Personal workspace switcher: save, switch and suspend tab contexts.",
   "minimum_chrome_version": "121",
   "background": {

@@ -14,6 +14,7 @@ import { forgetWindowHash, pruneSnapshots, snapshotAllWindows } from './snapshot
 import { sweep } from './suspender';
 import { onTabLoading, onTabRemoved, setFormGuard, setTabDirty } from './formGuard';
 import { restartSync, startSync, syncNow, syncTick, updatePresence } from './sync';
+import { reloadIfUpdatedOnDisk } from './selfUpdate';
 
 // All listeners are registered synchronously at top level so MV3 can wake the worker for them.
 
@@ -25,6 +26,7 @@ function setupAlarms() {
   chrome.alarms.create('suspend-sweep', { periodInMinutes: 1 });
   chrome.alarms.create('prune', { periodInMinutes: 60 * 24 });
   chrome.alarms.create('sync', { periodInMinutes: 1 });
+  chrome.alarms.create('self-update', { periodInMinutes: 10 });
 }
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -47,6 +49,7 @@ chrome.alarms.onAlarm.addListener(async ({ name }) => {
   else if (name === 'suspend-sweep' && systemIdle !== 'locked') await sweep();
   else if (name === 'prune') await pruneSnapshots();
   else if (name === 'sync') await syncTick();
+  else if (name === 'self-update') await reloadIfUpdatedOnDisk();
 });
 
 chrome.commands.onCommand.addListener(command => {

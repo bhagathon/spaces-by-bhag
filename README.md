@@ -13,6 +13,13 @@ A personal Chrome extension for switching between saved tab contexts ("Spaces"),
 
 ## Install
 
+**On a Mac (easiest):** download `Spaces-<version>.dmg` from the latest GitHub release, open it, and run **Install Spaces**.
+- The first time, macOS may warn that the app is from an unidentified developer. Right-click it, choose **Open**, then **Open** again.
+- Chrome then needs one confirmation (Developer mode, then Load unpacked). The installer opens the page and copies the folder path for you.
+- After that, updates are automatic. A background task checks Google Cloud Storage at login and every 6 hours, verifies the download's checksum, and swaps in the new files. The extension notices and reloads itself within 10 minutes.
+
+**From source:**
+
 ```bash
 npm install
 npm run build          # outputs dist/
@@ -62,6 +69,14 @@ Keys (side panel):
   - Incognito windows are never snapshotted.
   - `javascript:` and `data:` URLs are never opened or linked.
 - **Unsaved form protection (optional).** When turned on, a tab you've typed into (but haven't submitted) is never suspended. This asks for access to all sites. It only checks whether a field has text; it never reads or stores what you typed.
+
+## Releasing
+
+```bash
+npm pkg set version=X.Y.Z                    # and the same "version" in static/manifest.json
+PROJECT=<gcp-project> npm run publish-update # uploads the zip + latest.json; installed Macs update within 6h
+npm run dmg                                  # release/Spaces-X.Y.Z.dmg for new installs
+```
 
 ## Test
 
