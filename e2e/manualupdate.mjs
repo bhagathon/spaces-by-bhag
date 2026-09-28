@@ -60,7 +60,7 @@ try {
   check('the extension ID matches the one computed from its folder (as the installer does)', new URL(sw.url()).host === extId, new URL(sw.url()).host);
   const page = await ctx.newPage();
   await page.goto(`chrome-extension://${extId}/panel.html`);
-  await page.getByRole('tab', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('button', { name: 'Update now' }).click();
   const status = page.locator('.settings [role=status]').filter({ hasText: /Updated|newest|updater|helper/ });
   await status.waitFor({ timeout: 20000 });

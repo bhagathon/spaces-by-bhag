@@ -193,6 +193,7 @@ kbd {
   flex: none;
 }
 .icon-button:hover { color: var(--ink); border-color: var(--card-edge); background: color-mix(in srgb, var(--card) 60%, transparent); }
+.icon-button[aria-pressed='true'] { color: var(--ink); border-color: var(--card-edge); background: var(--card); }
 
 /* Guide-card tabs: the views. The active tab joins the drawer below it. */
 .guide-tabs {
@@ -707,6 +708,8 @@ input[type='checkbox'] { accent-color: var(--ink); width: 14px; height: 14px; ma
 /* ============ Calendar: today's agenda card and the panel's next-up line ============ */
 
 .agenda { padding: 12px 14px; border-top-color: var(--card-edge); }
+/* The Today view on the dashboard reads like the other page cards, not full width. */
+.app-dashboard main > .agenda { max-width: 720px; }
 .agenda-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
 .agenda-title { margin: 0; font: 700 var(--step-1) / 1.2 var(--type); }
 .agenda-date { font: var(--step--1) / 1.4 var(--type); color: var(--ink-3); }

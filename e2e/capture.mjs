@@ -142,7 +142,7 @@ try {
   await wait(300);
   await ctl.screenshot({ path: `${OUT}/desktop-dark.png`, fullPage: true });
   await ctl.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
-  await ctl.getByRole('tab', { name: 'Settings' }).click();
+  await ctl.getByRole('button', { name: 'Settings', exact: true }).click();
   await wait(300);
   await ctl.screenshot({ path: `${OUT}/desktop-settings.png`, fullPage: true });
   console.log('captured');

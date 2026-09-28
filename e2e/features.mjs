@@ -100,7 +100,7 @@ try {
   await ui.screenshot({ path: 'e2e/resources.png' });
 
   // ---- Sync: turn it on through Settings ----
-  await ui.getByRole('tab', { name: 'Settings' }).click();
+  await ui.getByRole('button', { name: 'Settings', exact: true }).click();
   await ui.getByLabel('Server URL').fill(serverUrl);
   await ui.getByLabel('Token').fill(token);
   await ui.getByLabel('This device’s name').fill('Test laptop');
@@ -134,7 +134,7 @@ try {
   check('remote rename survives the local auto-save', kept?.name === 'Work (renamed on phone)', kept?.name);
 
   // ---- Form guard ----
-  await ui.getByRole('tab', { name: 'Settings' }).click();
+  await ui.getByRole('button', { name: 'Settings', exact: true }).click();
   await ui.getByLabel('Never suspend tabs with unsaved form text').click();
   const guardOn = await until(() => sw.evaluate(() => chrome.storage.local.get('formGuard').then(r => r.formGuard === true)));
   check('form guard enabled', guardOn);

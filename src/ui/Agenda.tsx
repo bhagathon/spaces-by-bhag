@@ -58,14 +58,32 @@ function useAgenda() {
 
 const clock = (t: number) => new Date(t).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 
-/** The home tab's agenda: today's events typed onto a ruled card. */
-export function Agenda() {
+/**
+ * Today's events typed onto a ruled card: beside the drawer on the home tab, and as
+ * the Today view. The view passes onSetUp, so an unconnected calendar shows how to
+ * connect it instead of nothing.
+ */
+export function Agenda({ onSetUp }: { onSetUp?: () => void } = {}) {
   const { state, now, reconnect } = useAgenda();
-  if (state.status === 'off') return null;
   const today = new Date(now).toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
+  if (state.status === 'off') {
+    if (!onSetUp) return null;
+    return (
+      <article className="card agenda" aria-label="Today’s calendar">
+        <header className="agenda-head">
+          <h2 className="agenda-title">Today</h2>
+          <span className="agenda-date">{today}</span>
+        </header>
+        <p className="agenda-note">Connect Google Calendar to see today’s meetings here, with a Join link for video calls.</p>
+        <button type="button" className="plate-button outline" onClick={onSetUp}>
+          Set up Google Calendar
+        </button>
+      </article>
+    );
+  }
 
   return (
-    <article className="card agenda dash-agenda" aria-label="Today’s calendar">
+    <article className={`card agenda${onSetUp ? '' : ' dash-agenda'}`} aria-label="Today’s calendar">
       <header className="agenda-head">
         <h2 className="agenda-title">Today</h2>
         <span className="agenda-date">{today}</span>

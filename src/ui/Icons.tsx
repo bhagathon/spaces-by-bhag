@@ -66,6 +66,16 @@ export const CabinetIcon = () => (
   </Svg>
 );
 
+/** Settings: three sliders. (A cog at 16px reads as a sun.) */
+export const SlidersIcon = () => (
+  <Svg>
+    <path d="M2.75 4.5h2M7.5 4.5h5.75M2.75 8h6.75M12.25 8h1M2.75 11.5h.75M6.25 11.5h7" />
+    <circle cx="6.1" cy="4.5" r="1.35" />
+    <circle cx="10.9" cy="8" r="1.35" />
+    <circle cx="4.9" cy="11.5" r="1.35" />
+  </Svg>
+);
+
 /** A saved link with no favicon. */
 export const LinkIcon = () => (
   <Svg>

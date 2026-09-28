@@ -5,17 +5,17 @@ import { Drawer } from './Drawer';
 import { History } from './History';
 import { Suspension } from './Suspension';
 import { Settings } from './Settings';
-import { NextUp } from './Agenda';
+import { Agenda, NextUp } from './Agenda';
 import { getTextScale, setTextScale, stepScale } from './textScale';
-import { CabinetIcon, CloseIcon } from './Icons';
+import { CabinetIcon, CloseIcon, SlidersIcon } from './Icons';
 import type { Notice } from './notice';
 
-type Tab = 'drawer' | 'history' | 'suspension' | 'settings';
+type Tab = 'drawer' | 'today' | 'history' | 'suspension' | 'settings';
 const TABS: { id: Tab; label: string }[] = [
   { id: 'drawer', label: 'Spaces' },
+  { id: 'today', label: 'Today' },
   { id: 'history', label: 'History' },
   { id: 'suspension', label: 'Suspended' },
-  { id: 'settings', label: 'Settings' },
 ];
 
 export function App({ view }: { view: 'panel' | 'dashboard' }) {
@@ -66,6 +66,16 @@ export function App({ view }: { view: 'panel' | 'dashboard' }) {
       <header className="drawer-front">
         <h1 className="wordmark">Spaces</h1>
         <SyncStamp />
+        {/* Settings lives here, not in the tab row, so the views you switch between fit a 320px panel. */}
+        <button
+          className="icon-button"
+          aria-label="Settings"
+          aria-pressed={tab === 'settings'}
+          title="Settings"
+          onClick={() => setTab(tab === 'settings' ? 'drawer' : 'settings')}
+        >
+          <SlidersIcon />
+        </button>
         {view === 'panel' && (
           <button
             className="icon-button"
@@ -122,6 +132,7 @@ export function App({ view }: { view: 'panel' | 'dashboard' }) {
       <main>
         {tab === 'drawer' && view === 'panel' && <NextUp />}
         {tab === 'drawer' && <Drawer view={view} query={query} setQuery={setQuery} filterRef={filterRef} onError={setError} onNotice={setNotice} />}
+        {tab === 'today' && <Agenda onSetUp={() => setTab('settings')} />}
         {tab === 'history' && <History onError={setError} />}
         {tab === 'suspension' && <Suspension onError={setError} />}
         {tab === 'settings' && <Settings onError={setError} onNotice={setNotice} />}
