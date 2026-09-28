@@ -1,5 +1,7 @@
 # Spaces
 
+**[⬇ Download Spaces for Mac (.dmg)](https://github.com/bhagathon/spaces-by-bhag/releases/latest/download/Spaces-1.1.0.dmg)** · [All releases](https://github.com/bhagathon/spaces-by-bhag/releases)
+
 <p>
   <img src="docs/panel.png" width="300" alt="The Spaces side panel: this window's Space as a typed index card, other Spaces filed below as card tops">
   <img src="docs/panel-dark.png" width="300" alt="The same panel in dark mode">
