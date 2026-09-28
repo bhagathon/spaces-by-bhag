@@ -6,6 +6,7 @@ import { History } from './History';
 import { Suspension } from './Suspension';
 import { Settings } from './Settings';
 import { NextUp } from './Agenda';
+import { getTextScale, setTextScale, stepScale } from './textScale';
 import { CabinetIcon, CloseIcon } from './Icons';
 import type { Notice } from './notice';
 
@@ -37,6 +38,13 @@ export function App({ view }: { view: 'panel' | 'dashboard' }) {
       const inField = (e.target as HTMLElement).closest('input, textarea, select');
       const slash = e.key === '/' && !inField && !e.metaKey && !e.ctrlKey && !e.altKey;
       const modK = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k';
+      // ⌘+ / ⌘− / ⌘0 step the panel's text size (Chrome's zoom doesn't reach the side panel).
+      if (view === 'panel' && (e.metaKey || e.ctrlKey) && !e.altKey && ['=', '+', '-', '0'].includes(e.key)) {
+        e.preventDefault();
+        const dir = e.key === '-' ? -1 : e.key === '0' ? 0 : 1;
+        void getTextScale().then(v => setTextScale(stepScale(v, dir)));
+        return;
+      }
       if (slash || modK) {
         e.preventDefault();
         // Focus synchronously when the drawer is showing, so keys typed right after "/" land in the field.

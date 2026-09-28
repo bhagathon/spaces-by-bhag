@@ -66,11 +66,14 @@
   --type: 'Courier Prime', 'Courier New', monospace;
   --sans: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Segoe UI', sans-serif;
 
-  --step--1: 11px;
-  --step-0: 13px;
-  --step-1: 15px;
-  --step-2: 18px;
-  --line: 20px;               /* the card's ruling pitch; entries sit on it */
+  /* Text size (Settings → Display) multiplies the type scale and the ruling
+     pitch together, so typed entries stay on their ruled lines at every size. */
+  --scale: 1;
+  --step--1: calc(11px * var(--scale));
+  --step-0: calc(13px * var(--scale));
+  --step-1: calc(15px * var(--scale));
+  --step-2: calc(18px * var(--scale));
+  --line: calc(20px * var(--scale));   /* the card's ruling pitch; entries sit on it */
 
   color-scheme: light;
 }
@@ -206,13 +209,19 @@ kbd {
   border-bottom: 0;
   border-radius: 4px 4px 0 0;
   background: none;
-  font: 600 var(--step--1) / 1.2 var(--sans);
+  /* Printed labels, not content: capped at the default size so all four views
+     still fit a narrow panel when the text size is Large or Larger. */
+  font: 600 calc(11px * min(var(--scale), 1)) / 1.2 var(--sans);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-2);
   cursor: pointer;
 }
 .guide-tab:hover { color: var(--ink); }
+/* Chrome's narrowest side panel is 320px: tighten the tabs so all four views fit. */
+@media (max-width: 350px) {
+  .guide-tab { padding-left: 6px; padding-right: 6px; letter-spacing: 0.04em; }
+}
 .guide-tab[aria-selected='true'] {
   color: var(--pressboard-ink);
   background: var(--pressboard);
@@ -253,7 +262,7 @@ kbd {
   padding: 1px 5px 0;
   border: 1.5px solid currentColor;
   border-radius: 2px;
-  font: 700 10px / 14px var(--sans);
+  font: 700 calc(10px * var(--scale)) / calc(14px * var(--scale)) var(--sans);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-2);
@@ -297,7 +306,7 @@ kbd {
   padding: 1px 4px 0;
   border: 1px solid color-mix(in srgb, var(--ink) 35%, transparent);
   border-radius: 2px;
-  font: 700 var(--step--1) / 16px var(--type);
+  font: 700 var(--step--1) / calc(16px * var(--scale)) var(--type);
   text-align: center;
   color: var(--ink-2);
   font-variant-numeric: tabular-nums;

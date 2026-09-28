@@ -1,6 +1,6 @@
 # Spaces
 
-**[⬇ Download Spaces for Mac (.dmg)](https://github.com/bhagathon/spaces-by-bhag/releases/latest/download/Spaces-1.2.2.dmg)** · [All releases](https://github.com/bhagathon/spaces-by-bhag/releases)
+**[⬇ Download Spaces for Mac (.dmg)](https://github.com/bhagathon/spaces-by-bhag/releases/latest/download/Spaces-1.2.3.dmg)** · [All releases](https://github.com/bhagathon/spaces-by-bhag/releases)
 
 <p>
   <img src="docs/panel.png" width="300" alt="The Spaces side panel: this window's Space as a typed index card, other Spaces filed below as card tops">
@@ -47,6 +47,7 @@ Keys (side panel):
 | `V` | Flip the card to its resources |
 | `⌥⇧S` | Open the side panel |
 | `⌘⇧S` | Go to this window's home tab (or open the full catalog) |
+| `⌘+` `⌘−` `⌘0` | Panel text size: bigger, smaller, default |
 
 ## Features
 
@@ -65,6 +66,7 @@ Keys (side panel):
   - Team workspaces support owner, editor and viewer roles, enforced by the server.
   - Conflicts: a Space open in a window keeps the window's tabs. For other Spaces, if two devices edit the same one, both versions are kept (one becomes a "conflict copy"). Resources are merged item by item.
   - History snapshots stay on each device and aren't synced.
+- **Text size.** Settings → Display sets the side panel's text size: Small, Default, Large or Larger (90–130%). ⌘+ and ⌘− also change it in the panel. Everything scales together, so typed entries stay on their ruled lines. The dashboard follows Chrome's own zoom instead.
 - **Backup.** Settings → Backup exports every Space and its resources to a JSON file. Import only adds Spaces you don't already have; it never overwrites or deletes. Deleting a Space shows an **Undo** for 10 seconds.
 - **Safety rules learned from Tabox's issue tracker:**
   - Sync only deletes a Space when the server recorded the deletion (a tombstone). A Space merely missing from the server is re-uploaded, not deleted.

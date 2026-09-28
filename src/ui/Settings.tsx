@@ -7,6 +7,7 @@ import { send } from './api';
 import { getStorage } from '../storage';
 import { buildBackup, importBackup } from '../shared/backup';
 import type { Notice } from './notice';
+import { getTextScale, setTextScale, TEXT_SCALES, type TextScale } from './textScale';
 import { fetchLatestVersion, isNewer, type UpdateResult } from '../shared/update';
 import { disconnect, GCAL_CLIENT_ID_KEY, GCAL_CONNECTED_KEY, getToken, redirectUri } from '../shared/gcal';
 
@@ -38,6 +39,7 @@ export function Settings({ onError, onNotice }: { onError: (e: string) => void; 
 
   return (
     <form className="settings" onSubmit={e => e.preventDefault()}>
+      <DisplaySettings />
       <fieldset>
         <legend>Switching</legend>
         <Check label="Keep pinned tabs across all Spaces" checked={switcher.keepPinnedAcrossSpaces} onChange={v => saveSwitcher({ keepPinnedAcrossSpaces: v })} />
@@ -365,6 +367,42 @@ function UpdateSettings() {
       </div>
       <p className="hint">
         Log: <code>~/Library/Logs/Spaces-updater.log</code>
+      </p>
+    </fieldset>
+  );
+}
+
+function DisplaySettings() {
+  const [scale, setScale] = useState<TextScale | null>(null);
+  useEffect(() => {
+    void getTextScale().then(setScale);
+    const onChanged = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
+      if (area === 'local' && 'textScale' in changes) void getTextScale().then(setScale);
+    };
+    chrome.storage.onChanged.addListener(onChanged);
+    return () => chrome.storage.onChanged.removeListener(onChanged);
+  }, []);
+  if (scale == null) return null;
+  return (
+    <fieldset>
+      <legend>Display</legend>
+      <div className="row" role="group" aria-label="Text size in the side panel">
+        <span className="field">Text size</span>
+        {TEXT_SCALES.map(s => (
+          <button
+            key={s.value}
+            type="button"
+            className={`plate-button${s.value === scale ? '' : ' outline'}`}
+            aria-pressed={s.value === scale}
+            onClick={() => void setTextScale(s.value)}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+      <p className="hint">
+        For the side panel; <kbd>⌘</kbd> <kbd>+</kbd> and <kbd>⌘</kbd> <kbd>−</kbd> change it there too. The full dashboard follows Chrome’s own
+        zoom.
       </p>
     </fieldset>
   );
