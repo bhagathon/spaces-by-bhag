@@ -15,6 +15,8 @@ import { sweep } from './suspender';
 import { onTabLoading, onTabRemoved, setFormGuard, setTabDirty } from './formGuard';
 import { restartSync, startSync, syncNow, syncTick, updatePresence } from './sync';
 import { reloadIfUpdatedOnDisk } from './selfUpdate';
+import { addToSpaceGroup, refreshSpaceGroups } from './spaceGroup';
+import { openDashboard, refreshHomeTabs } from './homeTab';
 
 // All listeners are registered synchronously at top level so MV3 can wake the worker for them.
 
@@ -45,7 +47,10 @@ chrome.idle.onStateChanged.addListener(s => (systemIdle = s));
 
 chrome.alarms.onAlarm.addListener(async ({ name }) => {
   await ready;
-  if (name === 'snapshot') await snapshotAllWindows();
+  if (name === 'snapshot') {
+    await snapshotAllWindows();
+    await refreshSpaceGroups(); // picks up renames and deletions synced from other devices
+  }
   else if (name === 'suspend-sweep' && systemIdle !== 'locked') await sweep();
   else if (name === 'prune') await pruneSnapshots();
   else if (name === 'sync') await syncTick();
@@ -53,7 +58,7 @@ chrome.alarms.onAlarm.addListener(async ({ name }) => {
 });
 
 chrome.commands.onCommand.addListener(command => {
-  if (command === 'open-dashboard') void chrome.tabs.create({ url: chrome.runtime.getURL('dashboard.html') });
+  if (command === 'open-dashboard') void openDashboard();
 });
 
 // Debounced auto-save of the attached Space. Ignored mid-switch, when the
@@ -72,14 +77,25 @@ function scheduleSave(windowId: number) {
 }
 const onTabChange = (windowId: number) => void ready.then(() => scheduleSave(windowId));
 
-chrome.tabs.onCreated.addListener(t => onTabChange(t.windowId));
+// A new tab joins the Space group. Wait a beat: a tab opened from a link in a group
+// is put in that group just after it's created, and that group should win.
+const joinSpaceGroup = (tabId: number) =>
+  setTimeout(() => void ready.then(() => chrome.tabs.get(tabId)).then(addToSpaceGroup).catch(() => {}), 250);
+
+chrome.tabs.onCreated.addListener(t => {
+  onTabChange(t.windowId);
+  if (t.id !== undefined) joinSpaceGroup(t.id);
+});
 chrome.tabs.onUpdated.addListener((id, info, t) => {
   if (info.status === 'loading') void onTabLoading(id);
   if (info.url || info.title || info.pinned !== undefined || info.groupId !== undefined) onTabChange(t.windowId);
 });
 chrome.tabs.onMoved.addListener((_id, { windowId }) => onTabChange(windowId));
 chrome.tabs.onActivated.addListener(({ windowId }) => onTabChange(windowId));
-chrome.tabs.onAttached.addListener((_id, { newWindowId }) => onTabChange(newWindowId));
+chrome.tabs.onAttached.addListener((id, { newWindowId }) => {
+  onTabChange(newWindowId);
+  joinSpaceGroup(id);
+});
 chrome.tabs.onDetached.addListener((_id, { oldWindowId }) => onTabChange(oldWindowId));
 chrome.tabs.onRemoved.addListener((id, { windowId, isWindowClosing }) => {
   void onTabRemoved(id);
@@ -125,8 +141,15 @@ async function handle(msg: Request, sender: chrome.runtime.MessageSender): Promi
       return syncNow();
     case 'syncConfigChanged':
       return restartSync();
+    case 'refreshSpaceGroups':
+      return refreshSpaceGroups();
   }
 }
+
+// The Space group and home tab settings apply to open windows as soon as they change.
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && 'switcher' in changes) void ready.then(refreshHomeTabs).then(refreshSpaceGroups);
+});
 
 chrome.runtime.onMessage.addListener((msg: Request, sender, reply: (r: Response) => void) => {
   handle(msg, sender).then(

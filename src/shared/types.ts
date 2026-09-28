@@ -98,6 +98,8 @@ export interface WindowState {
   detached?: boolean;
   phase: 'idle' | 'capturing' | 'opening' | 'closing' | 'grouping';
   switchId?: string;
+  /** The tab group that labels this window with its Space's name. Never saved into the Space. */
+  groupId?: number;
 }
 
 export interface SuspendSettings {
@@ -129,6 +131,10 @@ export interface SwitcherSettings {
   keepPinnedAcrossSpaces: boolean;
   /** Discard background tabs right after a switch so they load on first click. */
   lazyLoad: boolean;
+  /** Put the window's ungrouped tabs in a tab group named after its Space. */
+  showSpaceGroup: boolean;
+  /** Keep the Spaces dashboard as a pinned first tab in every Space window. */
+  homeTab: boolean;
 }
 
 /** Messages the UI sends to the service worker. */
@@ -141,7 +147,8 @@ export type Request =
   | { type: 'formDirty'; dirty: boolean }
   | { type: 'setFormGuard'; enabled: boolean }
   | { type: 'syncNow' }
-  | { type: 'syncConfigChanged' };
+  | { type: 'syncConfigChanged' }
+  | { type: 'refreshSpaceGroups' };
 
 export type Response<T = unknown> = { ok: true; value?: T } | { ok: false; error: string };
 

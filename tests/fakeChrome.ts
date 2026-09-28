@@ -139,11 +139,11 @@ export function installFakeChrome() {
         if (!t) throw new Error(`No tab with id: ${id}`);
         return clone(t);
       },
-      async create(p: { windowId: number; url: string; pinned?: boolean; active?: boolean }) {
+      async create(p: { windowId: number; url: string; pinned?: boolean; active?: boolean; index?: number }) {
         if (p.url.startsWith('file:')) throw new Error('Cannot access file URL');
         const tab = makeTab(p.windowId, { url: p.url, pinned: !!p.pinned, title: p.url });
         const tabs = windowTabs(p.windowId);
-        const insertAt = p.pinned ? tabs.filter(t => t.pinned).length : tabs.length;
+        const insertAt = p.index ?? (p.pinned ? tabs.filter(t => t.pinned).length : tabs.length);
         const globalIndex = insertAt < tabs.length ? fake.tabs.indexOf(tabs[insertAt]) : fake.tabs.length;
         fake.tabs.splice(globalIndex, 0, tab);
         if (p.active) for (const t of windowTabs(p.windowId)) t.active = t === tab;
@@ -155,6 +155,7 @@ export function installFakeChrome() {
         for (const id of list) if (!fake.tabs.some(t => t.id === id)) throw new Error(`No tab with id: ${id}`);
         const affected = new Set(fake.tabs.filter(t => list.includes(t.id!)).map(t => t.windowId));
         fake.tabs = fake.tabs.filter(t => !list.includes(t.id!));
+        for (const id of fake.groups.keys()) if (!fake.tabs.some(t => t.groupId === id)) fake.groups.delete(id);
         for (const w of affected) {
           const left = windowTabs(w);
           fake.minTabsAfterRemove = Math.min(fake.minTabsAfterRemove, left.length);
@@ -170,16 +171,26 @@ export function installFakeChrome() {
         if (props.autoDiscardable !== undefined) tab.autoDiscardable = props.autoDiscardable;
         return clone(tab);
       },
-      async group({ tabIds, createProperties }: { tabIds: number[]; createProperties: { windowId: number } }) {
-        const id = fake.nextId++;
-        fake.groups.set(id, { id, windowId: createProperties.windowId, title: '', color: 'grey', collapsed: false });
-        for (const t of fake.tabs) if (tabIds.includes(t.id!)) t.groupId = id;
+      async group({ tabIds, groupId, createProperties }: { tabIds: number[]; groupId?: number; createProperties?: { windowId: number } }) {
+        const ids = Array.isArray(tabIds) ? tabIds : [tabIds];
+        let id = groupId;
+        if (id === undefined) {
+          id = fake.nextId++;
+          const windowId = createProperties?.windowId ?? fake.tabs.find(t => t.id === ids[0])!.windowId;
+          fake.groups.set(id, { id, windowId, title: '', color: 'grey', collapsed: false });
+        } else if (!fake.groups.has(id)) throw new Error(`No group with id: ${id}`);
+        for (const t of fake.tabs) if (ids.includes(t.id!)) {
+          if (t.pinned) throw new Error('Cannot group pinned tabs');
+          t.groupId = id;
+        }
         return id;
       },
       async ungroup(ids: number | number[]) {
         const list = Array.isArray(ids) ? ids : [ids];
         fake.ungrouped.push(...list);
         for (const t of fake.tabs) if (list.includes(t.id!)) t.groupId = -1;
+        // Chrome deletes a group once its last tab leaves.
+        for (const id of fake.groups.keys()) if (!fake.tabs.some(t => t.groupId === id)) fake.groups.delete(id);
       },
       async discard(id: number) {
         const t = fake.tabs.find(x => x.id === id);

@@ -10,6 +10,8 @@ let store: LocalStorageProvider;
 beforeEach(async () => {
   resetFake();
   resetStateForTests();
+  // These cover switching itself; the Space group and home tab have their own tests.
+  fake.local.switcher = { showSpaceGroup: false, homeTab: false };
   store = new LocalStorageProvider(`test-${crypto.randomUUID()}`);
   await store.init();
   setStorageForTests(store);

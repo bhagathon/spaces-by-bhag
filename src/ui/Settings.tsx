@@ -7,6 +7,7 @@ import { send } from './api';
 import { getStorage } from '../storage';
 import { buildBackup, importBackup } from '../shared/backup';
 import type { Notice } from './notice';
+import { disconnect, GCAL_CLIENT_ID_KEY, GCAL_CONNECTED_KEY, getToken, redirectUri } from '../shared/gcal';
 
 export function Settings({ onError, onNotice }: { onError: (e: string) => void; onNotice: (n: Notice) => void }) {
   const [suspend, setSuspend] = useState<SuspendSettings | null>(null);
@@ -40,6 +41,9 @@ export function Settings({ onError, onNotice }: { onError: (e: string) => void; 
         <legend>Switching</legend>
         <Check label="Keep pinned tabs across all Spaces" checked={switcher.keepPinnedAcrossSpaces} onChange={v => saveSwitcher({ keepPinnedAcrossSpaces: v })} />
         <Check label="Load background tabs only when clicked" checked={switcher.lazyLoad} onChange={v => saveSwitcher({ lazyLoad: v })} />
+        <Check label="Show each window’s Space as a tab group" checked={switcher.showSpaceGroup} onChange={v => saveSwitcher({ showSpaceGroup: v })} />
+        <p className="hint">Tabs already in a group you made stay in it; Chrome can’t put a group inside another group.</p>
+        <Check label="Pin a Spaces home tab in each Space window" checked={switcher.homeTab} onChange={v => saveSwitcher({ homeTab: v })} />
       </fieldset>
       <fieldset>
         <legend>Tab suspension</legend>
@@ -76,7 +80,20 @@ export function Settings({ onError, onNotice }: { onError: (e: string) => void; 
         <FormGuardToggle onError={onError} />
       </fieldset>
       <SyncSettings onError={onError} />
+      <CalendarSettings onError={onError} />
       <BackupSettings onError={onError} onNotice={onNotice} />
+      <fieldset>
+        <legend>Side panel</legend>
+        <p className="hint">
+          Chrome picks which side the panel opens on, and extensions can’t change it. Switch it under “Side panel” in Chrome’s Appearance
+          settings. That moves every side panel, not just Spaces.
+        </p>
+        <div className="row">
+          <button type="button" className="plate-button outline" onClick={() => void chrome.tabs.create({ url: 'chrome://settings/appearance' })}>
+            Open Appearance settings
+          </button>
+        </div>
+      </fieldset>
     </form>
   );
 }
@@ -205,6 +222,86 @@ function SyncSettings({ onError }: { onError: (e: string) => void }) {
           {status.error ? ` · ${status.error}` : ''}
         </p>
       )}
+    </fieldset>
+  );
+}
+
+function CalendarSettings({ onError }: { onError: (e: string) => void }) {
+  const [clientId, setClientId] = useState('');
+  const [connected, setConnected] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    void chrome.storage.local.get([GCAL_CLIENT_ID_KEY, GCAL_CONNECTED_KEY]).then(r => {
+      setClientId((r[GCAL_CLIENT_ID_KEY] as string) ?? '');
+      setConnected(r[GCAL_CONNECTED_KEY] === true);
+    });
+  }, []);
+
+  const connect = async () => {
+    setBusy(true);
+    try {
+      await chrome.storage.local.set({ [GCAL_CLIENT_ID_KEY]: clientId.trim() });
+      await getToken({ interactive: true });
+      setConnected(true);
+    } catch (e) {
+      onError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const disconnectNow = async () => {
+    setBusy(true);
+    await disconnect().catch(() => {});
+    setConnected(false);
+    setBusy(false);
+  };
+
+  return (
+    <fieldset>
+      <legend>Google Calendar</legend>
+      <p className="hint">
+        Shows today’s meetings on the home tab, and the next one in the panel. Read-only; events are fetched straight from Google and
+        never stored or synced.
+      </p>
+      {!connected && (
+        <ol className="hint steps">
+          <li>
+            In Google Cloud Console, enable the Google Calendar API and create an OAuth client of type <em>Web application</em>.
+          </li>
+          <li>
+            Add this as an authorized redirect URI: <code className="copyable">{redirectUri()}</code>
+          </li>
+          <li>If the consent screen is in testing, add your Google account as a test user.</li>
+          <li>Paste the client ID below and connect.</li>
+        </ol>
+      )}
+      <label className="field stacked">
+        OAuth client ID
+        <input
+          className="typed-input"
+          placeholder="1234-abc.apps.googleusercontent.com"
+          value={clientId}
+          disabled={connected}
+          spellCheck={false}
+          onChange={e => setClientId(e.target.value)}
+        />
+      </label>
+      <div className="row">
+        {connected ? (
+          <>
+            <span className="stamp stamp-here">Connected</span>
+            <button type="button" className="text-button" disabled={busy} onClick={() => void disconnectNow()}>
+              Disconnect
+            </button>
+          </>
+        ) : (
+          <button type="button" className="plate-button" disabled={busy || !clientId.trim()} onClick={() => void connect()}>
+            {busy ? 'Connecting…' : 'Connect Google Calendar'}
+          </button>
+        )}
+      </div>
     </fieldset>
   );
 }

@@ -33,7 +33,9 @@ const check = (name, ok, detail) => {
 try {
   const sw = ctx.serviceWorkers()[0] ?? (await ctx.waitForEvent('serviceworker'));
   const extId = new URL(sw.url()).host;
-  if (!DISCARD) await sw.evaluate(() => chrome.storage.local.set({ switcher: { lazyLoad: false }, suspender: { enabled: false } }));
+  // The Space group and home tab have their own test (spacegroup.mjs); this one checks switching itself.
+  const switcher = DISCARD ? { showSpaceGroup: false, homeTab: false } : { lazyLoad: false, showSpaceGroup: false, homeTab: false };
+  await sw.evaluate(({ switcher, keepSuspender }) => chrome.storage.local.set(keepSuspender ? { switcher } : { switcher, suspender: { enabled: false } }), { switcher, keepSuspender: DISCARD });
   const api = fn => sw.evaluate(fn);
   const apiArg = (fn, arg) => sw.evaluate(fn, arg);
 

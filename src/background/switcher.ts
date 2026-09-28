@@ -4,9 +4,10 @@ import { getSwitcherSettings } from '../shared/settings';
 import { canEdit, type SavedGroup, type SavedTab, type Space } from '../shared/types';
 import { isSafeUrl } from '../shared/url';
 import { allStates, getState, setState, withWindowLock } from './state';
+import { ensureSpaceGroup, removeSpaceGroup } from './spaceGroup';
+import { dashboardUrl, ensureHomeTab, isHomeTab } from './homeTab';
 
 const NONE = chrome.tabGroups.TAB_GROUP_ID_NONE;
-const dashboardUrl = () => chrome.runtime.getURL('dashboard.html');
 
 function isRestorable(url?: string): url is string {
   return (
@@ -28,11 +29,14 @@ export interface Capture {
 export async function captureWindow(windowId: number): Promise<Capture> {
   const { keepPinnedAcrossSpaces } = await getSwitcherSettings();
   const tabs = await chrome.tabs.query({ windowId });
-  const owned = tabs.filter(t => !(keepPinnedAcrossSpaces && t.pinned));
+  const owned = tabs.filter(t => !(keepPinnedAcrossSpaces && t.pinned) && !isHomeTab(t));
+  // The Space group labels the window; its tabs are saved as ungrouped.
+  const spaceGroup = getState(windowId).groupId;
+  const groupOf = (t: chrome.tabs.Tab) => (t.groupId === spaceGroup ? NONE : t.groupId);
 
   // Keys are assigned by order of appearance so identical layouts produce identical captures.
   const keyFor = new Map<number, string>();
-  for (const t of owned) if (t.groupId !== NONE && !keyFor.has(t.groupId)) keyFor.set(t.groupId, `g${keyFor.size}`);
+  for (const t of owned) if (groupOf(t) !== NONE && !keyFor.has(t.groupId)) keyFor.set(t.groupId, `g${keyFor.size}`);
 
   const groups: SavedGroup[] = await Promise.all(
     [...keyFor].map(async ([id, key]) => {
@@ -53,7 +57,7 @@ export async function captureWindow(windowId: number): Promise<Capture> {
       // Inline data: favicons can be tens of KB each; keep synced documents small.
       favIconUrl: t.favIconUrl?.startsWith('data:') ? undefined : t.favIconUrl,
       pinned: t.pinned,
-      groupKey: t.groupId !== NONE ? keyFor.get(t.groupId) : undefined,
+      groupKey: groupOf(t) !== NONE ? keyFor.get(t.groupId) : undefined,
     });
   }
   return { tabs: saved, groups, activeIndex, ownedTabIds: owned.map(t => t.id!) };
@@ -91,6 +95,8 @@ export async function createSpaceFromWindow(windowId: number, name: string, work
     const res = await store.putSpace({ id: newId(), workspaceId, name, tabs, groups, activeIndex });
     if (!res.ok) throw new Error('Unexpected conflict creating a Space');
     await setState(windowId, { spaceId: res.space.id, detached: false });
+    await ensureHomeTab(windowId).catch(() => {});
+    await ensureSpaceGroup(windowId).catch(() => {});
     return res.space;
   });
 }
@@ -98,6 +104,7 @@ export async function createSpaceFromWindow(windowId: number, name: string, work
 export async function detachWindow(windowId: number) {
   return withWindowLock(windowId, async () => {
     await saveWindowToSpace(windowId);
+    await removeSpaceGroup(windowId);
     await setState(windowId, { spaceId: null, detached: true });
   });
 }
@@ -175,8 +182,10 @@ export function switchSpace(windowId: number, targetSpaceId: string): Promise<Sw
       const { ownedTabIds } = await captureWindow(windowId);
 
       await setState(windowId, { phase: 'opening' });
+      const homeId = (await chrome.tabs.query({ windowId })).find(isHomeTab)?.id;
       const openable = target.tabs.filter(t => isSafeUrl(t.url));
-      const source: SavedTab[] = openable.length ? target.tabs : [{ url: dashboardUrl(), pinned: false }];
+      // The window must never be left empty; the home tab (kept across switches) is enough.
+      const source: SavedTab[] = openable.length ? target.tabs : homeId !== undefined ? [] : [{ url: dashboardUrl(), pinned: false }];
       for (const t of source) {
         // Sequential creation keeps tab order deterministic. A single bad URL
         // (e.g. file:// without permission) is skipped instead of failing the switch.
@@ -186,7 +195,7 @@ export function switchSpace(windowId: number, targetSpaceId: string): Promise<Sw
         created.push(tab?.id);
       }
       const createdIds = created.filter((id): id is number => id !== undefined);
-      if (!createdIds.length) {
+      if (!createdIds.length && homeId === undefined) {
         createdIds.push((await chrome.tabs.create({ windowId, url: dashboardUrl(), active: false })).id!);
       }
 
@@ -200,9 +209,10 @@ export function switchSpace(windowId: number, targetSpaceId: string): Promise<Sw
       const grouped = current.filter(t => toRemove.includes(t.id!) && t.groupId !== NONE).map(t => t.id!);
       if (grouped.length) await chrome.tabs.ungroup(grouped as [number, ...number[]]).catch(() => {});
       if (toRemove.length) await chrome.tabs.remove(toRemove);
+      await setState(windowId, { groupId: undefined }); // the outgoing Space group went with its tabs
 
       await setState(windowId, { phase: 'grouping' });
-      const activeTabId = created[Math.min(target.activeIndex, created.length - 1)] ?? createdIds[0];
+      const activeTabId = created[Math.min(target.activeIndex, created.length - 1)] ?? createdIds[0] ?? homeId!;
       await chrome.tabs.update(activeTabId, { active: true });
 
       for (const g of target.groups) {
@@ -216,6 +226,9 @@ export function switchSpace(windowId: number, targetSpaceId: string): Promise<Sw
           collapsed: g.collapsed && !tabIds.includes(activeTabId),
         });
       }
+
+      await ensureHomeTab(windowId, targetSpaceId).catch(() => {});
+      await ensureSpaceGroup(windowId, targetSpaceId).catch(() => {});
 
       if (lazyLoad) {
         void Promise.all(
@@ -305,6 +318,8 @@ export async function reattachWindows() {
     if (best) {
       claimed.add(best.id);
       await setState(w.id!, { spaceId: best.id });
+      await ensureHomeTab(w.id!).catch(() => {});
+      await ensureSpaceGroup(w.id!).catch(() => {});
     }
   }
 }

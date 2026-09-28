@@ -1,6 +1,7 @@
 import { getSuspendSettings, SUSPENSION_LOG_KEY } from '../shared/settings';
 import type { SuspensionRecord } from '../shared/types';
 import { isBusy } from './state';
+import { isSpaceGroup } from './spaceGroup';
 
 const LOG_MAX = 500;
 const PRESSURE_THRESHOLD = 0.85;
@@ -47,7 +48,8 @@ export async function sweep(now = Date.now(), { force = false } = {}) {
     if (isBusy(tab.windowId)) continue; // never race the switcher
     if (s.skipPinned && tab.pinned) continue;
     if (s.skipAudible && tab.audible) continue;
-    if (s.skipGrouped && tab.groupId !== chrome.tabGroups.TAB_GROUP_ID_NONE) continue;
+    // The Space group holds nearly every tab, so it doesn't count as the user grouping a tab.
+    if (s.skipGrouped && tab.groupId !== chrome.tabGroups.TAB_GROUP_ID_NONE && !isSpaceGroup(tab.windowId, tab.groupId)) continue;
     if (hostMatches(tab.url, s.neverSuspend)) continue;
     const lastAccessed = tab.lastAccessed ?? now;
     if (!force && now - lastAccessed < idleMs) continue;

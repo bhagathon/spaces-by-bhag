@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode, type RefObject } from 'react';
 import { useAtomValue } from 'jotai';
 import { currentSpaceIdAtom, openSpacesAtom, presenceAtom, spacesAtom, windowIdAtom, workspacesAtom } from './atoms';
+import { Agenda } from './Agenda';
 import { getStorage, PERSONAL_WORKSPACE_ID } from '../storage';
 import { send } from './api';
 import { canEdit, type GroupColor, type PresenceUser, type Space, type Workspace } from '../shared/types';
@@ -322,7 +323,8 @@ export function Drawer({
     return (
       <div className="dash-grid">
         <div className="dash-side">{drawer}</div>
-        <div>{pulledCard}</div>
+        <div className="dash-main">{pulledCard}</div>
+        <Agenda />
       </div>
     );
   }
@@ -396,7 +398,10 @@ function PulledCard({
       for (let attempt = 0; attempt < 3; attempt++) {
         const latest = (await store.getSpace(space.id)) ?? space;
         const { rev: _rev, updatedAt: _u, ...input } = latest;
-        if ((await store.putSpace({ ...input, name: trimmed }, latest.rev)).ok) return;
+        if ((await store.putSpace({ ...input, name: trimmed }, latest.rev)).ok) {
+          void send({ type: 'refreshSpaceGroups' }).catch(() => {}); // retitle the Space's tab group
+          return;
+        }
       }
       throw new Error('Could not rename: the Space kept changing. Try again.');
     } catch (e) {
@@ -411,6 +416,7 @@ function PulledCard({
       const resources = await store.getResources(space.id);
       if (isHere && windowId != null) await send({ type: 'detachWindow', windowId });
       await store.deleteSpace(space.id);
+      void send({ type: 'refreshSpaceGroups' }).catch(() => {}); // ungroup it in any other window
       const { rev: _rev, updatedAt: _u, ...input } = space;
       onNotice({
         text: `Deleted “${space.name}”.`,

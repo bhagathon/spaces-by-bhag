@@ -5,6 +5,7 @@ import { Drawer } from './Drawer';
 import { History } from './History';
 import { Suspension } from './Suspension';
 import { Settings } from './Settings';
+import { NextUp } from './Agenda';
 import { CabinetIcon, CloseIcon } from './Icons';
 import type { Notice } from './notice';
 
@@ -78,7 +79,7 @@ export function App({ view }: { view: 'panel' | 'dashboard' }) {
       </nav>
 
       {error && (
-        <div className="slip slip-error" role="alert">
+        <div key={error} className="slip slip-error" role="alert">
           <span>{error}</span>
           <span className="slip-actions">
             <button className="icon-button" onClick={() => setError(null)} aria-label="Dismiss">
@@ -88,7 +89,7 @@ export function App({ view }: { view: 'panel' | 'dashboard' }) {
         </div>
       )}
       {notice && (
-        <div className="slip" role="status">
+        <div key={notice.text} className="slip" role="status">
           <span>{notice.text}</span>
           <span className="slip-actions">
             {notice.action && (
@@ -111,6 +112,7 @@ export function App({ view }: { view: 'panel' | 'dashboard' }) {
       )}
 
       <main>
+        {tab === 'drawer' && view === 'panel' && <NextUp />}
         {tab === 'drawer' && <Drawer view={view} query={query} setQuery={setQuery} filterRef={filterRef} onError={setError} onNotice={setNotice} />}
         {tab === 'history' && <History onError={setError} />}
         {tab === 'suspension' && <Suspension onError={setError} />}
@@ -130,8 +132,12 @@ function SyncStamp() {
     error: ['Sync error', 'stamp-error'],
   }[status.state] as [string, string];
   return (
-    <span className={`stamp ${cls}`} role="status" title={status.error ?? (status.lastSyncAt ? `Last synced ${new Date(status.lastSyncAt).toLocaleTimeString()}` : undefined)}>
-      {label}
+    // The live region stays mounted so screen readers announce changes; only the stamp inside re-mounts,
+    // keyed by state (not the pending count), so it presses on only when the state changes.
+    <span className="stamps" role="status">
+      <span key={status.state + cls} className={`stamp stamp-press ${cls}`} title={status.error ?? (status.lastSyncAt ? `Last synced ${new Date(status.lastSyncAt).toLocaleTimeString()}` : undefined)}>
+        {label}
+      </span>
     </span>
   );
 }

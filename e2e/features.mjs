@@ -57,7 +57,7 @@ const ctx = await chromium.launchPersistentContext(mkdtempSync(path.join(tmpdir(
 try {
   const sw = ctx.serviceWorkers()[0] ?? (await ctx.waitForEvent('serviceworker'));
   const extId = new URL(sw.url()).host;
-  await sw.evaluate(() => chrome.storage.local.set({ switcher: { lazyLoad: false }, suspender: { enabled: false } }));
+  await sw.evaluate(() => chrome.storage.local.set({ switcher: { lazyLoad: false, showSpaceGroup: false, homeTab: false }, suspender: { enabled: false } }));
 
   const w1 = await sw.evaluate(async base => (await chrome.windows.create({ url: [`${base}/a`, `${base}/b`] })).id, base);
   await wait(800);
