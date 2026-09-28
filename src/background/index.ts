@@ -31,9 +31,13 @@ function setupAlarms() {
   chrome.alarms.create('self-update', { periodInMinutes: 10 });
 }
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(({ reason }) => {
   setupAlarms();
   void chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+  // An update reloads the extension, which clears the session record of which window holds
+  // which Space. Clear leftover Space groups first (so none is saved as the user's), then
+  // re-attach open windows the way a browser restart does.
+  if (reason === 'update') void ready.then(refreshSpaceGroups).then(reattachWindows).then(updatePresence);
 });
 
 chrome.runtime.onStartup.addListener(() => {

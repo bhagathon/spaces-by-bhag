@@ -29,7 +29,7 @@ const ctx = await chromium.launchPersistentContext(mkdtempSync(path.join(tmpdir(
 try {
   const sw = ctx.serviceWorkers()[0] ?? (await ctx.waitForEvent('serviceworker'));
   const extId = new URL(sw.url()).host;
-  await sw.evaluate(() => chrome.storage.local.set({ switcher: { lazyLoad: false }, suspender: { enabled: false } }));
+  await sw.evaluate(() => chrome.storage.local.set({ switcher: { lazyLoad: false, showSpaceGroup: true }, suspender: { enabled: false } }));
   const ui = await ctx.newPage();
   await ui.goto(`chrome-extension://${extId}/dashboard.html`);
   const send = m => ui.evaluate(x => chrome.runtime.sendMessage(x), m);
@@ -84,9 +84,34 @@ try {
   await wait(1000);
   check('Work comes back in its saved order with its own group', JSON.stringify(await strip(w1)) === JSON.stringify(['📌/dashboard.html', '/a{Work}', '/b{Docs}', '/c', '/d']), await strip(w1));
 
-  await sw.evaluate(() => chrome.storage.local.set({ switcher: { lazyLoad: false, showSpaceGroup: false, homeTab: false } }));
+  // What an update does to state: the setting goes back to its default (off) and the session record
+  // of which group labels which window is wiped. (A real chrome.runtime.reload() unloads a
+  // --load-extension extension in Playwright's Chromium, so stop the worker instead; it rehydrates empty.)
+  await sw.evaluate(() => chrome.storage.local.set({ switcher: { lazyLoad: false } }));
+  await sw.evaluate(() => chrome.storage.session.clear());
+  const cdp = await ctx.newCDPSession(ui);
+  await cdp.send('ServiceWorker.enable');
+  await cdp.send('ServiceWorker.stopAllWorkers');
+  await ui.close();
+  const sw2 = await ctx.newPage();
+  await sw2.goto(`chrome-extension://${extId}/panel.html`);
+  const strip2 = w => sw2.evaluate(async w => {
+    const tabs = await chrome.tabs.query({ windowId: w });
+    const titles = {};
+    for (const g of new Set(tabs.map(t => t.groupId).filter(g => g !== -1))) titles[g] = (await chrome.tabGroups.get(g)).title;
+    return tabs.map(t => `${t.pinned ? '📌' : ''}${new URL(t.url || t.pendingUrl).pathname}${t.groupId !== -1 ? `{${titles[t.groupId]}}` : ''}`);
+  }, w).then(list => list.filter(x => x !== '/panel.html')); // this test's own page may open in w1
+  const want = JSON.stringify(['📌/dashboard.html', '/a', '/b{Docs}', '/c', '/d']);
+  let after;
+  for (let i = 0; i < 80 && JSON.stringify(after) !== want; i++) {
+    after = await strip2(w1);
+    if (JSON.stringify(after) !== want) await wait(1000);
+  }
+  check('with state lost, the minute tick ungroups the leftover Space group and keeps the user group', JSON.stringify(after) === want, after);
+
+  await sw2.evaluate(() => chrome.storage.local.set({ switcher: { lazyLoad: false, showSpaceGroup: false, homeTab: false } }));
   await wait(1000);
-  check('turning both off removes the group and the home tab', JSON.stringify(await strip(w1)) === JSON.stringify(['/a', '/b{Docs}', '/c', '/d']), await strip(w1));
+  check('turning the home tab off removes it', JSON.stringify(await strip2(w1)) === JSON.stringify(['/a', '/b{Docs}', '/c', '/d']), await strip2(w1));
 } finally {
   await ctx.close();
   pages.close();

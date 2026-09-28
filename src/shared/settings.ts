@@ -13,7 +13,7 @@ export const SUSPEND_DEFAULTS: SuspendSettings = {
 export const SWITCHER_DEFAULTS: SwitcherSettings = {
   keepPinnedAcrossSpaces: true,
   lazyLoad: true,
-  showSpaceGroup: true,
+  showSpaceGroup: false,
   homeTab: true,
 };
 

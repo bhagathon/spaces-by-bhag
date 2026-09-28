@@ -93,4 +93,24 @@ export async function refreshSpaceGroups() {
   for (const [windowId, s] of [...allStates()]) {
     if (!isBusy(windowId) && (s.spaceId || s.groupId !== undefined)) await ensureSpaceGroup(windowId).catch(() => {});
   }
+  if (!(await getSwitcherSettings()).showSpaceGroup) await dissolveLeftoverSpaceGroups().catch(() => {});
+}
+
+/**
+ * With the setting off, ungroup any Space group this worker has lost track of. Reloading
+ * the extension (as every update does) clears which group labels which window, and a
+ * leftover group would otherwise be saved into the Space as if the user had made it.
+ * A Space group is recognised by its Space's name and colour.
+ */
+async function dissolveLeftoverSpaceGroups() {
+  const tabs = (await chrome.tabs.query({})).filter(t => t.groupId !== NONE);
+  if (!tabs.length) return;
+  const store = await getStorage();
+  const spaces = (await Promise.all((await store.listWorkspaces()).map(w => store.listSpaces(w.id)))).flat();
+  const isLeftover = new Set(spaces.map(s => `${s.name}\u0000${colorFor(s.id)}`));
+  for (const id of new Set(tabs.map(t => t.groupId))) {
+    const g = await chrome.tabGroups.get(id).catch(() => undefined);
+    if (!g || !isLeftover.has(`${g.title}\u0000${g.color}`)) continue;
+    await chrome.tabs.ungroup(tabs.filter(t => t.groupId === id).map(t => t.id!) as [number, ...number[]]).catch(() => {});
+  }
 }

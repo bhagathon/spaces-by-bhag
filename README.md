@@ -1,6 +1,6 @@
 # Spaces
 
-**[⬇ Download Spaces for Mac (.dmg)](https://github.com/bhagathon/spaces-by-bhag/releases/latest/download/Spaces-1.2.0.dmg)** · [All releases](https://github.com/bhagathon/spaces-by-bhag/releases)
+**[⬇ Download Spaces for Mac (.dmg)](https://github.com/bhagathon/spaces-by-bhag/releases/latest/download/Spaces-1.2.1.dmg)** · [All releases](https://github.com/bhagathon/spaces-by-bhag/releases)
 
 <p>
   <img src="docs/panel.png" width="300" alt="The Spaces side panel: this window's Space as a typed index card, other Spaces filed below as card tops">
@@ -52,8 +52,8 @@ Keys (side panel):
 - **Spaces.** Save a window as a Space and switch between Spaces. A switch saves the outgoing tabs, opens the incoming ones, closes the old ones, then restores tab groups and the active tab. The window is never left empty. If a switch fails partway through, it's rolled back.
 - **Lazy loading.** After a switch, background tabs are discarded right away, so each one loads only when you click it.
 - **Pinned tabs.** They stay in place across all Spaces (you can turn this off in Settings).
-- **Space tab group.** A window's loose tabs sit in a Chrome tab group named after its Space, in a colour that stays the same for that Space. Tabs in groups you made stay in them (Chrome can't nest groups), and the group never reorders tabs: a tab only joins it when it's already next to it. The group is never saved into the Space. It follows renames, and disappears when you detach the window or delete the Space.
-- **Home tab.** Every Space window gets the Spaces dashboard as a pinned first tab, like Workona's. Switching never closes it, and it isn't saved into the Space. Its layout follows the tab's width: one column when narrow, the agenda above the drawer at mid widths, and three columns (drawer, card, agenda) on wide screens. If you close it, it comes back on the next switch. Both this and the tab group can be turned off in Settings → Switching.
+- **Space tab group (off by default).** When turned on in Settings → Switching, a window's loose tabs sit in a Chrome tab group named after its Space, in a colour that stays the same for that Space. Tabs in groups you made stay in them (Chrome can't nest groups), and the group never reorders tabs: a tab only joins it when it's already next to it. The group is never saved into the Space. It follows renames, and disappears when you detach the window or delete the Space.
+- **Home tab.** Every Space window gets the Spaces dashboard as a pinned first tab, like Workona's. Switching never closes it, and it isn't saved into the Space. Its layout follows the tab's width: one column when narrow, the agenda above the drawer at mid widths, and three columns (drawer, card, agenda) on wide screens. If you close it, it comes back on the next switch. You can turn it off in Settings → Switching.
 - **Google Calendar (optional).** Today's events on the home tab, with a NOW stamp and a Join link for video calls, and the current or next meeting (within the hour) at the top of the panel. It's read-only and uses your own OAuth client: Settings → Google Calendar lists the steps and shows the redirect URI to register. Events are fetched from Google each time and never stored or synced. The access token lives in session storage and renews silently while you're signed in to Google.
 - **Auto-save.** Tab changes are written to the window's Space after 1.5 s. Closing a window does not empty its Space.
 - **Suspender.** Every minute, background tabs that haven't been viewed for N minutes are discarded. Pinned tabs, tabs playing audio, and sites on the never-suspend list are skipped. When memory is low, the threshold drops to 5 minutes.

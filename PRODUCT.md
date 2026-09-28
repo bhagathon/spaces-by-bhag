@@ -47,7 +47,7 @@ A private, self-hosted equivalent of Workona Pro/Team. It works fully offline fr
   - Automatic discarding of idle background tabs, with a configurable threshold.
   - Exceptions for pinned, audible and grouped tabs, plus a never-suspend site list. A lower threshold applies under memory pressure.
   - A "suspend now" action and a log of suspended tabs.
-- **Window chrome:** each Space window's loose tabs are labelled by a Chrome tab group named after the Space, and a pinned home tab (the dashboard) sits first in every Space window.
+- **Window chrome:** a pinned home tab (the dashboard) sits first in every Space window. Optionally (off by default), loose tabs are labelled by a Chrome tab group named after the Space.
 - **Calendar (optional):** today's Google Calendar events on the home tab and the current/next meeting in the panel; read-only, never stored.
 - **Settings:**
   - Switching: keep pinned tabs across Spaces, lazy-load tabs, Space tab group, home tab.

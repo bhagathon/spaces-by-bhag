@@ -108,6 +108,23 @@ describe('Space tab group', () => {
     expect(tabsOf(w)[0].groupId).toBe(-1);
   });
 
+  it('is off by default, and turning it off after an extension reload still dissolves leftover Space groups', async () => {
+    delete fake.local.switcher;
+    const w0 = addWindow([{ url: 'https://z.com/' }]);
+    await createSpaceFromWindow(w0, 'Plain');
+    expect(fake.groups.size).toBe(0);
+
+    fake.local.switcher = { lazyLoad: false, homeTab: false, showSpaceGroup: true };
+    const w = addWindow([{ url: 'https://a.com/' }, { url: 'https://b.com/' }]);
+    const docs = addGroup(w, ['https://b.com/'], { title: 'Docs', color: 'blue' });
+    await createSpaceFromWindow(w, 'Work');
+    resetStateForTests(); // an update reloads the extension, which clears session state
+    delete fake.local.switcher;
+    await refreshSpaceGroups();
+    expect(fake.tabs.find(t => t.url === 'https://a.com/')!.groupId).toBe(-1);
+    expect(fake.tabs.find(t => t.url === 'https://b.com/')!.groupId).toBe(docs);
+  });
+
   it('adopts the restored group after a browser restart instead of saving it as a user group', async () => {
     const w = addWindow([{ url: 'https://a.com/' }, { url: 'https://b.com/' }]);
     const space = await createSpaceFromWindow(w, 'Work');
