@@ -7,6 +7,7 @@ import { send } from './api';
 import { getStorage } from '../storage';
 import { buildBackup, importBackup } from '../shared/backup';
 import type { Notice } from './notice';
+import { fetchLatestVersion, isNewer, type UpdateResult } from '../shared/update';
 import { disconnect, GCAL_CLIENT_ID_KEY, GCAL_CONNECTED_KEY, getToken, redirectUri } from '../shared/gcal';
 
 export function Settings({ onError, onNotice }: { onError: (e: string) => void; onNotice: (n: Notice) => void }) {
@@ -82,6 +83,7 @@ export function Settings({ onError, onNotice }: { onError: (e: string) => void; 
       <SyncSettings onError={onError} />
       <CalendarSettings onError={onError} />
       <BackupSettings onError={onError} onNotice={onNotice} />
+      <UpdateSettings />
       <fieldset>
         <legend>Side panel</legend>
         <p className="hint">
@@ -302,6 +304,68 @@ function CalendarSettings({ onError }: { onError: (e: string) => void }) {
           </button>
         )}
       </div>
+    </fieldset>
+  );
+}
+
+function UpdateSettings() {
+  const installed = chrome.runtime.getManifest().version;
+  const [latest, setLatest] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [status, setStatus] = useState<{ text: string; problem?: boolean } | null>(null);
+
+  useEffect(() => {
+    void fetchLatestVersion().then(setLatest, () => setLatest(null));
+  }, []);
+
+  const updateNow = async () => {
+    setBusy(true);
+    setStatus(null);
+    try {
+      const r = await send<UpdateResult>({ type: 'updateNow' });
+      setLatest(r.after && isNewer(r.after, latest ?? '0') ? r.after : latest);
+      const logged = r.message.replace(/^\S+ \S+ /, ''); // drop the log line's timestamp
+      if (r.updated) setStatus({ text: `Updated to ${r.after}. Spaces is reloading…` });
+      else if (logged.startsWith('up to date')) setStatus({ text: `You’re on the newest version (${r.after}).` });
+      else setStatus({ text: `The updater said: ${logged || 'nothing'}`, problem: true });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setStatus({
+        problem: true,
+        text: /native messaging host not found/i.test(msg)
+          ? 'The update helper isn’t installed yet. Open the latest Install Spaces app (from the DMG) once to add it.'
+          : msg,
+      });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const behind = latest != null && isNewer(latest, installed);
+  return (
+    <fieldset>
+      <legend>Updates</legend>
+      <p className="hint">
+        Spaces checks for updates at login and every 6 hours. Update now checks right away and installs any new version.
+      </p>
+      <p className="update-versions">
+        <span>Installed {installed}</span>
+        <span>{latest == null ? 'Latest: couldn’t check' : `Latest ${latest}`}</span>
+        {behind && <span className="stamp stamp-pending">Update available</span>}
+      </p>
+      <div className="row">
+        <button type="button" className="plate-button" disabled={busy} onClick={() => void updateNow()}>
+          {busy ? 'Updating…' : 'Update now'}
+        </button>
+        {status && (
+          <span className={`hint${status.problem ? ' update-problem' : ''}`} role="status">
+            {status.text}
+          </span>
+        )}
+      </div>
+      <p className="hint">
+        Log: <code>~/Library/Logs/Spaces-updater.log</code>
+      </p>
     </fieldset>
   );
 }

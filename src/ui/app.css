@@ -761,3 +761,8 @@ a.agenda-name:hover { text-decoration: underline; text-underline-offset: 3px; }
 @media (max-width: 760px) {
   .dash-grid:has(> .dash-agenda) { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'agenda' 'side' 'main'; }
 }
+
+/* ============ Settings: updates ============ */
+
+.update-versions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 0; font: var(--step-0) / var(--line) var(--type); font-variant-numeric: tabular-nums; }
+.update-problem { color: var(--ink); }

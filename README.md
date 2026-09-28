@@ -1,6 +1,6 @@
 # Spaces
 
-**[⬇ Download Spaces for Mac (.dmg)](https://github.com/bhagathon/spaces-by-bhag/releases/latest/download/Spaces-1.2.1.dmg)** · [All releases](https://github.com/bhagathon/spaces-by-bhag/releases)
+**[⬇ Download Spaces for Mac (.dmg)](https://github.com/bhagathon/spaces-by-bhag/releases/latest/download/Spaces-1.2.2.dmg)** · [All releases](https://github.com/bhagathon/spaces-by-bhag/releases)
 
 <p>
   <img src="docs/panel.png" width="300" alt="The Spaces side panel: this window's Space as a typed index card, other Spaces filed below as card tops">
@@ -19,6 +19,7 @@ A personal Chrome extension for switching between saved tab contexts ("Spaces"),
 - The first time, macOS may warn that the app is from an unidentified developer. Right-click it, choose **Open**, then **Open** again.
 - Chrome then needs one confirmation (Developer mode, then Load unpacked). The installer opens the page and copies the folder path for you.
 - After that, updates are automatic. A background task checks Google Cloud Storage at login and every 6 hours, verifies the download's checksum, and swaps in the new files. The extension notices and reloads itself within 10 minutes.
+- To update right away, use **Settings → Updates → Update now**. It shows the installed and latest versions, and asks the same updater to run immediately through a small Chrome native messaging helper that the installer registers. Every check is logged in `~/Library/Logs/Spaces-updater.log`.
 
 **From source:**
 
@@ -88,7 +89,7 @@ npm run dmg                                  # release/Spaces-X.Y.Z.dmg for new 
 ```bash
 npm test               # unit tests (fake chrome.* + fake-indexeddb)
 npm run typecheck
-npm run e2e            # builds, loads dist/ into Playwright Chromium: switching, resources, sync against a live server, form guard, Space group + home tab
+npm run e2e            # builds, loads dist/ into Playwright Chromium: switching, resources, sync against a live server, form guard, Space group + home tab, Update now
 ```
 
 `chrome.tabs.discard()` crashes Playwright's Chrome for Testing 153.0.8010.12, even from a bare extension. Because of that, the e2e test skips the lazy-load and suspender checks unless you run it with `DISCARD=1`. Check those two features by hand in regular Chrome.

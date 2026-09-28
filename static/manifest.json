@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Spaces",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Personal workspace switcher: save, switch and suspend tab contexts.",
   "minimum_chrome_version": "121",
   "background": {
@@ -18,11 +18,13 @@
     "system.memory",
     "sidePanel",
     "scripting",
-    "identity"
+    "identity",
+    "nativeMessaging"
   ],
   "host_permissions": [
     "https://www.googleapis.com/*",
-    "https://oauth2.googleapis.com/*"
+    "https://oauth2.googleapis.com/*",
+    "https://storage.googleapis.com/spaces-by-bhag-updates/*"
   ],
   "optional_host_permissions": [
     "<all_urls>"

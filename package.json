@@ -1,13 +1,13 @@
 {
   "name": "spaces",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "",
   "scripts": {
     "test": "vitest run",
     "build": "node build.mjs",
     "dev": "node build.mjs --watch",
     "typecheck": "tsc --noEmit",
-    "e2e": "npm run build && node e2e/smoke.mjs && node e2e/features.mjs && node e2e/spacegroup.mjs && node e2e/selfupdate.mjs",
+    "e2e": "npm run build && node e2e/smoke.mjs && node e2e/features.mjs && node e2e/spacegroup.mjs && node e2e/manualupdate.mjs && node e2e/selfupdate.mjs",
     "dmg": "bash installer/make-dmg.sh",
     "publish-update": "bash installer/publish-update.sh"
   },

@@ -17,6 +17,7 @@ cp -R dist "$APP/Contents/Resources/extension"
 . installer/update.conf
 sed "s#__UPDATE_URL__#https://storage.googleapis.com/${BUCKET}/latest.json#" installer/updater.sh > "$APP/Contents/Resources/updater.sh"
 cp installer/updater.plist "$APP/Contents/Resources/updater.plist"
+cp installer/update-host.sh installer/install-update-host.sh "$APP/Contents/Resources/"
 # Adding resources invalidates the applet's signature; re-sign ad hoc so macOS
 # doesn't report the app as damaged.
 codesign --force --deep --sign - "$APP"

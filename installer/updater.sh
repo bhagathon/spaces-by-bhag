@@ -31,6 +31,7 @@ fi
 # Only ever move forward (sort -V orders versions numerically).
 NEWEST=$(printf '%s\n%s\n' "$CURRENT" "$LATEST" | sort -V | tail -1)
 if [ "$LATEST" = "$CURRENT" ] || [ "$NEWEST" != "$LATEST" ]; then
+  log "up to date ($CURRENT)" # logged too, so the log always shows when it last checked
   exit 0
 fi
 

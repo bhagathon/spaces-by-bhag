@@ -148,7 +148,8 @@ export type Request =
   | { type: 'setFormGuard'; enabled: boolean }
   | { type: 'syncNow' }
   | { type: 'syncConfigChanged' }
-  | { type: 'refreshSpaceGroups' };
+  | { type: 'refreshSpaceGroups' }
+  | { type: 'updateNow' };
 
 export type Response<T = unknown> = { ok: true; value?: T } | { ok: false; error: string };
 

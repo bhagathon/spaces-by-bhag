@@ -17,6 +17,7 @@ import { restartSync, startSync, syncNow, syncTick, updatePresence } from './syn
 import { reloadIfUpdatedOnDisk } from './selfUpdate';
 import { addToSpaceGroup, refreshSpaceGroups } from './spaceGroup';
 import { openDashboard, refreshHomeTabs } from './homeTab';
+import { UPDATE_HOST, type UpdateResult } from '../shared/update';
 
 // All listeners are registered synchronously at top level so MV3 can wake the worker for them.
 
@@ -147,6 +148,12 @@ async function handle(msg: Request, sender: chrome.runtime.MessageSender): Promi
       return restartSync();
     case 'refreshSpaceGroups':
       return refreshSpaceGroups();
+    case 'updateNow': {
+      const result = (await chrome.runtime.sendNativeMessage(UPDATE_HOST, { cmd: 'update' })) as UpdateResult;
+      // Reply first; the reload that runs the new version ends this worker.
+      if (result.updated) setTimeout(() => void reloadIfUpdatedOnDisk(), 1500);
+      return result;
+    }
   }
 }
 

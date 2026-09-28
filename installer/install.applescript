@@ -25,6 +25,11 @@ on run
 		display dialog "Spaces is installed, but automatic updates couldn't be turned on." & return & return & errMsg buttons {"OK"} default button 1 with icon caution with title "Spaces"
 	end try
 
+	-- Let the extension's "Update now" button run the updater (Chrome native messaging).
+	try
+		do shell script "/bin/sh " & quoted form of (resDir & "/install-update-host.sh") & " " & quoted form of resDir
+	end try
+
 	-- Chrome records each unpacked extension's folder in its profile preferences.
 	set chromeDir to (POSIX path of (path to application support folder from user domain)) & "Google/Chrome"
 	set alreadyLoaded to do shell script "grep -Fls " & quoted form of extDest & " " & quoted form of chromeDir & "/*/Preferences " & quoted form of chromeDir & "/*/'Secure Preferences' 2>/dev/null | head -1 || true"
