@@ -17,14 +17,16 @@ import { allStates, getState, isBusy, setState } from './state';
 const NONE = -1; // chrome.tabGroups.TAB_GROUP_ID_NONE
 const COLORS: GroupColor[] = ['blue', 'green', 'purple', 'cyan', 'orange', 'pink', 'yellow', 'red', 'grey'];
 
-/** A stable colour per Space, so the same Space always looks the same in the tab strip. */
-export function colorFor(spaceId: string): GroupColor {
+/** The Space's own colour if it has one, else a stable colour from its ID. */
+export function colorFor(spaceId: string, color?: GroupColor): GroupColor {
+  if (color) return color;
   let h = 0;
   for (const c of spaceId) h = (h * 31 + c.charCodeAt(0)) >>> 0;
   return COLORS[h % COLORS.length];
 }
 
-const isLoose = (t: chrome.tabs.Tab) => !t.pinned && t.groupId === NONE;
+const isLoose = (t: chrome.tabs.Tab) =>
+  !t.pinned && t.groupId === NONE && !(getState(t.windowId).looseTabIds ?? []).includes(t.id!); // not-added tabs stay out
 
 /** Loose tabs that can join the group without moving: the run touching it, or the first run if there's no group yet. */
 export function joinableTabs(tabs: chrome.tabs.Tab[], groupId: number | undefined): number[] {
@@ -58,7 +60,7 @@ export async function ensureSpaceGroup(windowId: number, spaceId = getState(wind
   const space = await (await getStorage()).getSpace(spaceId);
   if (!space) return removeSpaceGroup(windowId);
 
-  const color = colorFor(space.id);
+  const color = colorFor(space.id, space.color);
   const tabs = await chrome.tabs.query({ windowId });
   let groupId = getState(windowId).groupId;
   if (groupId !== undefined && !tabs.some(t => t.groupId === groupId)) groupId = undefined;
@@ -107,7 +109,7 @@ async function dissolveLeftoverSpaceGroups() {
   if (!tabs.length) return;
   const store = await getStorage();
   const spaces = (await Promise.all((await store.listWorkspaces()).map(w => store.listSpaces(w.id)))).flat();
-  const isLeftover = new Set(spaces.map(s => `${s.name}\u0000${colorFor(s.id)}`));
+  const isLeftover = new Set(spaces.map(s => `${s.name}\u0000${colorFor(s.id, s.color)}`));
   for (const id of new Set(tabs.map(t => t.groupId))) {
     const g = await chrome.tabGroups.get(id).catch(() => undefined);
     if (!g || !isLeftover.has(`${g.title}\u0000${g.color}`)) continue;

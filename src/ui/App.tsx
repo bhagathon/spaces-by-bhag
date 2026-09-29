@@ -6,6 +6,7 @@ import { History } from './History';
 import { Suspension } from './Suspension';
 import { Settings } from './Settings';
 import { Agenda, NextUp } from './Agenda';
+import { TabPrompt } from './TabPrompt';
 import { getTextScale, setTextScale, stepScale } from './textScale';
 import { CabinetIcon, CloseIcon, SlidersIcon } from './Icons';
 import type { Notice } from './notice';
@@ -128,6 +129,8 @@ export function App({ view }: { view: 'panel' | 'dashboard' }) {
           </span>
         </div>
       )}
+
+      {view === 'panel' && <TabPrompt onError={setError} />}
 
       <main>
         {tab === 'drawer' && view === 'panel' && <NextUp />}

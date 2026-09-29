@@ -205,6 +205,8 @@ A muted steel-and-stock palette of greys, greens and warm off-whites, with one r
 ### Named Rules
 **The One Red Rule.** Red belongs to one card and one act: the pulled card's top rule and pulling. The dashboard's verso card, blank cards, selected tabs and focus rings take stock edge or ink, never red.
 
+**The Space Colour Rule.** A Space may carry one of Chrome's tab-group colours (never red), shown only as a small square swatch (9px on card tops, 11px on the pulled card) beside its name, with a hairline ink edge so pale inks still read. It matches the Space's tab group in the tab strip. Colour is an identifier, never a fill, row tint or border: rank is still pull height. Tokens `--gc-*` hold Chrome's light values and its dark-theme set.
+
 **The Stamp Ink Rule.** State is stamped in ink, blue, or amber, bordered in its own colour (1.5px). Errors reverse to an ink plate. No state is ever red.
 
 ## Typography
@@ -220,7 +222,8 @@ A muted steel-and-stock palette of greys, greens and warm off-whites, with one r
 - **Body** (400, 13px, 20px line): typed entries, resources, find field, typed inputs. Line height equals the ruling pitch so text sits on the lines. Active tab entry and card-top names go to 700.
 - **Meta** (400, 11px, 1.4): card meta line, card-top sub line, tab counts, log rows.
 - **Call number** (700, 11px, 16px, tabular numerals): the boxed key number on each card.
-- **UI** (400, 13px, 1.45, sans): body default for hints, checkboxes and settings prose.
+- **UI** (400, 13px, 1.45, sans): body default for checkboxes and settings controls.
+- **Note** (400, 12px, 1.55, sans, ink-3): hints and explanatory prose. Sentences are read, not scanned, so they sit a step above the 11px label size.
 - **Label** (600 to 700, 11px, 0.06 to 0.1em, uppercase, sans): guide tabs, view tabs, tab-group headings, field labels, text and plate buttons.
 - **Stamp** (700, 10px, 14px, 0.1em, uppercase, sans): state marks only.
 

@@ -126,8 +126,10 @@ try {
   const renamed = await until(async () => (await readIdb('spaces', work.id))?.name === 'Work (renamed on phone)');
   check('remote rename arrives over the socket', renamed);
 
-  // Local tab change pushes to the server.
-  await sw.evaluate(async ({ w, base }) => chrome.tabs.create({ windowId: w, url: `${base}/c`, active: false }), { w: w1, base });
+  // A tab added to the Space pushes to the server (new tabs join only once added).
+  const newTab = await sw.evaluate(async ({ w, base }) => (await chrome.tabs.create({ windowId: w, url: `${base}/c`, active: false })).id, { w: w1, base });
+  await wait(300);
+  await send({ type: 'addLooseTabs', windowId: w1, tabIds: [newTab] });
   const pushed = await until(async () => (await store.getSpace(work.id))?.tabs.length === 3);
   check('local tab change pushed to server', pushed, (await store.getSpace(work.id))?.tabs.map(t => t.url));
   const kept = await store.getSpace(work.id);
@@ -157,6 +159,7 @@ try {
   // Undo after delete, through the UI; the server must end up with the Space again.
   const spaceName = (await readIdb('spaces', work.id)).name;
   await ui.getByRole('button', { name: new RegExp(`^Open ${spaceName.replace(/[()]/g, '\\$&')}`) }).click();
+  await ui.getByRole('button', { name: 'Edit', exact: true }).click(); // Delete lives in Edit mode
   await ui.getByRole('button', { name: `Delete ${spaceName}` }).click();
   await ui.getByRole('button', { name: `Confirm delete ${spaceName}` }).click();
   const gone = await until(async () => !(await readIdb('spaces', work.id)) && !(await store.getSpace(work.id)));

@@ -94,20 +94,26 @@ try {
     console.log('SKIP discard checks (set DISCARD=1 to run them)');
   }
 
-  // Auto-save: add a tab to Work, wait for the debounce, check the stored Space.
-  await apiArg(async ({ windowId, base }) => chrome.tabs.create({ windowId, url: `${base}/d`, active: false }), { windowId: w1, base });
+  // A new tab stays out of the Space until added; once added, auto-save keeps it.
+  const storedPaths = () =>
+    ui.evaluate(
+      id => new Promise(res => {
+        const req = indexedDB.open('spaces');
+        req.onsuccess = () => {
+          const get = req.result.transaction('spaces').objectStore('spaces').get(id);
+          get.onsuccess = () => res(get.result.tabs.map(t => new URL(t.url).pathname));
+        };
+      }),
+      work.value.id,
+    );
+  const d = await apiArg(async ({ windowId, base }) => (await chrome.tabs.create({ windowId, url: `${base}/d`, active: false })).id, { windowId: w1, base });
   await new Promise(r => setTimeout(r, 2500));
-  const saved = await ui.evaluate(
-    id => new Promise(res => {
-      const req = indexedDB.open('spaces');
-      req.onsuccess = () => {
-        const get = req.result.transaction('spaces').objectStore('spaces').get(id);
-        get.onsuccess = () => res(get.result.tabs.map(t => new URL(t.url).pathname));
-      };
-    }),
-    work.value.id,
-  );
-  check('auto-save picked up new tab', JSON.stringify(saved) === '["/a","/b","/c","/d"]', saved);
+  const before = await storedPaths();
+  check('a new tab is not saved until added', JSON.stringify(before) === '["/a","/b","/c"]', before);
+  await ui.evaluate(m => chrome.runtime.sendMessage(m), { type: 'addLooseTabs', windowId: w1, tabIds: [d] });
+  await new Promise(r => setTimeout(r, 500));
+  const saved = await storedPaths();
+  check('adding it saves it into the Space', JSON.stringify(saved) === '["/a","/b","/c","/d"]', saved);
 
   // Tabox #39: large collections lost their groups. 72 tabs in 10 groups, switched away and back twice.
   const w3 = await apiArg(async base => {

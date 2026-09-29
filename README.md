@@ -52,6 +52,8 @@ Keys (side panel):
 ## Features
 
 - **Spaces.** Save a window as a Space and switch between Spaces. A switch saves the outgoing tabs, opens the incoming ones, closes the old ones, then restores tab groups and the active tab. The window is never left empty. If a switch fails partway through, it's rolled back.
+- **New tabs ask first.** A tab you open in a Space window isn't added to the Space until you say so. The panel shows "Add to <Space>?" for 2 seconds, paused while you point at it. The card keeps listing "Not in this Space" tabs, and the toolbar badge counts them. Tabs you don't add close on the next switch; History keeps a copy.
+- **Edit mode.** Edit on a card sets its color, reorders or removes its tabs, and holds Rename and Delete. For a Space open in a window, edits act on the real tabs. A Space's color shows as a swatch by its name and colors its tab group.
 - **Lazy loading.** After a switch, background tabs are discarded right away, so each one loads only when you click it.
 - **Pinned tabs.** They stay in place across all Spaces (you can turn this off in Settings).
 - **Space tab group (off by default).** When turned on in Settings → Switching, a window's loose tabs sit in a Chrome tab group named after its Space, in a colour that stays the same for that Space. Tabs in groups you made stay in them (Chrome can't nest groups), and the group never reorders tabs: a tab only joins it when it's already next to it. The group is never saved into the Space. It follows renames, and disappears when you detach the window or delete the Space.

@@ -192,6 +192,17 @@ export function installFakeChrome() {
         // Chrome deletes a group once its last tab leaves.
         for (const id of fake.groups.keys()) if (!fake.tabs.some(t => t.groupId === id)) fake.groups.delete(id);
       },
+      async move(id: number, { index }: { index: number }) {
+        const tab = fake.tabs.find(t => t.id === id);
+        if (!tab) throw new Error(`No tab with id: ${id}`);
+        const others = windowTabs(tab.windowId).filter(t => t !== tab);
+        const at = index < 0 || index >= others.length ? others.length : index;
+        fake.tabs = fake.tabs.filter(t => t !== tab);
+        const globalIndex = at < others.length ? fake.tabs.indexOf(others[at]) : fake.tabs.indexOf(others[others.length - 1]) + 1;
+        fake.tabs.splice(globalIndex, 0, tab);
+        reindex(tab.windowId);
+        return clone(tab);
+      },
       async discard(id: number) {
         const t = fake.tabs.find(x => x.id === id);
         if (!t || t.active) throw new Error('Cannot discard tab');

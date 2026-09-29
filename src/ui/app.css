@@ -74,12 +74,34 @@
   --step-1: calc(15px * var(--scale));
   --step-2: calc(18px * var(--scale));
   --line: calc(20px * var(--scale));   /* the card's ruling pitch; entries sit on it */
+  --step-note: calc(12px * var(--scale)); /* sans prose: hints and notes read as sentences, not labels */
+
+  /* Chrome's tab-group colours (tab groups and Space colours). Light values are Chrome's
+     own; dark values are its dark-theme set, so a Space matches its tab group. */
+  --gc-grey: #5f6368;
+  --gc-blue: #1a73e8;
+  --gc-red: #d93025;
+  --gc-yellow: #f9ab00;
+  --gc-green: #188038;
+  --gc-pink: #d01884;
+  --gc-purple: #a142f4;
+  --gc-cyan: #007b83;
+  --gc-orange: #fa903e;
 
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
+    --gc-grey: #dadce0;
+    --gc-blue: #8ab4f8;
+    --gc-red: #f28b82;
+    --gc-yellow: #fdd663;
+    --gc-green: #81c995;
+    --gc-pink: #ff8bcb;
+    --gc-purple: #c58af9;
+    --gc-cyan: #78d9ec;
+    --gc-orange: #fcad70;
     --drawer: #172019;
     --drawer-deep: #101812;
     --pressboard: #2c3530;
@@ -355,7 +377,16 @@ kbd {
   text-transform: uppercase;
   color: var(--ink-2);
 }
-.swatch { width: 9px; height: 9px; border-radius: 1px; flex: none; }
+.swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 1px;
+  flex: none;
+  /* A hairline edge so pale inks (yellow on stock) still read as a mark. */
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 22%, transparent);
+}
+.top-name .swatch, .card-name .swatch { display: inline-block; margin-right: 6px; vertical-align: 0.05em; }
+.swatch-lg { width: 11px; height: 11px; }
 .favicon { width: 14px; height: 14px; flex: none; border-radius: 2px; }
 .favicon-blank { width: 14px; height: 14px; flex: none; border: 1px solid var(--card-edge); border-radius: 2px; }
 .entries-more { margin: 2px 0 0; }
@@ -646,7 +677,7 @@ input[type='checkbox'] { accent-color: var(--ink); width: 14px; height: 14px; ma
 
 .page-card { padding: 12px 14px; margin-bottom: 12px; font-family: var(--type); }
 .page-title { margin: 0 0 4px; font: 700 var(--step-1) / 1.2 var(--type); }
-.hint { margin: 0 0 10px; font: var(--step--1) / 1.5 var(--sans); color: var(--ink-3); }
+.hint { margin: 0 0 10px; font: var(--step-note) / 1.55 var(--sans); color: var(--ink-3); }
 .hint code { font: var(--step--1) / 1 var(--type); color: var(--ink-2); }
 
 .snap-list, .log { list-style: none; margin: 0; padding: 0; }
@@ -778,3 +809,43 @@ a.agenda-name:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 .update-versions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 0; font: var(--step-0) / var(--line) var(--type); font-variant-numeric: tabular-nums; }
 .update-problem { color: var(--ink); }
+
+/* ============ Editing a card: colour, tab order, tabs not yet in the Space ============ */
+
+.field-label { font: 600 var(--step--1) / 1 var(--sans); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); margin-right: 4px; }
+.color-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 2px 0 12px; }
+.color-chip {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 22%, transparent);
+}
+.color-chip.chosen { outline: 2px solid var(--ink); outline-offset: 2px; }
+/* "No colour": blank stock, struck through like a voided field. */
+.color-chip.none {
+  background:
+    linear-gradient(to top right, transparent calc(50% - 0.75px), var(--ink-3) calc(50% - 0.75px), var(--ink-3) calc(50% + 0.75px), transparent calc(50% + 0.75px)),
+    var(--card);
+}
+/* Edit rows carry 24px controls, so they leave the 20px ruling rather than drift off it. */
+.entries.editing { background-image: none; }
+.entry-editing { min-height: 28px; border-bottom: 1px solid var(--ruling); }
+.entry-tools { display: flex; gap: 2px; margin-left: auto; flex: none; }
+.icon-button.small { width: 24px; height: 24px; }
+.icon-button.small .icon { width: 14px; height: 14px; }
+.icon-button:disabled { opacity: 0.35; cursor: default; }
+
+.loose { margin: 10px 0 2px; }
+.loose .entry-group, .entry-loose { display: flex; align-items: center; gap: 7px; }
+.loose .entry-group .text-button, .entry-loose .text-button { margin-left: auto; flex: none; }
+.loose-note { margin: 4px 0 0; font: var(--step-note) / 1.5 var(--sans); color: var(--ink-3); }
+
+/* An entry's title truncates wherever it sits in the row (edit tools and Add buttons follow it). */
+.entry-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
+/* The question leads; the tab's title truncates beneath it, so the Space name is never cut. */
+.tab-prompt-text { display: grid; min-width: 0; }
+.tab-prompt-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: var(--step--1) / 1.4 var(--type); color: var(--ink-3); }
+.tab-prompt b { font-weight: 700; }

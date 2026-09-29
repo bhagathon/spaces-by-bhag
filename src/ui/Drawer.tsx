@@ -1,26 +1,17 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode, type RefObject } from 'react';
 import { useAtomValue } from 'jotai';
-import { currentSpaceIdAtom, openSpacesAtom, presenceAtom, spacesAtom, windowIdAtom, workspacesAtom } from './atoms';
+import { currentSpaceIdAtom, openSpacesAtom, presenceAtom, spacesAtom, windowIdAtom, windowStatesAtom, workspacesAtom } from './atoms';
 import { Agenda } from './Agenda';
 import { getStorage, PERSONAL_WORKSPACE_ID } from '../storage';
 import { send } from './api';
-import { canEdit, type GroupColor, type PresenceUser, type Space, type Workspace } from '../shared/types';
+import { canEdit, SPACE_COLORS, type GroupColor, type PresenceUser, type Space, type SpaceEdit, type Workspace } from '../shared/types';
 import type { Notice } from './notice';
 import { Verso } from './Resources';
-import { FlipIcon, SearchIcon } from './Icons';
+import { CloseIcon, DownIcon, FlipIcon, SearchIcon, UpIcon } from './Icons';
 
 /** Chrome's own tab-group colours: data, not decoration. */
-const GROUP_COLORS: Record<GroupColor, string> = {
-  grey: '#5f6368',
-  blue: '#1a73e8',
-  red: '#d93025',
-  yellow: '#f9ab00',
-  green: '#188038',
-  pink: '#d01884',
-  purple: '#a142f4',
-  cyan: '#007b83',
-  orange: '#fa903e',
-};
+/** Chrome's tab-group colours, as theme tokens (app.css defines light and dark values). */
+const groupInk = (c: GroupColor = 'grey') => `var(--gc-${c})`;
 
 const ENTRY_LIMIT = 14;
 const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
@@ -249,11 +240,14 @@ export function Drawer({
         <ul className="drawer-list" ref={listRef}>
           {filed.map(({ workspace, spaces: items }) => (
             <li key={workspace.id}>
-              <div className="guide">
-                <span className="guide-name">{workspace.name}</span>
-                {workspace.role === 'viewer' && <span className="stamp">View only</span>}
-                <span className="guide-rule" />
-              </div>
+              {/* A lone Personal workspace needs no guide card: there's nothing to tell it apart from. */}
+              {(filed.length > 1 || workspace.kind !== 'personal') && (
+                <div className="guide">
+                  <span className="guide-name">{workspace.name}</span>
+                  {workspace.role === 'viewer' && <span className="stamp">View only</span>}
+                  <span className="guide-rule" />
+                </div>
+              )}
               {items.length === 0 ? (
                 <p className="drawer-note">{view === 'panel' && current?.workspaceId === workspace.id ? 'No other cards filed here.' : 'No cards filed here yet.'}</p>
               ) : (
@@ -275,6 +269,7 @@ export function Drawer({
                           <span className={`callno${callNo ? '' : ' callno-empty'}`}>{callNo ?? ''}</span>
                           <span style={{ minWidth: 0 }}>
                             <span className="top-name">
+                              {space.color && <span className="swatch" style={{ background: groupInk(space.color) }} aria-hidden />}
                               <Highlight text={space.name} q={q} />
                             </span>
                             {via && (
@@ -368,6 +363,33 @@ function PulledCard({
   const [name, setName] = useState(space.name);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const [editing, setEditing] = useState(false);
+
+  /** Card edits go through the worker, which applies them to the window if the Space is open. */
+  const applyEdit = async (edit: SpaceEdit, undoText?: string) => {
+    const before = space;
+    try {
+      await send({ type: 'editSpace', edit });
+      // A shelved Space can be put back exactly; an open one's closed tab is in History.
+      if (undoText && !isHere && openIn.length === 0) {
+        onNotice({
+          text: undoText,
+          action: {
+            label: 'Undo',
+            run: async () => {
+              const store = await getStorage();
+              const latest = await store.getSpace(before.id);
+              if (!latest) return;
+              const { rev, updatedAt: _u, ...input } = latest;
+              await store.putSpace({ ...input, tabs: before.tabs, groups: before.groups, activeIndex: before.activeIndex }, rev);
+            },
+          },
+        });
+      }
+    } catch (e) {
+      onError(errText(e));
+    }
+  };
 
   const turn = () => {
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -445,24 +467,38 @@ function PulledCard({
   const groupsByKey = new Map(space.groups.map(g => [g.key, g]));
   const entries: ReactNode[] = [];
   let lastGroup: string | undefined;
-  const visibleTabs = showAll ? space.tabs : space.tabs.slice(0, ENTRY_LIMIT);
+  const visibleTabs = showAll || editing ? space.tabs : space.tabs.slice(0, ENTRY_LIMIT);
   visibleTabs.forEach((t, i) => {
     if (t.groupKey && t.groupKey !== lastGroup) {
       const g = groupsByKey.get(t.groupKey);
       if (g) {
         entries.push(
           <li key={`g-${t.groupKey}-${i}`} className="entry entry-group">
-            <span className="swatch" style={{ background: GROUP_COLORS[g.color] ?? GROUP_COLORS.grey }} aria-hidden />
+            <span className="swatch" style={{ background: groupInk(g.color) }} aria-hidden />
             <span>{g.title || 'Untitled group'}</span>
           </li>,
         );
       }
     }
     lastGroup = t.groupKey;
+    const label = t.title || t.url;
     entries.push(
-      <li key={i} className={`entry${t.groupKey ? ' entry-grouped' : ''}${i === space.activeIndex ? ' entry-active' : ''}`} title={t.url}>
+      <li key={i} className={`entry${t.groupKey ? ' entry-grouped' : ''}${i === space.activeIndex ? ' entry-active' : ''}${editing ? ' entry-editing' : ''}`} title={t.url}>
         <Favicon url={t.favIconUrl} />
-        <span>{t.title || t.url}</span>
+        <span className="entry-title">{label}</span>
+        {editing && (
+          <span className="entry-tools">
+            <button className="icon-button small" aria-label={`Move ${label} up`} disabled={i === 0} onClick={() => void applyEdit({ spaceId: space.id, op: 'moveTab', index: i, to: i - 1 })}>
+              <UpIcon />
+            </button>
+            <button className="icon-button small" aria-label={`Move ${label} down`} disabled={i === space.tabs.length - 1} onClick={() => void applyEdit({ spaceId: space.id, op: 'moveTab', index: i, to: i + 1 })}>
+              <DownIcon />
+            </button>
+            <button className="icon-button small" aria-label={`Remove ${label}`} onClick={() => void applyEdit({ spaceId: space.id, op: 'removeTab', index: i }, `Removed “${label}”.`)}>
+              <CloseIcon />
+            </button>
+          </span>
+        )}
       </li>,
     );
   });
@@ -478,11 +514,35 @@ function PulledCard({
 
   const recto = (
     <>
-      <ol className="entries" aria-label={`Tabs in ${space.name}`}>
+      {editing && (
+        <div className="color-row" role="radiogroup" aria-label={`Color for ${space.name}`}>
+          <span className="field-label">Color</span>
+          <button
+            className={`color-chip none${!space.color ? ' chosen' : ''}`}
+            role="radio"
+            aria-checked={!space.color}
+            aria-label="No color"
+            onClick={() => void applyEdit({ spaceId: space.id, op: 'setColor', color: undefined })}
+          />
+          {SPACE_COLORS.map(c => (
+            <button
+              key={c}
+              className={`color-chip${space.color === c ? ' chosen' : ''}`}
+              style={{ background: groupInk(c) }}
+              role="radio"
+              aria-checked={space.color === c}
+              aria-label={c}
+              onClick={() => void applyEdit({ spaceId: space.id, op: 'setColor', color: c })}
+            />
+          ))}
+        </div>
+      )}
+      <ol className={`entries${editing ? ' editing' : ''}`} aria-label={`Tabs in ${space.name}`}>
         {entries}
       </ol>
+      {isHere && <LooseTabs spaceName={space.name} onError={onError} />}
       {space.tabs.length === 0 && <p className="blank-lede">No tabs on this card. Open pages in this window and they're typed onto it.</p>}
-      {space.tabs.length > ENTRY_LIMIT && (
+      {space.tabs.length > ENTRY_LIMIT && !editing && (
         <div className="entries-more">
           <button className="text-button" onClick={() => setShowAll(v => !v)}>
             {showAll ? 'Show fewer' : `${space.tabs.length - ENTRY_LIMIT} more entries`}
@@ -516,13 +576,42 @@ function PulledCard({
           }}
         />
       ) : (
-        <h2 className="card-name">{space.name}</h2>
+        <h2 className="card-name">
+          {space.color && <span className="swatch swatch-lg" style={{ background: groupInk(space.color) }} aria-hidden />}
+          {space.name}
+        </h2>
       )}
       <Stamps here={isHere} elsewhere={!isHere && openIn.length > 0} others={presence} />
     </header>
   );
 
-  const actions = (
+  // Rename and Delete live in Edit mode, so the everyday footer stays one short line.
+  const actions = editing ? (
+    <footer className="card-actions">
+      {!renaming && (
+        <button className="text-button" onClick={() => setRenaming(true)}>
+          Rename
+        </button>
+      )}
+      {confirmDelete ? (
+        <>
+          <button className="text-button danger" onClick={() => void remove()} aria-label={`Confirm delete ${space.name}`}>
+            Delete card
+          </button>
+          <button className="text-button" onClick={() => setConfirmDelete(false)}>
+            Keep
+          </button>
+        </>
+      ) : (
+        <button className="text-button" onClick={() => setConfirmDelete(true)} aria-label={`Delete ${space.name}`}>
+          Delete
+        </button>
+      )}
+      <button className="plate-button outline" onClick={() => { setEditing(false); setConfirmDelete(false); }}>
+        Done
+      </button>
+    </footer>
+  ) : (
     <footer className="card-actions">
       {view === 'panel' && (
         <button className="text-button" onClick={turn} aria-label={side === 'recto' ? 'Turn over to resources' : 'Turn back to tabs'}>
@@ -535,9 +624,15 @@ function PulledCard({
           {pulling ? 'Switching…' : 'Switch this window'}
         </button>
       )}
-      {editable && !renaming && (
-        <button className="text-button" onClick={() => setRenaming(true)}>
-          Rename
+      {editable && (
+        <button
+          className="text-button"
+          onClick={() => {
+            setSide('recto'); // editing happens on the tabs side
+            setEditing(true);
+          }}
+        >
+          Edit
         </button>
       )}
       {isHere && (
@@ -545,21 +640,6 @@ function PulledCard({
           Detach
         </button>
       )}
-      {editable &&
-        (confirmDelete ? (
-          <>
-            <button className="text-button danger" onClick={() => void remove()} aria-label={`Confirm delete ${space.name}`}>
-              Delete card
-            </button>
-            <button className="text-button" onClick={() => setConfirmDelete(false)}>
-              Keep
-            </button>
-          </>
-        ) : (
-          <button className="text-button" onClick={() => setConfirmDelete(true)} aria-label={`Delete ${space.name}`}>
-            Delete
-          </button>
-        ))}
     </footer>
   );
 
@@ -602,6 +682,57 @@ function PulledCard({
       )}
       {actions}
     </article>
+  );
+}
+
+/**
+ * Tabs open in this window that aren't in its Space. They're left out of saves and
+ * close on the next switch (History keeps them), so they stay listed until added.
+ */
+function LooseTabs({ spaceName, onError }: { spaceName: string; onError: (e: string) => void }) {
+  const windowId = useAtomValue(windowIdAtom);
+  const ids = useAtomValue(windowStatesAtom)[String(windowId)]?.looseTabIds ?? [];
+  const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
+  const key = ids.join(',');
+
+  useEffect(() => {
+    const own = chrome.runtime.getURL('');
+    // Spaces' own pages can't be saved into a Space, so they're never offered.
+    const load = () =>
+      void Promise.all(ids.map(id => chrome.tabs.get(id).catch(() => undefined))).then(t =>
+        setTabs(t.filter((x): x is chrome.tabs.Tab => !!x && !(x.url || x.pendingUrl || '').startsWith(own))),
+      );
+    load();
+    const onUpdated = (id: number) => ids.includes(id) && load();
+    chrome.tabs.onUpdated.addListener(onUpdated);
+    return () => chrome.tabs.onUpdated.removeListener(onUpdated);
+  }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (!tabs.length || windowId == null) return null;
+  const add = (tabIds?: number[]) => void send({ type: 'addLooseTabs', windowId, tabIds }).catch(e => onError(errText(e)));
+  return (
+    <section className="loose" aria-label={`Tabs not in ${spaceName}`}>
+      <div className="entry entry-group">
+        <span>Not in this Space</span>
+        {tabs.length > 1 && (
+          <button className="text-button" onClick={() => add()}>
+            Add all
+          </button>
+        )}
+      </div>
+      <ol className="entries">
+        {tabs.map(t => (
+          <li key={t.id} className="entry entry-loose" title={t.url}>
+            <Favicon url={t.favIconUrl} />
+            <span className="entry-title">{t.title || t.pendingUrl || t.url || 'New tab'}</span>
+            <button className="text-button" aria-label={`Add ${t.title || 'tab'} to ${spaceName}`} onClick={() => add([t.id!])}>
+              Add
+            </button>
+          </li>
+        ))}
+      </ol>
+      <p className="loose-note">Tabs you don’t add close when you switch Spaces. History keeps a copy.</p>
+    </section>
   );
 }
 

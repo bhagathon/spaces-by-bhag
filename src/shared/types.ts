@@ -25,6 +25,8 @@ export interface Space {
   tabs: SavedTab[];
   groups: SavedGroup[];
   activeIndex: number;
+  /** The user's colour for this Space (never red: red is reserved for pulling a card). */
+  color?: GroupColor;
   /** Optimistic-concurrency revision, bumped by the provider on every write. */
   rev: number;
   updatedAt: number;
@@ -100,6 +102,8 @@ export interface WindowState {
   switchId?: string;
   /** The tab group that labels this window with its Space's name. Never saved into the Space. */
   groupId?: number;
+  /** Tabs opened in this window that the user hasn't added to its Space. Not saved; closed on the next switch. */
+  looseTabIds?: number[];
 }
 
 export interface SuspendSettings {
@@ -149,7 +153,17 @@ export type Request =
   | { type: 'syncNow' }
   | { type: 'syncConfigChanged' }
   | { type: 'refreshSpaceGroups' }
-  | { type: 'updateNow' };
+  | { type: 'updateNow' }
+  | { type: 'addLooseTabs'; windowId: number; tabIds?: number[] }
+  | { type: 'editSpace'; edit: SpaceEdit };
+
+export type SpaceEdit =
+  | { spaceId: string; op: 'removeTab'; index: number }
+  | { spaceId: string; op: 'moveTab'; index: number; to: number }
+  | { spaceId: string; op: 'setColor'; color?: GroupColor };
+
+/** Colours a Space can take: Chrome's tab-group colours, minus red (the One Red Rule). */
+export const SPACE_COLORS: GroupColor[] = ['blue', 'cyan', 'green', 'yellow', 'orange', 'pink', 'purple', 'grey'];
 
 export type Response<T = unknown> = { ok: true; value?: T } | { ok: false; error: string };
 

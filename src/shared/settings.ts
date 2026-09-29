@@ -33,6 +33,8 @@ export const PRESENCE_KEY = 'presence';
 export const SYNC_STATUS_KEY = 'syncStatus';
 export const FORM_GUARD_KEY = 'formGuard';
 export const GUARDED_TABS_KEY = 'guardedTabs';
+/** Session key: the latest tab opened outside its Space, for the panel's "Add to Space?" slip. */
+export const TAB_PROMPT_KEY = 'tabPrompt';
 
 export interface SyncConfig {
   backendUrl?: string;

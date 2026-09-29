@@ -18,6 +18,8 @@ import { reloadIfUpdatedOnDisk } from './selfUpdate';
 import { addToSpaceGroup, refreshSpaceGroups } from './spaceGroup';
 import { openDashboard, refreshHomeTabs } from './homeTab';
 import { UPDATE_HOST, type UpdateResult } from '../shared/update';
+import { addLooseTabs, forgetLooseTab, markNewTab, updateBadge } from './looseTabs';
+import { editSpace } from './editSpace';
 
 // All listeners are registered synchronously at top level so MV3 can wake the worker for them.
 
@@ -88,7 +90,8 @@ const joinSpaceGroup = (tabId: number) =>
   setTimeout(() => void ready.then(() => chrome.tabs.get(tabId)).then(addToSpaceGroup).catch(() => {}), 250);
 
 chrome.tabs.onCreated.addListener(t => {
-  onTabChange(t.windowId);
+  // Marked before the debounced save, so a new tab never lands in the Space unasked.
+  void ready.then(() => markNewTab(t)).then(() => onTabChange(t.windowId));
   if (t.id !== undefined) joinSpaceGroup(t.id);
 });
 chrome.tabs.onUpdated.addListener((id, info, t) => {
@@ -104,6 +107,7 @@ chrome.tabs.onAttached.addListener((id, { newWindowId }) => {
 chrome.tabs.onDetached.addListener((_id, { oldWindowId }) => onTabChange(oldWindowId));
 chrome.tabs.onRemoved.addListener((id, { windowId, isWindowClosing }) => {
   void onTabRemoved(id);
+  void ready.then(() => forgetLooseTab(windowId, id));
   // Closing a window keeps its Space intact.
   if (!isWindowClosing) onTabChange(windowId);
 });
@@ -116,6 +120,8 @@ chrome.windows.onCreated.addListener(w => {
   clearTimeout(reattachTimer);
   reattachTimer = setTimeout(() => void ready.then(reattachWindows).then(updatePresence), 3000);
 });
+
+chrome.windows.onFocusChanged.addListener(() => void ready.then(updateBadge));
 
 chrome.windows.onRemoved.addListener(windowId => {
   clearTimeout(saveTimers.get(windowId));
@@ -148,6 +154,10 @@ async function handle(msg: Request, sender: chrome.runtime.MessageSender): Promi
       return restartSync();
     case 'refreshSpaceGroups':
       return refreshSpaceGroups();
+    case 'addLooseTabs':
+      return addLooseTabs(msg.windowId, msg.tabIds);
+    case 'editSpace':
+      return editSpace(msg.edit).finally(updatePresence);
     case 'updateNow': {
       const result = (await chrome.runtime.sendNativeMessage(UPDATE_HOST, { cmd: 'update' })) as UpdateResult;
       // Reply first; the reload that runs the new version ends this worker.

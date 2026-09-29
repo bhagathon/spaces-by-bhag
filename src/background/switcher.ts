@@ -6,6 +6,7 @@ import { isSafeUrl } from '../shared/url';
 import { allStates, getState, setState, withWindowLock } from './state';
 import { ensureSpaceGroup, removeSpaceGroup } from './spaceGroup';
 import { dashboardUrl, ensureHomeTab, isHomeTab } from './homeTab';
+import { snapshotWindow } from './snapshots';
 
 const NONE = chrome.tabGroups.TAB_GROUP_ID_NONE;
 
@@ -24,9 +25,15 @@ export interface Capture {
   activeIndex: number;
   /** Tabs the Space owns and a switch would close (excludes kept pinned tabs). */
   ownedTabIds: number[];
+  /** The live tab behind each entry of `tabs`, in the same order. */
+  tabIds: number[];
 }
 
-export async function captureWindow(windowId: number): Promise<Capture> {
+/**
+ * The window's tabs as its Space would save them. Tabs the user hasn't added to the
+ * Space are left out unless `includeLoose` (snapshots keep them, so History has them).
+ */
+export async function captureWindow(windowId: number, { includeLoose = false } = {}): Promise<Capture> {
   const { keepPinnedAcrossSpaces } = await getSwitcherSettings();
   const tabs = await chrome.tabs.query({ windowId });
   const owned = tabs.filter(t => !(keepPinnedAcrossSpaces && t.pinned) && !isHomeTab(t));
@@ -45,11 +52,14 @@ export async function captureWindow(windowId: number): Promise<Capture> {
     }),
   );
 
+  const loose = new Set(includeLoose ? [] : (getState(windowId).looseTabIds ?? []));
   const saved: SavedTab[] = [];
+  const tabIds: number[] = [];
   let activeIndex = 0;
   for (const t of owned) {
     const url = t.url || t.pendingUrl; // discarded tabs still report their url
-    if (!isRestorable(url)) continue;
+    if (!isRestorable(url) || loose.has(t.id!)) continue;
+    tabIds.push(t.id!);
     if (t.active) activeIndex = saved.length;
     saved.push({
       url,
@@ -60,7 +70,7 @@ export async function captureWindow(windowId: number): Promise<Capture> {
       groupKey: groupOf(t) !== NONE ? keyFor.get(t.groupId) : undefined,
     });
   }
-  return { tabs: saved, groups, activeIndex, ownedTabIds: owned.map(t => t.id!) };
+  return { tabs: saved, groups, activeIndex, ownedTabIds: owned.map(t => t.id!), tabIds };
 }
 
 async function workspaceOf(workspaceId: string) {
@@ -90,6 +100,7 @@ export async function createSpaceFromWindow(windowId: number, name: string, work
   return withWindowLock(windowId, async () => {
     if (!canEdit(await workspaceOf(workspaceId))) throw new Error('You have view-only access to that workspace');
     await saveWindowToSpace(windowId); // don't lose edits to the Space we're leaving
+    await setState(windowId, { looseTabIds: undefined }); // a new Space takes every tab in the window
     const { tabs, groups, activeIndex } = await captureWindow(windowId);
     const store = await getStorage();
     const res = await store.putSpace({ id: newId(), workspaceId, name, tabs, groups, activeIndex });
@@ -105,7 +116,7 @@ export async function detachWindow(windowId: number) {
   return withWindowLock(windowId, async () => {
     await saveWindowToSpace(windowId);
     await removeSpaceGroup(windowId);
-    await setState(windowId, { spaceId: null, detached: true });
+    await setState(windowId, { spaceId: null, detached: true, looseTabIds: undefined });
   });
 }
 
@@ -177,6 +188,8 @@ export function switchSpace(windowId: number, targetSpaceId: string): Promise<Sw
     const created: (number | undefined)[] = [];
 
     try {
+      // Tabs never added to the Space close in this switch; snapshot first so History keeps them.
+      if (getState(windowId).looseTabIds?.length) await snapshotWindow(windowId).catch(() => {});
       await setState(windowId, { phase: 'capturing', switchId: newId() });
       await saveWindowToSpace(windowId);
       const { ownedTabIds } = await captureWindow(windowId);
@@ -209,7 +222,7 @@ export function switchSpace(windowId: number, targetSpaceId: string): Promise<Sw
       const grouped = current.filter(t => toRemove.includes(t.id!) && t.groupId !== NONE).map(t => t.id!);
       if (grouped.length) await chrome.tabs.ungroup(grouped as [number, ...number[]]).catch(() => {});
       if (toRemove.length) await chrome.tabs.remove(toRemove);
-      await setState(windowId, { groupId: undefined }); // the outgoing Space group went with its tabs
+      await setState(windowId, { groupId: undefined, looseTabIds: undefined }); // they went with the outgoing tabs
 
       await setState(windowId, { phase: 'grouping' });
       const activeTabId = created[Math.min(target.activeIndex, created.length - 1)] ?? createdIds[0] ?? homeId!;

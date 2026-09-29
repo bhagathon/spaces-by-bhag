@@ -60,8 +60,10 @@ try {
   await wait(500);
   check('home tab pinned first; Space group beside user group; nothing moved', JSON.stringify(await strip(w1)) === JSON.stringify(['📌/dashboard.html', '/a{Work}', '/b{Docs}', '/c']), await strip(w1));
 
-  await sw.evaluate(async ({ w, base }) => chrome.tabs.create({ windowId: w, url: base + '/d' }), { w: w1, base });
-  await wait(1500);
+  const dTab = await sw.evaluate(async ({ w, base }) => (await chrome.tabs.create({ windowId: w, url: base + '/d' })).id, { w: w1, base });
+  await wait(600);
+  await send({ type: 'addLooseTabs', windowId: w1, tabIds: [dTab] }); // new tabs join the Space only once added
+  await wait(900);
   check('a new tab away from the group stays where Chrome put it', JSON.stringify(await strip(w1)) === JSON.stringify(['📌/dashboard.html', '/a{Work}', '/b{Docs}', '/c', '/d']), await strip(w1));
 
   const saved = await ui.evaluate(

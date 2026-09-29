@@ -20,25 +20,36 @@ export function withViewTransition(apply: () => void) {
   } else apply();
 }
 
-/** Mirror a chrome.storage.session key into an atom. */
-function sessionAtom<T>(key: string, fallback: T, { animate = false } = {}) {
+/**
+ * Mirror a chrome.storage.session key into an atom. `animate(prev, next)` decides
+ * whether a change runs as a view transition (a full-page snapshot, so only when
+ * something visibly moves).
+ */
+function sessionAtom<T>(key: string, fallback: T, { animate }: { animate?: (prev: T, next: T) => boolean } = {}) {
   const a = atom<T>(fallback);
   a.onMount = set => {
+    let last = fallback;
     const onChanged = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
       if (area !== 'session' || !(key in changes)) return;
       const next = (changes[key].newValue ?? fallback) as T;
-      if (animate) withViewTransition(() => set(next));
+      const prev = last;
+      last = next;
+      if (animate?.(prev, next)) withViewTransition(() => set(next));
       else set(next);
     };
-    void chrome.storage.session.get(key).then(r => set((r[key] ?? fallback) as T));
+    void chrome.storage.session.get(key).then(r => set((last = (r[key] ?? fallback) as T)));
     chrome.storage.onChanged.addListener(onChanged);
     return () => chrome.storage.onChanged.removeListener(onChanged);
   };
   return a;
 }
 
+/** The card pull animates only when a window changes Space, not on every state write. */
+const spaceChanged = (prev: Record<string, WindowState>, next: Record<string, WindowState>) =>
+  Object.keys({ ...prev, ...next }).some(id => prev[id]?.spaceId !== next[id]?.spaceId);
+
 /** Per-window state written by the service worker. */
-export const windowStatesAtom = sessionAtom<Record<string, WindowState>>(WINDOW_STATES_KEY, {}, { animate: true });
+export const windowStatesAtom = sessionAtom<Record<string, WindowState>>(WINDOW_STATES_KEY, {}, { animate: spaceChanged });
 export const syncStatusAtom = sessionAtom<SyncStatus>(SYNC_STATUS_KEY, { state: 'off', pending: 0 });
 /** Other devices/people with each Space open (from the server, via the worker). */
 export const presenceAtom = sessionAtom<Record<string, PresenceUser[]>>(PRESENCE_KEY, {});
