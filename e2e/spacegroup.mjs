@@ -94,9 +94,12 @@ try {
   const cdp = await ctx.newCDPSession(ui);
   await cdp.send('ServiceWorker.enable');
   await cdp.send('ServiceWorker.stopAllWorkers');
+  // Its own window: a page opened in w1 would be a tab outside the Space, which (rightly) groups the Space.
+  const opened = ctx.waitForEvent('page');
+  await cdp.send('Target.createTarget', { url: `chrome-extension://${extId}/panel.html`, newWindow: true });
+  const sw2 = await opened;
+  await sw2.waitForLoadState();
   await ui.close();
-  const sw2 = await ctx.newPage();
-  await sw2.goto(`chrome-extension://${extId}/panel.html`);
   const strip2 = w => sw2.evaluate(async w => {
     const tabs = await chrome.tabs.query({ windowId: w });
     const titles = {};

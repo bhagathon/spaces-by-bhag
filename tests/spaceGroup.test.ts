@@ -5,6 +5,7 @@ import { setStorageForTests } from '../src/storage';
 import { getState, resetStateForTests } from '../src/background/state';
 import { captureWindow, createSpaceFromWindow, detachWindow, reattachWindows, switchSpace } from '../src/background/switcher';
 import { addToSpaceGroup, colorFor, refreshSpaceGroups } from '../src/background/spaceGroup';
+import { addLooseTabs, forgetLooseTab, markNewTab } from '../src/background/looseTabs';
 import { sweep } from '../src/background/suspender';
 
 let store: LocalStorageProvider;
@@ -81,7 +82,7 @@ describe('Space tab group', () => {
     expect(fake.tabs.find(t => t.id === pinned.id)!.groupId).toBe(-1);
   });
 
-  it('follows renames, and goes away on detach or when the Space is deleted', async () => {
+  it('follows renames, stays as a plain label on detach, and goes away when the Space is deleted', async () => {
     const w = addWindow([{ url: 'https://a.com/' }]);
     const space = await createSpaceFromWindow(w, 'Work');
     const { rev, updatedAt: _u, ...input } = (await store.getSpace(space.id))!;
@@ -90,14 +91,82 @@ describe('Space tab group', () => {
     expect(groupOf(w)!.title).toBe('Deep work');
 
     await detachWindow(w);
-    expect(fake.groups.size).toBe(0);
-    expect(getState(w).groupId).toBeUndefined();
+    expect(groupOf(w)!.title).toBe('Deep work');
+    await refreshSpaceGroups();
+    expect(groupOf(w)!.title).toBe('Deep work'); // a detached window keeps its label
 
     const w2 = addWindow([{ url: 'https://b.com/' }]);
     const other = await createSpaceFromWindow(w2, 'Other');
     await store.deleteSpace(other.id);
     await refreshSpaceGroups();
     expect(tabsOf(w2)[0].groupId).toBe(-1);
+  });
+
+  describe('with the setting off', () => {
+    beforeEach(() => {
+      fake.local.switcher = { lazyLoad: false, homeTab: false, showSpaceGroup: false };
+    });
+    const tabAt = (w: number, url: string) => tabsOf(w).find(t => t.url === url)!;
+
+    it('appears while a tab outside the Space is open, and goes once it is added', async () => {
+      const w = addWindow([{ url: 'https://a.com/' }, { url: 'https://b.com/' }]);
+      await createSpaceFromWindow(w, 'Work');
+      expect(fake.groups.size).toBe(0);
+
+      const n = await chrome.tabs.create({ windowId: w, url: 'https://news.com/' });
+      await markNewTab(n);
+      await addToSpaceGroup(await chrome.tabs.get(n.id!));
+      expect(groupOf(w)).toMatchObject({ title: 'Work' });
+      expect(tabAt(w, 'https://a.com/').groupId).toBe(getState(w).groupId);
+      expect(tabAt(w, 'https://b.com/').groupId).toBe(getState(w).groupId);
+      expect(tabAt(w, 'https://news.com/').groupId).toBe(-1);
+
+      await addLooseTabs(w);
+      expect(tabsOf(w).every(t => t.groupId === -1)).toBe(true);
+      expect(getState(w).groupId).toBeUndefined();
+    });
+
+    it('goes when the outside tab is closed', async () => {
+      const w = addWindow([{ url: 'https://a.com/' }]);
+      await createSpaceFromWindow(w, 'Work');
+      const n = await chrome.tabs.create({ windowId: w, url: 'https://news.com/' });
+      await markNewTab(n);
+      await addToSpaceGroup(await chrome.tabs.get(n.id!));
+      expect(getState(w).groupId).toBeDefined();
+      await chrome.tabs.remove(n.id!);
+      await forgetLooseTab(w, n.id!);
+      expect(tabsOf(w).every(t => t.groupId === -1)).toBe(true);
+    });
+
+    it('keeps an outside tab out of the group even when Chrome put it there', async () => {
+      const w = addWindow([{ url: 'https://a.com/' }]);
+      await createSpaceFromWindow(w, 'Work');
+      const first = await chrome.tabs.create({ windowId: w, url: 'https://news.com/' });
+      await markNewTab(first);
+      await addToSpaceGroup(await chrome.tabs.get(first.id!));
+      const group = getState(w).groupId!;
+      // Opened from a link in the group: Chrome adds it to that group.
+      const fromLink = await chrome.tabs.create({ windowId: w, url: 'https://link.com/' });
+      await chrome.tabs.group({ tabIds: [fromLink.id!], groupId: group });
+      await markNewTab(await chrome.tabs.get(fromLink.id!));
+      await addToSpaceGroup(await chrome.tabs.get(fromLink.id!));
+      expect(tabAt(w, 'https://link.com/').groupId).toBe(-1);
+      expect(tabAt(w, 'https://a.com/').groupId).toBe(group);
+    });
+
+    it('labels the tabs on detach, and the label goes when the window is attached to a Space again', async () => {
+      const w = addWindow([{ url: 'https://a.com/' }, { url: 'https://b.com/' }]);
+      await createSpaceFromWindow(w, 'Work');
+      await detachWindow(w);
+      expect(groupOf(w)).toMatchObject({ title: 'Work' });
+      expect(tabsOf(w).every(t => t.groupId === getState(w).groupId)).toBe(true);
+      await refreshSpaceGroups(); // leftover-group cleanup leaves a detached window's label alone
+      expect(groupOf(w)).toMatchObject({ title: 'Work' });
+
+      await createSpaceFromWindow(w, 'Work again');
+      expect(tabsOf(w).every(t => t.groupId === -1)).toBe(true);
+      expect((await store.listSpaces('personal')).find(s => s.name === 'Work again')!.groups).toEqual([]);
+    });
   });
 
   it('can be turned off', async () => {

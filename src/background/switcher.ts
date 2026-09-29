@@ -4,7 +4,7 @@ import { getSwitcherSettings } from '../shared/settings';
 import { canEdit, type SavedGroup, type SavedTab, type Space } from '../shared/types';
 import { isSafeUrl } from '../shared/url';
 import { allStates, getState, setState, withWindowLock } from './state';
-import { ensureSpaceGroup, removeSpaceGroup } from './spaceGroup';
+import { ensureSpaceGroup } from './spaceGroup';
 import { dashboardUrl, ensureHomeTab, isHomeTab } from './homeTab';
 import { snapshotWindow } from './snapshots';
 
@@ -115,7 +115,8 @@ export async function createSpaceFromWindow(windowId: number, name: string, work
 export async function detachWindow(windowId: number) {
   return withWindowLock(windowId, async () => {
     await saveWindowToSpace(windowId);
-    await removeSpaceGroup(windowId);
+    // The Space's tabs stay labelled with its name; tabs opened outside it stay outside.
+    await ensureSpaceGroup(windowId, undefined, { force: true }).catch(() => {});
     await setState(windowId, { spaceId: null, detached: true, looseTabIds: undefined });
   });
 }

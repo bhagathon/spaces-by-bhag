@@ -5,7 +5,11 @@ import { allStates, getState, isBusy, setState } from './state';
 
 /**
  * The Space tab group: a window's loose tabs sit in a group titled with its Space's
- * name, so the tab strip shows which Space the window holds. Chrome can't nest groups,
+ * name, so the tab strip shows which Space the window holds. With the setting off it
+ * still appears when it tells the user something: while a tab outside the Space is
+ * open (the group shows where the Space ends), and after Detach (the tabs stay labelled
+ * with the Space they came from). Adding the outside tabs, or attaching the window to a
+ * Space, takes it away again. Chrome can't nest groups,
  * so tabs in the user's own groups (and pinned tabs, which can't be grouped) stay out.
  * The group is window chrome, not content: captureWindow leaves it out of the Space.
  *
@@ -41,6 +45,9 @@ export function joinableTabs(tabs: chrome.tabs.Tab[], groupId: number | undefine
 
 export const isSpaceGroup = (windowId: number, groupId: number) => groupId !== NONE && getState(windowId).groupId === groupId;
 
+/** Tabs opened outside the Space are in the window: the group marks where the Space ends. */
+const hasOutsideTabs = (windowId: number) => (getState(windowId).looseTabIds?.length ?? 0) > 0;
+
 export async function removeSpaceGroup(windowId: number) {
   const { groupId } = getState(windowId);
   if (groupId === undefined) return;
@@ -50,9 +57,16 @@ export async function removeSpaceGroup(windowId: number) {
   await setState(windowId, { groupId: undefined });
 }
 
-/** Create, adopt or update the window's Space group to match its Space and the setting. */
-export async function ensureSpaceGroup(windowId: number, spaceId = getState(windowId).spaceId) {
-  if (!spaceId || !(await getSwitcherSettings()).showSpaceGroup) return removeSpaceGroup(windowId);
+/**
+ * Create, adopt or update the window's Space group to match its Space, the setting and
+ * any tabs outside the Space. `force` makes the group even with neither (Detach).
+ */
+export async function ensureSpaceGroup(windowId: number, spaceId = getState(windowId).spaceId, { force = false } = {}) {
+  if (!spaceId) return getState(windowId).detached ? undefined : removeSpaceGroup(windowId); // a detached window keeps its label
+  const always = (await getSwitcherSettings()).showSpaceGroup;
+  if (!always && !force && !hasOutsideTabs(windowId)) return removeSpaceGroup(windowId);
+  // Shown only to mark the Space's edge, the group takes all its tabs; the always-on group never reorders.
+  const marking = !always;
   const space = await (await getStorage()).getSpace(spaceId);
   if (!space) return removeSpaceGroup(windowId);
 
@@ -68,7 +82,7 @@ export async function ensureSpaceGroup(windowId: number, spaceId = getState(wind
     }
   }
 
-  const loose = joinableTabs(tabs, groupId) as [number, ...number[]];
+  const loose = (marking ? tabs.filter(isLoose).map(t => t.id!) : joinableTabs(tabs, groupId)) as [number, ...number[]];
   if (loose.length) {
     groupId = await chrome.tabs.group(groupId !== undefined ? { tabIds: loose, groupId } : { tabIds: loose, createProperties: { windowId } });
   }
@@ -80,10 +94,19 @@ export async function ensureSpaceGroup(windowId: number, spaceId = getState(wind
   if (g.title !== space.name || g.color !== color) await chrome.tabGroups.update(groupId, { title: space.name, color });
 }
 
-/** A tab just opened next to the Space group joins it, unless Chrome already put it in a group. */
+/**
+ * A tab just opened next to the Space group joins it, unless Chrome already put it in a
+ * group. A tab outside the Space is kept out of the group, even when Chrome put it there
+ * because it was opened from a tab in the group, and its arrival makes the group appear.
+ */
 export async function addToSpaceGroup(tab: chrome.tabs.Tab) {
-  if (!getState(tab.windowId).spaceId || isBusy(tab.windowId) || !isLoose(tab)) return;
-  await ensureSpaceGroup(tab.windowId);
+  const { spaceId, looseTabIds = [] } = getState(tab.windowId);
+  if (!spaceId || isBusy(tab.windowId) || tab.pinned) return;
+  if (looseTabIds.includes(tab.id!)) {
+    if (isSpaceGroup(tab.windowId, tab.groupId)) await chrome.tabs.ungroup(tab.id!).catch(() => {});
+    return ensureSpaceGroup(tab.windowId);
+  }
+  if (isLoose(tab)) await ensureSpaceGroup(tab.windowId);
 }
 
 /** Bring every window's group in line with renames, deletions (including synced ones) and the setting. */
@@ -101,7 +124,8 @@ export async function refreshSpaceGroups() {
  * A Space group is recognised by its Space's name and colour.
  */
 async function dissolveLeftoverSpaceGroups() {
-  const tabs = (await chrome.tabs.query({})).filter(t => t.groupId !== NONE);
+  const tracked = new Set([...allStates()].map(([, s]) => s.groupId)); // e.g. a detached window's label
+  const tabs = (await chrome.tabs.query({})).filter(t => t.groupId !== NONE && !tracked.has(t.groupId));
   if (!tabs.length) return;
   const store = await getStorage();
   const spaces = (await Promise.all((await store.listWorkspaces()).map(w => store.listSpaces(w.id)))).flat();

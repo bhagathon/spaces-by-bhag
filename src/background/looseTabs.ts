@@ -2,6 +2,7 @@ import { TAB_PROMPT_KEY } from '../shared/settings';
 import { getState, isBusy, setState } from './state';
 import { isHomeTab } from './homeTab';
 import { saveWindowToSpace } from './switcher';
+import { ensureSpaceGroup } from './spaceGroup';
 
 /**
  * Tabs opened in a Space window don't join its Space until the user says so. The panel
@@ -27,6 +28,7 @@ export async function addLooseTabs(windowId: number, tabIds?: number[]) {
   const left = tabIds ? (getState(windowId).looseTabIds ?? []).filter(id => !tabIds.includes(id)) : [];
   await setState(windowId, { looseTabIds: left.length ? left : undefined });
   await saveWindowToSpace(windowId);
+  await ensureSpaceGroup(windowId).catch(() => {}); // with nothing left outside, the group goes
   await updateBadge();
 }
 
@@ -35,6 +37,7 @@ export async function forgetLooseTab(windowId: number, tabId: number) {
   if (!ids?.includes(tabId)) return;
   const left = ids.filter(id => id !== tabId);
   await setState(windowId, { looseTabIds: left.length ? left : undefined });
+  if (!left.length) await ensureSpaceGroup(windowId).catch(() => {});
   await updateBadge();
 }
 
