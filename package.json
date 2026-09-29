@@ -1,6 +1,6 @@
 {
   "name": "spaces",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "",
   "scripts": {
     "test": "vitest run",
