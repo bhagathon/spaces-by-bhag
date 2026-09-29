@@ -8,6 +8,7 @@ import { getStorage } from '../storage';
 import { buildBackup, importBackup } from '../shared/backup';
 import type { Notice } from './notice';
 import { getTextScale, setTextScale, TEXT_SCALES, type TextScale } from './textScale';
+import { getAnimations, setAnimations } from './motion';
 import { getTasksBySpace, getVikunjaConfig, logInWithVikunja, setVikunjaConfig, TASKS_BY_SPACE_KEY } from '../shared/vikunja';
 import { getTabModelConfig, listModels, setTabModelConfig, type TabModelConfig } from '../shared/localModel';
 import { fetchLatestVersion, isNewer, type UpdateResult } from '../shared/update';
@@ -570,8 +571,10 @@ async function whoAmI(url: string, token: string) {
 
 function DisplaySettings() {
   const [scale, setScale] = useState<TextScale | null>(null);
+  const [animations, setAnimationsState] = useState(false);
   useEffect(() => {
     void getTextScale().then(setScale);
+    void getAnimations().then(setAnimationsState);
     const onChanged = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
       if (area === 'local' && 'textScale' in changes) void getTextScale().then(setScale);
     };
@@ -594,6 +597,15 @@ function DisplaySettings() {
         For the side panel; <kbd>⌘</kbd> <kbd>+</kbd> and <kbd>⌘</kbd> <kbd>−</kbd> change it there too. The full dashboard follows Chrome’s own
         zoom.
       </p>
+      <Check
+        label="Animations"
+        checked={animations}
+        onChange={v => {
+          setAnimationsState(v);
+          void setAnimations(v);
+        }}
+      />
+      <p className="hint">Off keeps Chrome lighter while tabs open and Spaces switch: everything changes instantly.</p>
     </fieldset>
   );
 }

@@ -3,7 +3,9 @@ import { Provider } from 'jotai';
 import { App, CommandWindow } from './App';
 import './app.css';
 import { initTextScale } from './textScale';
+import { initMotion } from './motion';
 
+initMotion();
 const dataView = document.body.dataset.view;
 const view = dataView === 'dashboard' ? 'dashboard' : 'panel';
 if (view === 'panel') {

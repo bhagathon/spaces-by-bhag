@@ -524,6 +524,15 @@ textarea.typed-input { height: auto; padding: 7px 10px; line-height: 1.45; }
 ::view-transition-new(view-label-drawer), ::view-transition-new(view-label-today),
 ::view-transition-new(view-label-history), ::view-transition-new(view-label-suspension) { animation: none; }
 
+/* Animations off (the default): nothing moves or fades, including the light change between Spaces. */
+:root[data-motion='off'],
+:root[data-motion='off'] *,
+:root[data-motion='off'] *::before,
+:root[data-motion='off'] *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
 /* During a Space switch the light carries the change; element transitions would only multiply the work. */
 :root[data-light-changing] body * { transition: none !important; }
 
@@ -881,3 +890,4 @@ a.divider-action { text-decoration: none; }
 .refresh.is-spinning .icon { animation: spin 700ms linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .refresh.is-spinning .icon { animation: none; opacity: 0.5; } }
+:root[data-motion='off'] .refresh.is-spinning .icon { opacity: 0.5; }

@@ -357,6 +357,9 @@ An agenda sheet of 32px rows (time column 5.4em in tabular 11px 600 ink-3, name,
 ### Tasks
 Below the Space sheet, a divider ("Tasks", refresh icon, "Open in Vikunja") over 32px rows: a 16px round check (1.5px ink-3 ring) and the title. Checking off is the section's one authored moment. The ring fills with ink with a brief press, and the tick draws in pill colour (180ms). A 1px strike then sweeps across the words only (260ms, after 160ms), the title fades to ink-3, and the row folds shut (260ms) at 440ms. A task added here rises 8px out of the add field below it. One that arrives from Vikunja or BusyCal on a refresh rises the same way, then its strong-glass glow fades over 1.4s. One finished elsewhere folds away. The list's first appearance staggers 30ms per row, capped at 6 rows. Under reduced motion there is no movement: rows fade in and out, and the check, strike and glow change instantly or by colour.
 
+### Motion setting
+Settings → Display → Animations is **off by default** (since 1.5.14). Off, `:root[data-motion='off']` drops every animation and transition, and switches skip the view transition, so nothing moves or fades: not the light change, the card swipe, the flip, the slips, or the Tasks motion. The UI changes instantly, as under Reduce Motion. The motion described in this file is what you see with Animations on.
+
 ## Do's and Don'ts
 
 ### Do:

@@ -8,6 +8,7 @@ import { canEdit, spaceColor, SPACE_COLORS, type GroupColor, type PresenceUser, 
 import type { Notice } from './notice';
 import { Verso } from './Resources';
 import { sortTabs, useCanSort } from './sortTabs';
+import { motionOn } from './motion';
 import { CloseIcon, DownIcon, FlipIcon, GlobeIcon, UpIcon } from './Icons';
 
 /** Chrome's own tab-group colours: data, not decoration. */
@@ -415,8 +416,7 @@ function PulledCard({
   // The card keeps its height through the turn, so the list below doesn't jump mid-rotation.
   const [heldHeight, setHeldHeight] = useState<number | null>(null);
   const turn = () => {
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) return setSide(s => (s === 'recto' ? 'verso' : 'recto'));
+    if (!motionOn()) return setSide(s => (s === 'recto' ? 'verso' : 'recto'));
     setHeldHeight(cardRef.current?.offsetHeight ?? null);
     setFlipPhase('out');
   };

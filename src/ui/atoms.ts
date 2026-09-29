@@ -1,5 +1,6 @@
 import { atom } from 'jotai';
 import { flushSync } from 'react-dom';
+import { motionOn } from './motion';
 import { getStorage } from '../storage';
 import { PRESENCE_KEY, SYNC_STATUS_KEY, WINDOW_STATES_KEY } from '../shared/settings';
 import type { PresenceUser, Space, SyncStatus, WindowState, Workspace } from '../shared/types';
@@ -21,8 +22,7 @@ windowIdAtom.onMount = set => {
  * view-transition-name (a card top and the pulled card) move between places.
  */
 export function withViewTransition(apply: () => void) {
-  const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!reduce && typeof document !== 'undefined' && 'startViewTransition' in document) {
+  if (motionOn() && 'startViewTransition' in document) {
     document.startViewTransition(() => flushSync(apply));
   } else apply();
 }
