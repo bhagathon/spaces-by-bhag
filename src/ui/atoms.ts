@@ -6,6 +6,9 @@ import type { PresenceUser, Space, SyncStatus, WindowState, Workspace } from '..
 
 export const windowIdAtom = atom<number | null>(null);
 windowIdAtom.onMount = set => {
+  // The ⌘K command window acts on the browser window it was opened over, not on itself.
+  const over = Number(new URLSearchParams(location.search).get('window'));
+  if (over) return set(over);
   void chrome.windows.getCurrent().then(w => set(w.id ?? null));
 };
 

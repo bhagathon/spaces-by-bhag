@@ -190,7 +190,7 @@ const LIGHT: Partial<Record<GroupColor | 'none', { h: number; c: number; spread:
 };
 
 /** Floods the page with the current Space's colour; --space-h is a registered property, so it glides. */
-function useSpaceLight() {
+export function useSpaceLight() {
   const currentId = useAtomValue(currentSpaceIdAtom);
   const space = useAtomValue(spacesAtom).find(s => s.id === currentId);
   // Every Space has a light: its own colour, or an automatic one. A window with no Space keeps the neutral pastel.
@@ -202,4 +202,32 @@ function useSpaceLight() {
     root.setProperty('--space-c', String(l.c));
     root.setProperty('--space-spread', String(l.spread));
   }, [color]);
+}
+
+/**
+ * The floating ⌘K window (Chrome shortcut, so it works from any page): the command bar
+ * alone, lit by the Space of the window it was opened over. It closes on Esc, on a
+ * pick, or when it loses focus.
+ */
+export function CommandWindow() {
+  useSpaceLight();
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    // Close when you click away, but only once it has really held focus: a window that is
+    // still opening can blur before it settles.
+    let held = document.hasFocus();
+    const onFocus = () => (held = true);
+    const onBlur = () => held && window.close();
+    window.addEventListener('focus', onFocus);
+    window.addEventListener('blur', onBlur);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      window.removeEventListener('blur', onBlur);
+    };
+  }, []);
+  return (
+    <div className="app app-command">
+      <CommandBar view="command" onClose={() => window.close()} onTab={() => setTick(t => t + 1)} onError={() => {}} onNotice={() => {}} />
+    </div>
+  );
 }

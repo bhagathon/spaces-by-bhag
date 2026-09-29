@@ -40,7 +40,7 @@ Keys (side panel):
 
 | Key | Action |
 |---|---|
-| `/` or `⌘K` | Find a Space or tab |
+| `⌘K` (anywhere) or `/` | Command bar: search Spaces and tabs, switch |
 | `↑` `↓` | Move through the drawer |
 | `↵` | Take the first match |
 | `1`–`9` | Switch to that card |

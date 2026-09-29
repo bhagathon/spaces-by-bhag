@@ -1,10 +1,11 @@
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'jotai';
-import { App } from './App';
+import { App, CommandWindow } from './App';
 import './app.css';
 import { initTextScale } from './textScale';
 
-const view = document.body.dataset.view === 'dashboard' ? 'dashboard' : 'panel';
+const dataView = document.body.dataset.view;
+const view = dataView === 'dashboard' ? 'dashboard' : 'panel';
 if (view === 'panel') {
   initTextScale();
   // Tell the worker this window's panel is open (for Control+S). Reconnect if the worker restarts.
@@ -15,6 +16,6 @@ if (view === 'panel') {
 }
 createRoot(document.getElementById('root')!).render(
   <Provider>
-    <App view={view} />
+    {dataView === 'command' ? <CommandWindow /> : <App view={view} />}
   </Provider>,
 );

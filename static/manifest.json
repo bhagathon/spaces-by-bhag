@@ -43,6 +43,13 @@
       },
       "description": "Open the Spaces dashboard"
     },
+    "command-bar": {
+      "suggested_key": {
+        "default": "Ctrl+K",
+        "mac": "Command+K"
+      },
+      "description": "Search Spaces and tabs (command bar)"
+    },
     "toggle-panel": {
       "suggested_key": {
         "default": "Alt+S",

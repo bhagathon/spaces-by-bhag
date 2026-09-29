@@ -21,6 +21,7 @@ import { UPDATE_HOST, type UpdateResult } from '../shared/update';
 import { addLooseTabs, forgetLooseTab, markNewTab, updateBadge } from './looseTabs';
 import { editSpace } from './editSpace';
 import { togglePanel, watchPanels } from './panelToggle';
+import { forgetCommandWindow, openCommandWindow } from './commandWindow';
 
 // All listeners are registered synchronously at top level so MV3 can wake the worker for them.
 
@@ -69,6 +70,7 @@ watchPanels();
 
 chrome.commands.onCommand.addListener((command, tab) => {
   if (command === 'toggle-panel' && tab?.windowId !== undefined) return togglePanel(tab.windowId);
+  if (command === 'command-bar' && tab?.windowId !== undefined) return void openCommandWindow(tab.windowId);
   if (command === 'open-dashboard') void openDashboard();
 });
 
@@ -128,6 +130,7 @@ chrome.windows.onCreated.addListener(w => {
 chrome.windows.onFocusChanged.addListener(() => void ready.then(updateBadge));
 
 chrome.windows.onRemoved.addListener(windowId => {
+  forgetCommandWindow(windowId);
   clearTimeout(saveTimers.get(windowId));
   saveTimers.delete(windowId);
   forgetWindowHash(windowId);

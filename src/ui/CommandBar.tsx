@@ -30,7 +30,7 @@ export function CommandBar({
   onError,
   onNotice,
 }: {
-  view: 'panel' | 'dashboard';
+  view: 'panel' | 'dashboard' | 'command';
   onClose: () => void;
   onTab: (t: CommandTab) => void;
   onError: (e: string) => void;
@@ -38,7 +38,9 @@ export function CommandBar({
 }) {
   const spaces = useAtomValue(spacesAtom);
   const currentId = useAtomValue(currentSpaceIdAtom);
-  const windowId = useAtomValue(windowIdAtom);
+  // The floating ⌘K window names its target window in its own URL; read it directly so an
+  // action can never run with a window ID that hasn't arrived through state yet.
+  const windowId = useAtomValue(windowIdAtom) ?? (Number(new URLSearchParams(location.search).get('window')) || null);
   const [q, setQ] = useState('');
   const [sel, setSel] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -101,7 +103,8 @@ export function CommandBar({
       ['suspension', 'Suspended'],
       ['settings', 'Settings'],
     ];
-    const goItems: Item[] = [
+    // The floating ⌘K window only switches Spaces and tabs; views live in the panel.
+    const goItems: Item[] = view === 'command' ? [] : [
       ...views.map(([t, label]) => ({ id: `v-${t}`, group: 'Go to' as const, label, run: () => onTab(t) })),
       ...(currentId
         ? [
@@ -114,7 +117,7 @@ export function CommandBar({
         : []),
     ].filter(i => has(i.label));
     return [...spaceItems.slice(0, RESULT_LIMIT), ...tabItems.slice(0, RESULT_LIMIT), ...goItems];
-  }, [q, spaces, currentId, view]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [q, spaces, currentId, view, windowId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => setSel(0), [q]);
   useEffect(() => {
@@ -123,6 +126,8 @@ export function CommandBar({
 
   const run = (item?: Item) => {
     if (!item) return;
+    // The floating window closes itself, which would cancel an unfinished action, so it acts first.
+    if (view === 'command') return void Promise.resolve(item.run()).finally(onClose);
     onClose();
     void item.run();
   };
