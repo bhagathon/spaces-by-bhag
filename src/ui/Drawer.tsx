@@ -339,6 +339,21 @@ function PulledCard({
   const [name, setName] = useState(space.name);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const canSort = useCanSort();
+  /** The tab just clicked, shown as active before the saved Space catches up. */
+  const [goingTo, setGoingTo] = useState<number | null>(null);
+  useEffect(() => setGoingTo(null), [space.activeIndex]);
+  const goToTab = async (index: number) => {
+    if (windowId == null || editing) return;
+    if (isHere) setGoingTo(index);
+    else document.documentElement.dataset.switchDir = 'next';
+    try {
+      const result = await send<'switched' | 'focused' | 'unchanged'>({ type: 'openSpaceTab', windowId, spaceId: space.id, index });
+      if (result === 'focused') onNotice({ text: `“${space.name}” is open in another window, so that window was brought to the front.` });
+    } catch (e) {
+      setGoingTo(null);
+      onError(errText(e));
+    }
+  };
   const [sorting, setSorting] = useState(false);
   const sort = async () => {
     if (windowId == null) return;
@@ -492,9 +507,18 @@ function PulledCard({
     lastGroup = t.groupKey;
     const label = t.title || t.url;
     entries.push(
-      <li key={i} className={`entry${t.groupKey ? ' entry-grouped' : ''}${i === space.activeIndex ? ' entry-active' : ''}${editing ? ' entry-editing' : ''}`} title={t.url}>
-        <Favicon url={t.favIconUrl} />
-        <span className="entry-title">{label}</span>
+      <li key={i} className={`entry${t.groupKey ? ' entry-grouped' : ''}${i === (goingTo ?? space.activeIndex) ? ' entry-active' : ''}${editing ? ' entry-editing' : ''}`} title={t.url}>
+        {editing ? (
+          <>
+            <Favicon url={t.favIconUrl} />
+            <span className="entry-title">{label}</span>
+          </>
+        ) : (
+          <button type="button" className="entry-go" onClick={() => void goToTab(i)} aria-label={isHere ? `Go to ${label}` : `Switch to ${space.name} and open ${label}`}>
+            <Favicon url={t.favIconUrl} />
+            <span className="entry-title">{label}</span>
+          </button>
+        )}
         {editing && (
           <span className="entry-tools">
             <button className="icon-button small" aria-label={`Move ${label} up`} disabled={i === 0} onClick={() => void applyEdit({ spaceId: space.id, op: 'moveTab', index: i, to: i - 1 })}>
@@ -745,8 +769,10 @@ function LooseTabs({ spaceName, onError }: { spaceName: string; onError: (e: str
       <ol className="entries">
         {tabs.map(t => (
           <li key={t.id} className="entry entry-loose" title={t.url}>
-            <Favicon url={t.favIconUrl} />
-            <span className="entry-title">{t.title || t.pendingUrl || t.url || 'New tab'}</span>
+            <button type="button" className="entry-go" onClick={() => void chrome.tabs.update(t.id!, { active: true })} aria-label={`Go to ${t.title || 'tab'}`}>
+              <Favicon url={t.favIconUrl} />
+              <span className="entry-title">{t.title || t.pendingUrl || t.url || 'New tab'}</span>
+            </button>
             <button className="text-button" aria-label={`Add ${t.title || 'tab'} to ${spaceName}`} onClick={() => add([t.id!])}>
               Add
             </button>

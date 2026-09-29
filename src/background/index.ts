@@ -8,6 +8,7 @@ import {
   recoverInterruptedSwitches,
   restoreSnapshot,
   saveWindowToSpace,
+  openSpaceTab,
   switchSpace,
 } from './switcher';
 import { forgetWindowHash, pruneSnapshots, snapshotAllWindows } from './snapshots';
@@ -154,6 +155,8 @@ async function handle(msg: Request, sender: chrome.runtime.MessageSender): Promi
   switch (msg.type) {
     case 'switchSpace':
       return switchSpace(msg.windowId, msg.spaceId).finally(updatePresence);
+    case 'openSpaceTab':
+      return openSpaceTab(msg.windowId, msg.spaceId, msg.index).finally(updatePresence);
     case 'createSpaceFromWindow':
       return createSpaceFromWindow(msg.windowId, msg.name, msg.workspaceId).finally(updatePresence);
     case 'detachWindow':

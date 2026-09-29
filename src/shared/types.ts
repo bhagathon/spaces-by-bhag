@@ -144,6 +144,7 @@ export interface SwitcherSettings {
 /** Messages the UI sends to the service worker. */
 export type Request =
   | { type: 'switchSpace'; windowId: number; spaceId: string }
+  | { type: 'openSpaceTab'; windowId: number; spaceId: string; index: number }
   | { type: 'createSpaceFromWindow'; windowId: number; name: string; workspaceId?: string }
   | { type: 'detachWindow'; windowId: number }
   | { type: 'restoreSnapshot'; windowId: number; snapshotId: string }

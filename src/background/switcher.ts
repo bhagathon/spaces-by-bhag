@@ -166,6 +166,31 @@ function waitUntilDiscardable(tabId: number, timeoutMs = 10_000): Promise<boolea
  */
 export type SwitchResult = 'switched' | 'focused' | 'unchanged';
 
+/**
+ * Go to one of a Space's tabs: in this window if it holds the Space, in the window
+ * that does if another one does (brought to the front), or by switching this window
+ * to the Space first.
+ */
+export async function openSpaceTab(windowId: number, spaceId: string, index: number): Promise<SwitchResult> {
+  const space = await (await getStorage()).getSpace(spaceId);
+  const want = space?.tabs[index];
+  if (!want) throw new Error('That tab is no longer in the Space');
+  const result = getState(windowId).spaceId === spaceId ? 'unchanged' : await switchSpace(windowId, spaceId);
+  const target = result === 'focused' ? [...allStates()].find(([id, s]) => id !== windowId && s.spaceId === spaceId)?.[0] ?? windowId : windowId;
+  // The lock waits out a switch still opening tabs.
+  const tabId = await withWindowLock(target, async () => {
+    const { tabs, tabIds } = await captureWindow(target);
+    // Same position if it still holds the same page; otherwise the first tab showing it.
+    if (tabs[index]?.url === want.url) return tabIds[index];
+    const at = tabs.findIndex(t => t.url === want.url);
+    return at >= 0 ? tabIds[at] : undefined;
+  });
+  if (tabId === undefined) throw new Error('That tab is no longer open');
+  await chrome.tabs.update(tabId, { active: true });
+  if (target !== windowId) await chrome.windows.update(target, { focused: true });
+  return result;
+}
+
 export function switchSpace(windowId: number, targetSpaceId: string): Promise<SwitchResult> {
   return withWindowLock(windowId, async (): Promise<SwitchResult> => {
     if (getState(windowId).spaceId === targetSpaceId) return 'unchanged';
