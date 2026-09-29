@@ -894,7 +894,7 @@ a.agenda-name:hover { text-decoration: underline; text-underline-offset: 3px; }
   background: var(--card);
   border: 1px solid var(--card-edge);
   border-top: 3px solid var(--red);
-  border-radius: 2px 2px 3px 3px;
+  border-radius: 0 0 3px 3px; /* square under the red rule, so the rule stays a straight cut */
   box-shadow: 0 1px 1px color-mix(in srgb, var(--ink) 10%, transparent), 0 16px 32px -12px color-mix(in srgb, var(--ink) 40%, transparent);
   font-family: var(--type);
   overflow: hidden;
