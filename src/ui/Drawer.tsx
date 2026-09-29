@@ -158,6 +158,13 @@ export function Drawer({
     else void pull(space);
   };
 
+  // The command bar opens a card on the dashboard.
+  useEffect(() => {
+    const onOpen = (e: Event) => setInspected((e as CustomEvent<string>).detail);
+    window.addEventListener('spaces:open-card', onOpen);
+    return () => window.removeEventListener('spaces:open-card', onOpen);
+  }, []);
+
   // Keyboard: 1–9 pulls by call number; arrows walk the drawer; Enter in the filter takes the first card.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -215,27 +222,10 @@ export function Drawer({
     );
 
   const drawer = (
-    <section className="drawer" aria-label="Spaces in the drawer">
-      <label className="label-holder">
-        <SearchIcon />
-        <span className="visually-hidden">Find a Space or tab</span>
-        <input
-          ref={filterRef}
-          type="search"
-          placeholder="Find a Space or tab"
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          onKeyDown={e => {
-            if (e.key === 'Escape') {
-              setQuery('');
-              (e.target as HTMLInputElement).blur();
-            }
-          }}
-        />
-        {!query && <kbd aria-hidden>/</kbd>}
-      </label>
+    <section className="drawer" aria-label="Other Spaces">
+      <h2 className="drawer-title">{view === 'panel' ? 'Other Spaces' : 'Spaces'}</h2>
       {spaces.length === 0 ? (
-        <p className="drawer-note">The drawer is empty. File this window above and its card goes here; every Space you file gets a card and a call number.</p>
+        <p className="drawer-note">No Spaces yet. Name this window above and it becomes your first Space; each Space gets a number key.</p>
       ) : (
         <ul className="drawer-list" ref={listRef}>
           {filed.map(({ workspace, spaces: items }) => (
@@ -249,7 +239,7 @@ export function Drawer({
                 </div>
               )}
               {items.length === 0 ? (
-                <p className="drawer-note">{view === 'panel' && current?.workspaceId === workspace.id ? 'No other cards filed here.' : 'No cards filed here yet.'}</p>
+                <p className="drawer-note">{view === 'panel' && current?.workspaceId === workspace.id ? 'No other Spaces here.' : 'No Spaces here yet.'}</p>
               ) : (
                 <ul className="drawer-list">
                   {items.map(({ space, via, callNo }) => {
@@ -290,24 +280,17 @@ export function Drawer({
           ))}
         </ul>
       )}
-      {q && flat.length === 0 && spaces.length > 0 && <p className="drawer-note">No card or tab matches “{query.trim()}”.</p>}
+      {q && flat.length === 0 && spaces.length > 0 && <p className="drawer-note">No Space or tab matches “{query.trim()}”.</p>}
       <p className="drawer-hint">
         <span className="key-entry">
-          <kbd>/</kbd> find
-        </span>
-        <span className="key-entry">
-          <kbd>↑</kbd>
-          <kbd>↓</kbd> move
-        </span>
-        <span className="key-entry">
-          <kbd>↵</kbd> first match
+          <kbd>⌘K</kbd> search
         </span>
         <span className="key-entry">
           <kbd>1</kbd>–<kbd>9</kbd> {view === 'panel' ? 'switch' : 'open'}
         </span>
         {view === 'panel' && (
           <span className="key-entry">
-            <kbd>V</kbd> flip card
+            <kbd>V</kbd> resources
           </span>
         )}
       </p>
@@ -364,6 +347,22 @@ function PulledCard({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [editing, setEditing] = useState(false);
+
+  // The command bar's "Edit this Space" and "Resources" act on this window's card.
+  useEffect(() => {
+    if (!isHere) return;
+    const onEdit = () => {
+      setSide('recto');
+      setEditing(true);
+    };
+    const onFlip = () => turn();
+    window.addEventListener('spaces:edit', onEdit);
+    window.addEventListener('spaces:flip', onFlip);
+    return () => {
+      window.removeEventListener('spaces:edit', onEdit);
+      window.removeEventListener('spaces:flip', onFlip);
+    };
+  });
 
   /** Card edits go through the worker, which applies them to the window if the Space is open. */
   const applyEdit = async (edit: SpaceEdit, undoText?: string) => {
@@ -506,7 +505,7 @@ function PulledCard({
   const meta = [
     plural(space.tabs.length, 'tab'),
     space.groups.length ? plural(space.groups.length, 'group') : null,
-    workspace && workspace.kind === 'team' ? `filed under ${workspace.name}` : null,
+    workspace && workspace.kind === 'team' ? `in ${workspace.name}` : null,
     `updated ${ago(space.updatedAt)}`,
   ]
     .filter(Boolean)
@@ -541,7 +540,7 @@ function PulledCard({
         {entries}
       </ol>
       {isHere && <LooseTabs spaceName={space.name} onError={onError} />}
-      {space.tabs.length === 0 && <p className="blank-lede">No tabs on this card. Open pages in this window and they're typed onto it.</p>}
+      {space.tabs.length === 0 && <p className="blank-lede">No tabs in this Space yet. Pages you open in this window can be added to it.</p>}
       {space.tabs.length > ENTRY_LIMIT && !editing && (
         <div className="entries-more">
           <button className="text-button" onClick={() => setShowAll(v => !v)}>
@@ -596,7 +595,7 @@ function PulledCard({
       {confirmDelete ? (
         <>
           <button className="text-button danger" onClick={() => void remove()} aria-label={`Confirm delete ${space.name}`}>
-            Delete card
+            Delete Space
           </button>
           <button className="text-button" onClick={() => setConfirmDelete(false)}>
             Keep
@@ -766,12 +765,12 @@ function UnfiledCard({ onError }: { onError: (e: string) => void }) {
   };
 
   return (
-    <article className="card pulled blank-card" aria-label="This window isn't filed">
+    <article className="card pulled blank-card" aria-label="This window isn't in a Space">
       <header className="card-head">
-        <h2 className="card-name">Unfiled window</h2>
+        <h2 className="card-name">New Space</h2>
       </header>
       <p className="blank-lede">
-        {tabCount === null ? 'This window isn’t in any Space.' : `${plural(tabCount, 'tab')} open here, not in any Space.`} Name it to file a card; its tabs are
+        {tabCount === null ? 'This window isn’t in any Space.' : `${plural(tabCount, 'tab')} open here, not in any Space.`} Name it to make it a Space; its tabs are
         kept from then on.
       </p>
       <form
@@ -787,7 +786,7 @@ function UnfiledCard({ onError }: { onError: (e: string) => void }) {
         </label>
         {editable.length > 1 && (
           <label style={{ flex: '0 1 140px' }}>
-            File under
+            Workspace
             <select className="typed-input" value={workspaceId} onChange={e => setWorkspaceId(e.target.value)}>
               {editable.map(w => (
                 <option key={w.id} value={w.id}>
@@ -798,7 +797,7 @@ function UnfiledCard({ onError }: { onError: (e: string) => void }) {
           </label>
         )}
         <button type="submit" className="plate-button" disabled={busy || !name.trim()}>
-          {busy ? 'Filing…' : 'File card'}
+          {busy ? 'Creating…' : 'Create Space'}
         </button>
       </form>
     </article>

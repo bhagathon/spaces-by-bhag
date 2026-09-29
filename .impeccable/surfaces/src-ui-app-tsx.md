@@ -5,31 +5,24 @@ primary_target: "src/ui/App.tsx"
 related_targets: ["src/ui/app.css","static/panel.html","static/dashboard.html"]
 ---
 
----
-version: 1
-slug: "src-ui-app-tsx"
-primary_target: "src/ui/App.tsx"
-related_targets: ["src/ui/app.css","static/panel.html","static/dashboard.html"]
----
-
 # Spaces UI: side panel + dashboard
 
-Mode: Operate. Scope: the whole extension UI (panel is primary, dashboard secondary; same app, `data-view`).
+Mode: Operate. Scope: the whole extension UI (panel primary, dashboard/home tab secondary; same app, `data-view`), including Today, History, Suspended and Settings.
 Audience/job: one person, panel docked all day beside real work; glance to know which Space this window holds, switch fast, often by keyboard.
-Constraints: keyboard-first; dense, not sparse; never loud or generic-SaaS; light + dark; bundled fonts only.
-Adaptations (cited): the dashboard lays the opened card flat on the desk, recto and verso side by side, instead of flipping it; its verso card takes a plain stock-edge top rule so red stays on the one pulled card. The find field is the drawer's own label holder, sitting at the top of the drawer.
+Brief (pinned by the user, 2026-09-28): rebuild in the Arc Browser language from the saasui.design Arc screenshots. A Space's colour tints the whole panel. Keep: number keys 1–9 to switch, the flip to Resources (V). Add: an Arc-style command bar.
+Constraints: keyboard-first; light + dark; no remote fonts or scripts (system stack is Arc's own face); reduced motion honoured; 320–480px panel.
 Unresolved: none.
 
 ## Direction contract
 
-THESIS: Every Space is an index card in one drawer. This window's Space is the card pulled up and read; the rest are card tops you flick to. Refuses the rounded-card SaaS sidebar with a highlighted row and purple accent.
+THESIS: The panel is the Space's own light. Each Space has a colour; it floods the sidebar as a soft gradient and everything else is glass laid on that light. Switching Spaces is the light changing. Refuses a flat grey sidebar with a coloured highlight row.
 
-OWN-WORLD: Steel-cabinet grey-green drawer ground; white card stock with faint blue ruling; typed ink entries in a typewriter face; workspace guide cards with protruding tabs; rubber-stamp state marks in a fixed right cell (HERE, OPEN, device, PENDING, VIEW ONLY). Red is spent only on the pulled card's top rule and the act of pulling. Raises: one accent for one action (cape); distinct stamped states (tensegrity); rank = how far a card is pulled, no shadows/badges (cracktro); absence drawn as typed blank cards (seven-segment).
+OWN-WORLD: Pastel mesh ground in the Space's hue (OKLCH, low chroma, three blurred blobs), frosted white glass sheets (translucent, 12px radius, soft shadow), tab rows as quiet 36px rows whose active one is a white pill with a lifted shadow, favicon + title in the system sans, hairline dividers with a quiet trailing action, a centred command bar with the Space colour as its selection. No colour on rows or controls except the Space hue in selection and focus. Raises: cyclorama (light is the structure; each Space a discrete named phase, colour never the only cue); civic prospectus (all colour spent on one field, the ground; controls stay neutral glass).
 
-STORY: Glance: the pulled card names where you are and what's in it. Act: type or press a call number, a card rises, the old one files down.
+STORY: Glance: the light and the name say which Space this is; its tabs sit on one sheet. Act: ⌘K or /, type, Enter, and the light shifts to the next Space. 1–9 still switch.
 
-FIRST VIEWPORT: Panel top: the pulled card at full width, typed name, call-number corner, tab entries with group headings, stamp cell. Below, one-line card tops under guide cards. Filter field is the drawer label.
+FIRST VIEWPORT: Panel top: a translucent command pill ("Search Spaces and tabs", ⌘K) with settings and catalog icons; a glass segmented control (Spaces · Today · History · Suspended); the current Space sheet: colour dot, name, meta, its tabs as Arc rows with the active white pill, a quiet action row (Resources · Edit · Detach). Below the sheet, other Spaces as rows with colour dot, count and number key.
 
-FORM: Card Catalog, candidate 6 of 7, seed d2dd74d0. Signature interaction: the card pull (FLIP rise/file-down, reduced-motion safe). Resources = the card's verso.
+FORM: Arc sidebar language, user-pinned (overrides seed 3b449510's assignment). Code-led; Arc screenshots are the critique reference. Signature interaction: the light change, a registered --space-h hue transition across the whole ground on switch (reduced motion: instant), with the card-pull view transition kept.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

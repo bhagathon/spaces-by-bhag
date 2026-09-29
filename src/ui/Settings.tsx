@@ -386,16 +386,10 @@ function DisplaySettings() {
   return (
     <fieldset>
       <legend>Display</legend>
-      <div className="row" role="group" aria-label="Text size in the side panel">
-        <span className="field">Text size</span>
+      <span className="field-label">Text size</span>
+      <div className="segmented" role="group" aria-label="Text size in the side panel">
         {TEXT_SCALES.map(s => (
-          <button
-            key={s.value}
-            type="button"
-            className={`plate-button${s.value === scale ? '' : ' outline'}`}
-            aria-pressed={s.value === scale}
-            onClick={() => void setTextScale(s.value)}
-          >
+          <button key={s.value} type="button" className="segment" aria-pressed={s.value === scale} onClick={() => void setTextScale(s.value)}>
             {s.label}
           </button>
         ))}

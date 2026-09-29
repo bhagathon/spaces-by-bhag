@@ -7,6 +7,10 @@ import { Suspension } from './Suspension';
 import { Settings } from './Settings';
 import { Agenda, NextUp } from './Agenda';
 import { TabPrompt } from './TabPrompt';
+import { CommandBar } from './CommandBar';
+import { currentSpaceIdAtom, spacesAtom } from './atoms';
+import { SearchIcon } from './Icons';
+import type { GroupColor } from '../shared/types';
 import { getTextScale, setTextScale, stepScale } from './textScale';
 import { CabinetIcon, CloseIcon, SlidersIcon } from './Icons';
 import type { Notice } from './notice';
@@ -26,6 +30,8 @@ export function App({ view }: { view: 'panel' | 'dashboard' }) {
   const [notice, setNoticeState] = useState<Notice | null>(null);
   const noticeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const filterRef = useRef<HTMLInputElement>(null);
+  const [commandOpen, setCommandOpen] = useState(false);
+  useSpaceLight();
 
   const setNotice = (n: Notice | null) => {
     clearTimeout(noticeTimer.current);
@@ -48,14 +54,7 @@ export function App({ view }: { view: 'panel' | 'dashboard' }) {
       }
       if (slash || modK) {
         e.preventDefault();
-        // Focus synchronously when the drawer is showing, so keys typed right after "/" land in the field.
-        if (filterRef.current) {
-          filterRef.current.focus();
-          filterRef.current.select();
-        } else {
-          setTab('drawer');
-          requestAnimationFrame(() => filterRef.current?.focus());
-        }
+        setCommandOpen(true);
       }
     };
     window.addEventListener('keydown', onKey);
@@ -65,7 +64,12 @@ export function App({ view }: { view: 'panel' | 'dashboard' }) {
   return (
     <div className={`app app-${view}`}>
       <header className="drawer-front">
-        <h1 className="wordmark">Spaces</h1>
+        <h1 className="visually-hidden">Spaces</h1>
+        <button className="cmd-pill" onClick={() => setCommandOpen(true)} aria-keyshortcuts="Meta+K /" aria-label="Search Spaces and tabs">
+          <SearchIcon />
+          <span className="cmd-pill-text">Search Spaces and tabs</span>
+          <kbd aria-hidden>⌘K</kbd>
+        </button>
         <SyncStamp />
         {/* Settings lives here, not in the tab row, so the views you switch between fit a 320px panel. */}
         <button
@@ -130,6 +134,15 @@ export function App({ view }: { view: 'panel' | 'dashboard' }) {
         </div>
       )}
 
+      {commandOpen && (
+        <CommandBar
+          view={view}
+          onClose={() => setCommandOpen(false)}
+          onTab={setTab}
+          onError={setError}
+          onNotice={text => setNotice({ text })}
+        />
+      )}
       {view === 'panel' && <TabPrompt onError={setError} />}
 
       <main>
@@ -162,4 +175,32 @@ function SyncStamp() {
       </span>
     </span>
   );
+}
+
+/* The Space's light: Chrome's group colours as hues for the whole ground (OKLCH).
+   Grey is near-neutral; no colour is Arc's own mixed pastel. */
+const LIGHT: Record<GroupColor | 'none', { h: number; c: number; spread: number }> = {
+  none: { h: 250, c: 0.07, spread: 140 },
+  grey: { h: 250, c: 0.012, spread: 20 },
+  blue: { h: 255, c: 0.08, spread: 28 },
+  cyan: { h: 205, c: 0.07, spread: 26 },
+  green: { h: 150, c: 0.07, spread: 30 },
+  yellow: { h: 95, c: 0.08, spread: 26 },
+  orange: { h: 60, c: 0.08, spread: 26 },
+  pink: { h: 355, c: 0.08, spread: 28 },
+  purple: { h: 300, c: 0.08, spread: 30 },
+  red: { h: 25, c: 0.08, spread: 24 },
+};
+
+/** Floods the page with the current Space's colour; --space-h is a registered property, so it glides. */
+function useSpaceLight() {
+  const currentId = useAtomValue(currentSpaceIdAtom);
+  const color = useAtomValue(spacesAtom).find(s => s.id === currentId)?.color;
+  useEffect(() => {
+    const l = LIGHT[color ?? 'none'];
+    const root = document.documentElement.style;
+    root.setProperty('--space-h', String(l.h));
+    root.setProperty('--space-c', String(l.c));
+    root.setProperty('--space-spread', String(l.spread));
+  }, [color]);
 }
