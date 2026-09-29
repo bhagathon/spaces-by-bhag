@@ -14,6 +14,7 @@ export const SWITCHER_DEFAULTS: SwitcherSettings = {
   keepPinnedAcrossSpaces: true,
   lazyLoad: true,
   showSpaceGroup: false,
+  markOutsideTabs: true,
   homeTab: true,
 };
 

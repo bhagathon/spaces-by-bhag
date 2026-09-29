@@ -47,6 +47,13 @@ export function Settings({ onError, onNotice }: { onError: (e: string) => void; 
         <Check label="Keep pinned tabs across all Spaces" checked={switcher.keepPinnedAcrossSpaces} onChange={v => saveSwitcher({ keepPinnedAcrossSpaces: v })} />
         <Check label="Load background tabs only when clicked" checked={switcher.lazyLoad} onChange={v => saveSwitcher({ lazyLoad: v })} />
         <Check label="Show each window’s Space as a tab group" checked={switcher.showSpaceGroup} onChange={v => saveSwitcher({ showSpaceGroup: v })} />
+        {!switcher.showSpaceGroup && (
+          <Check
+            label="Group the Space’s tabs while a tab outside it is open"
+            checked={switcher.markOutsideTabs}
+            onChange={v => saveSwitcher({ markOutsideTabs: v })}
+          />
+        )}
         <p className="hint">Tabs already in a group you made stay in it; Chrome can’t put a group inside another group.</p>
         <Check label="Pin a Spaces home tab in each Space window" checked={switcher.homeTab} onChange={v => saveSwitcher({ homeTab: v })} />
       </fieldset>

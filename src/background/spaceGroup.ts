@@ -63,8 +63,8 @@ export async function removeSpaceGroup(windowId: number) {
  */
 export async function ensureSpaceGroup(windowId: number, spaceId = getState(windowId).spaceId, { force = false } = {}) {
   if (!spaceId) return getState(windowId).detached ? undefined : removeSpaceGroup(windowId); // a detached window keeps its label
-  const always = (await getSwitcherSettings()).showSpaceGroup;
-  if (!always && !force && !hasOutsideTabs(windowId)) return removeSpaceGroup(windowId);
+  const { showSpaceGroup: always, markOutsideTabs } = await getSwitcherSettings();
+  if (!always && !force && !(markOutsideTabs && hasOutsideTabs(windowId))) return removeSpaceGroup(windowId);
   // Shown only to mark the Space's edge, the group takes all its tabs; the always-on group never reorders.
   const marking = !always;
   const space = await (await getStorage()).getSpace(spaceId);

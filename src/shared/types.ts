@@ -137,6 +137,8 @@ export interface SwitcherSettings {
   lazyLoad: boolean;
   /** Put the window's ungrouped tabs in a tab group named after its Space. */
   showSpaceGroup: boolean;
+  /** While a tab outside the Space is open, group the Space's tabs so it stands apart. */
+  markOutsideTabs: boolean;
   /** Keep the Spaces dashboard as a pinned first tab in every Space window. */
   homeTab: boolean;
 }

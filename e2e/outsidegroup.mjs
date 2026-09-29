@@ -81,6 +81,16 @@ try {
   await wait(800);
   s = await strip(w);
   check('attaching the window to a Space removes the group', s.every(t => !t.includes('[')), s);
+
+  // Turned off in Settings: an outside tab leaves the Space's tabs ungrouped.
+  await sw.evaluate(() => chrome.storage.local.set({ switcher: { lazyLoad: false, showSpaceGroup: false, homeTab: false, markOutsideTabs: false } }));
+  const w3 = await sw.evaluate(async base => (await chrome.windows.create({ url: [`${base}/p`, `${base}/q`] })).id, base);
+  await wait(800);
+  await send({ type: 'createSpaceFromWindow', windowId: w3, name: 'Quiet' });
+  await sw.evaluate(({ w3, base }) => chrome.tabs.create({ windowId: w3, url: `${base}/outside2` }), { w3, base });
+  await wait(1200);
+  s = await strip(w3);
+  check('with the setting off, an outside tab doesn’t group the Space', s.every(t => !t.includes('[')), s);
 } finally {
   await ctx.close();
   pages.close();
