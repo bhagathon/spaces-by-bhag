@@ -165,6 +165,17 @@ export type SpaceEdit =
 /** Colours a Space can take: Chrome's tab-group colours, minus red (the One Red Rule). */
 export const SPACE_COLORS: GroupColor[] = ['blue', 'cyan', 'green', 'yellow', 'orange', 'pink', 'purple', 'grey'];
 
+/** Automatic colours: the vivid ones, so every Space has its own light like Arc's. */
+const AUTO_COLORS: GroupColor[] = ['blue', 'purple', 'green', 'orange', 'cyan', 'pink', 'yellow'];
+
+/** A Space's colour: the one the user picked, else a stable one derived from its id. */
+export function spaceColor(space: { id: string; color?: GroupColor }): GroupColor {
+  if (space.color) return space.color;
+  let h = 0;
+  for (const c of space.id) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return AUTO_COLORS[h % AUTO_COLORS.length];
+}
+
 export type Response<T = unknown> = { ok: true; value?: T } | { ok: false; error: string };
 
 export interface SyncStatus {

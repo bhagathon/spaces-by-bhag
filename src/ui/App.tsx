@@ -10,7 +10,7 @@ import { TabPrompt } from './TabPrompt';
 import { CommandBar } from './CommandBar';
 import { currentSpaceIdAtom, spacesAtom } from './atoms';
 import { SearchIcon } from './Icons';
-import type { GroupColor } from '../shared/types';
+import { spaceColor, type GroupColor } from '../shared/types';
 import { getTextScale, setTextScale, stepScale } from './textScale';
 import { CabinetIcon, CloseIcon, SlidersIcon } from './Icons';
 import type { Notice } from './notice';
@@ -192,7 +192,9 @@ const LIGHT: Partial<Record<GroupColor | 'none', { h: number; c: number; spread:
 /** Floods the page with the current Space's colour; --space-h is a registered property, so it glides. */
 function useSpaceLight() {
   const currentId = useAtomValue(currentSpaceIdAtom);
-  const color = useAtomValue(spacesAtom).find(s => s.id === currentId)?.color;
+  const space = useAtomValue(spacesAtom).find(s => s.id === currentId);
+  // Every Space has a light: its own colour, or an automatic one. A window with no Space keeps the neutral pastel.
+  const color = space ? spaceColor(space) : undefined;
   useEffect(() => {
     const l = LIGHT[color ?? 'none'] ?? LIGHT.none;
     const root = document.documentElement.style;

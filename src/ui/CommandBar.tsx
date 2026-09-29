@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useAtomValue } from 'jotai';
 import { currentSpaceIdAtom, spacesAtom, windowIdAtom } from './atoms';
 import { send } from './api';
-import type { Space } from '../shared/types';
+import { spaceColor, type Space } from '../shared/types';
 import { GlobeIcon, SearchIcon } from './Icons';
 
 export type CommandTab = 'drawer' | 'today' | 'history' | 'suspension' | 'settings';
@@ -77,7 +77,7 @@ export function CommandBar({
         group: 'Spaces',
         label: s.name,
         sub: s.id === currentId ? 'This window' : `${s.tabs.length} tab${s.tabs.length === 1 ? '' : 's'}`,
-        icon: <span className="cmd-dot" style={{ background: s.color ? `var(--gc-${s.color})` : 'var(--ink-3)' }} aria-hidden />,
+        icon: <span className="cmd-dot" style={{ background: `var(--gc-${spaceColor(s)})` }} aria-hidden />,
         run: go(s),
       }));
     const tabItems: Item[] = needle

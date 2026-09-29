@@ -619,11 +619,8 @@ input[type='checkbox'] { accent-color: var(--accent); width: 15px; height: 15px;
   box-shadow: inset 0 0 0 1px oklch(0.2 0 0 / 0.14);
 }
 .color-chip.chosen { outline: 2px solid var(--ink); outline-offset: 2px; }
-.color-chip.none {
-  background:
-    linear-gradient(to top right, transparent calc(50% - 0.75px), var(--ink-3) calc(50% - 0.75px), var(--ink-3) calc(50% + 0.75px), transparent calc(50% + 0.75px)),
-    var(--pill);
-}
+/* Automatic: the Space's derived colour, marked A so it reads as "picked for you". */
+.color-chip.auto { display: inline-grid; place-items: center; font: 700 10px / 1 var(--sans); color: #fff; text-shadow: 0 1px 1px rgb(0 0 0 / 0.25); }
 .entries.editing .entry { min-height: calc(34px * var(--scale)); }
 .entry-editing { border-radius: 9px; }
 .entry-tools { display: flex; gap: 1px; margin-left: auto; flex: none; }

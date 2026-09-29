@@ -4,7 +4,7 @@ import { currentSpaceIdAtom, openSpacesAtom, presenceAtom, spacesAtom, windowIdA
 import { Agenda } from './Agenda';
 import { getStorage, PERSONAL_WORKSPACE_ID } from '../storage';
 import { send } from './api';
-import { canEdit, SPACE_COLORS, type GroupColor, type PresenceUser, type Space, type SpaceEdit, type Workspace } from '../shared/types';
+import { canEdit, spaceColor, SPACE_COLORS, type GroupColor, type PresenceUser, type Space, type SpaceEdit, type Workspace } from '../shared/types';
 import type { Notice } from './notice';
 import { Verso } from './Resources';
 import { CloseIcon, DownIcon, FlipIcon, GlobeIcon, UpIcon } from './Icons';
@@ -250,7 +250,7 @@ export function Drawer({
                           <span className={`callno${callNo ? '' : ' callno-empty'}`}>{callNo ?? ''}</span>
                           <span style={{ minWidth: 0 }}>
                             <span className="top-name">
-                              {space.color && <span className="swatch" style={{ background: groupInk(space.color) }} aria-hidden />}
+                              <span className="swatch" style={{ background: groupInk(spaceColor(space)) }} aria-hidden />
                               <Highlight text={space.name} q={q} />
                             </span>
                             {via && (
@@ -511,12 +511,16 @@ function PulledCard({
         <div className="color-row" role="radiogroup" aria-label={`Color for ${space.name}`}>
           <span className="field-label">Color</span>
           <button
-            className={`color-chip none${!space.color ? ' chosen' : ''}`}
+            className={`color-chip auto${!space.color ? ' chosen' : ''}`}
+            style={{ background: groupInk(spaceColor({ id: space.id })) }}
             role="radio"
             aria-checked={!space.color}
-            aria-label="No color"
+            aria-label={`Automatic (${spaceColor({ id: space.id })})`}
+            title="Automatic color"
             onClick={() => void applyEdit({ spaceId: space.id, op: 'setColor', color: undefined })}
-          />
+          >
+            A
+          </button>
           {SPACE_COLORS.map(c => (
             <button
               key={c}
@@ -570,7 +574,7 @@ function PulledCard({
         />
       ) : (
         <h2 className="card-name">
-          {space.color && <span className="swatch swatch-lg" style={{ background: groupInk(space.color) }} aria-hidden />}
+          <span className="swatch swatch-lg" style={{ background: groupInk(spaceColor(space)) }} aria-hidden />
           {space.name}
         </h2>
       )}
