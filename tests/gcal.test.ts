@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { authUrl, parseAuthRedirect, toAgenda } from '../src/shared/gcal';
+import { authUrl, NeedsSignIn, parseAuthRedirect, toAgenda } from '../src/shared/gcal';
 
 describe('Google sign-in', () => {
   it('asks for read-only calendar access with a token response, silently when not interactive', () => {
@@ -12,7 +12,8 @@ describe('Google sign-in', () => {
       scope: 'https://www.googleapis.com/auth/calendar.readonly',
       prompt: 'none',
     });
-    expect(new URL(authUrl('c', 'https://r/', true)).searchParams.get('prompt')).toBe('consent');
+    expect(new URL(authUrl('c', 'https://r/', true)).searchParams.get('prompt')).toBe('select_account consent');
+    expect(new URL(authUrl('c', 'https://r/', false, 'me@x.com')).searchParams.get('login_hint')).toBe('me@x.com');
   });
 
   it('reads the token and expiry from the redirect fragment, and reports errors', () => {
@@ -22,6 +23,8 @@ describe('Google sign-in', () => {
     });
     expect(() => parseAuthRedirect('https://abc.chromiumapp.org/#error=access_denied', 0)).toThrow(/access_denied/);
     expect(() => parseAuthRedirect('https://abc.chromiumapp.org/', 0)).toThrow();
+    // A silent sign-in that needs the user asks for sign-in, rather than showing an error.
+    expect(() => parseAuthRedirect('https://abc.chromiumapp.org/#error=interaction_required', 0)).toThrow(NeedsSignIn);
   });
 });
 

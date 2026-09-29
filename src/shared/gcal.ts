@@ -9,6 +9,8 @@
 export const GCAL_CLIENT_ID_KEY = 'gcalClientId';
 export const GCAL_CONNECTED_KEY = 'gcalConnected';
 const TOKEN_KEY = 'gcalToken';
+/** The signed-in account's address, so silent renewal knows which Google account to use. */
+const ACCOUNT_KEY = 'gcalAccount';
 const SCOPE = 'https://www.googleapis.com/auth/calendar.readonly';
 const API = 'https://www.googleapis.com/calendar/v3';
 
@@ -35,22 +37,31 @@ export interface ApiEvent {
   conferenceData?: { entryPoints?: { entryPointType?: string; uri?: string }[] };
 }
 
-export function authUrl(clientId: string, redirectUri: string, interactive: boolean) {
+export function authUrl(clientId: string, redirectUri: string, interactive: boolean, account?: string) {
   const u = new URL('https://accounts.google.com/o/oauth2/v2/auth');
   u.search = new URLSearchParams({
     client_id: clientId,
     redirect_uri: redirectUri,
     response_type: 'token',
     scope: SCOPE,
-    prompt: interactive ? 'consent' : 'none',
+    // Picking the account each time matters when several Google accounts are signed in.
+    prompt: interactive ? 'select_account consent' : 'none',
+    ...(account ? { login_hint: account } : {}),
   }).toString();
   return u.toString();
 }
+
+/** Errors from a silent (prompt=none) sign-in that just mean "ask the user". */
+const NEEDS_USER = new Set(['interaction_required', 'login_required', 'consent_required', 'account_selection_required']);
+
+/** A valid access token. Silent unless `interactive`; throws NeedsSignIn when Google wants the user. */
+export class NeedsSignIn extends Error {}
 
 /** Tokens are treated as expired a minute early, so a request never races the expiry. */
 export function parseAuthRedirect(redirect: string, now = Date.now()) {
   const params = new URLSearchParams(new URL(redirect).hash.slice(1));
   const error = params.get('error');
+  if (error && NEEDS_USER.has(error)) throw new NeedsSignIn('Google needs you to sign in again.');
   if (error) throw new Error(`Google sign-in failed: ${error}`);
   const token = params.get('access_token');
   if (!token) throw new Error('Google sign-in returned no token');
@@ -91,8 +102,6 @@ export async function getClientId(): Promise<string> {
 
 export const redirectUri = () => chrome.identity.getRedirectURL();
 
-/** A valid access token. Silent unless `interactive`; throws NeedsSignIn when Google wants the user. */
-export class NeedsSignIn extends Error {}
 export async function getToken({ interactive = false } = {}): Promise<string> {
   if (!interactive) {
     const saved = (await chrome.storage.session.get(TOKEN_KEY))[TOKEN_KEY] as { token: string; expiresAt: number } | undefined;
@@ -100,9 +109,10 @@ export async function getToken({ interactive = false } = {}): Promise<string> {
   }
   const clientId = await getClientId();
   if (!clientId) throw new NeedsSignIn('Add a Google OAuth client ID in Settings first.');
+  const account = interactive ? undefined : ((await chrome.storage.local.get(ACCOUNT_KEY))[ACCOUNT_KEY] as string | undefined);
   let redirect: string | undefined;
   try {
-    redirect = await chrome.identity.launchWebAuthFlow({ url: authUrl(clientId, redirectUri(), interactive), interactive });
+    redirect = await chrome.identity.launchWebAuthFlow({ url: authUrl(clientId, redirectUri(), interactive, account), interactive });
   } catch (e) {
     if (!interactive) throw new NeedsSignIn('Google needs you to sign in again.');
     throw e;
@@ -117,6 +127,7 @@ export async function getToken({ interactive = false } = {}): Promise<string> {
 export async function disconnect() {
   const saved = (await chrome.storage.session.get(TOKEN_KEY))[TOKEN_KEY] as { token: string } | undefined;
   await chrome.storage.session.remove(TOKEN_KEY);
+  await chrome.storage.local.remove(ACCOUNT_KEY);
   await chrome.storage.local.set({ [GCAL_CONNECTED_KEY]: false });
   // Revoke so the grant doesn't linger in the user's Google account.
   if (saved) await fetch(`https://oauth2.googleapis.com/revoke?token=${encodeURIComponent(saved.token)}`, { method: 'POST' }).catch(() => {});
@@ -143,6 +154,9 @@ export async function fetchToday(now = Date.now()): Promise<AgendaEvent[]> {
     '/users/me/calendarList?minAccessRole=reader',
     token,
   );
+  // The primary calendar's id is the account's address: remembered for silent renewal.
+  const primary = cals.find(c => c.primary)?.id;
+  if (primary?.includes('@')) await chrome.storage.local.set({ [ACCOUNT_KEY]: primary });
   const chosen = cals.filter(c => c.selected || c.primary).slice(0, 10);
   const q = new URLSearchParams({ timeMin: start.toISOString(), timeMax: end.toISOString(), singleEvents: 'true', orderBy: 'startTime', maxResults: '50' });
   const lists = await Promise.all(
