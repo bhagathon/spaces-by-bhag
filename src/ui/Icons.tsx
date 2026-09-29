@@ -76,6 +76,13 @@ export const SlidersIcon = () => (
   </Svg>
 );
 
+export const RefreshIcon = () => (
+  <Svg>
+    <path d="M13 8a5 5 0 1 1-1.46-3.54" />
+    <path d="M13.25 2.75v2.5h-2.5" />
+  </Svg>
+);
+
 /** A tab with no favicon of its own (new tab, chrome:// pages, PDFs). */
 export const GlobeIcon = ({ className = 'icon' }: { className?: string }) => (
   <Svg className={className}>

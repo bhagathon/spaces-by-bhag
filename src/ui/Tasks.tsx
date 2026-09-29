@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { RefreshIcon } from './Icons';
 import { useAtomValue } from 'jotai';
 import { currentSpaceIdAtom, spacesAtom } from './atoms';
 import {
@@ -13,7 +14,8 @@ import {
   type VikunjaTask,
 } from '../shared/vikunja';
 
-const REFRESH_MS = 60_000;
+/** Often enough that a task checked off in Vikunja or BusyCal shows here within seconds of looking back. */
+const REFRESH_MS = 15_000;
 
 /**
  * The Space's tasks, straight from Vikunja (and so from BusyCal, through CalDAV).
@@ -31,37 +33,66 @@ export function Tasks({ onSetUp, onError }: { onSetUp: () => void; onError: (e: 
   const [fresh, setFresh] = useState<Set<number>>(new Set());
   const [draft, setDraft] = useState('');
   const [problem, setProblem] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState<number | null>(null);
+  const inFlight = useRef(false);
+  const checkingRef = useRef(checking);
+  checkingRef.current = checking;
 
   const load = useCallback(async () => {
+    if (inFlight.current) return; // a slow server never stacks overlapping refreshes
+    inFlight.current = true;
     const c = await getVikunjaConfig();
     setConfig(c);
-    if (!c) return;
+    if (!c) {
+      inFlight.current = false;
+      return;
+    }
+    setRefreshing(true);
     try {
       // Looking never creates a project; a known one is kept named after its Space.
       let id: number | undefined;
       if (space) id = (await knownSpaceProject(space.id)) !== undefined ? await ensureSpaceProject(space) : undefined;
       else id = await inboxProjectId();
       setProjectId(id ?? null);
-      setTasks(id ? await listOpenTasks(id) : []);
+      const open = id ? await listOpenTasks(id) : [];
+      // Keep rows that are mid-check or folding away, so a refresh never yanks them out.
+      setTasks(prev => [...open, ...(prev ?? []).filter(t => checkingRef.current.has(t.id) && !open.some(o => o.id === t.id))]);
       setProblem(null);
+      setUpdatedAt(Date.now());
     } catch (e) {
       setProblem(e instanceof Error ? e.message : String(e));
+    } finally {
+      inFlight.current = false;
+      setRefreshing(false);
     }
   }, [space?.id, space?.name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     void load();
-    const timer = setInterval(() => void load(), REFRESH_MS);
+    // Every 15s while the panel is visible; paused when it's hidden.
+    const timer = setInterval(() => document.visibilityState === 'visible' && void load(), REFRESH_MS);
     const onVisible = () => document.visibilityState === 'visible' && void load();
     const onChanged = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
       if (area === 'local' && 'vikunja' in changes) void load();
     };
+    // Coming back from another tab or window (say, Vikunja or BusyCal) refreshes right away.
+    let soon: ReturnType<typeof setTimeout> | undefined;
+    const onReturn = () => {
+      clearTimeout(soon);
+      soon = setTimeout(() => void load(), 400);
+    };
     document.addEventListener('visibilitychange', onVisible);
     chrome.storage.onChanged.addListener(onChanged);
+    chrome.tabs.onActivated.addListener(onReturn);
+    chrome.windows.onFocusChanged.addListener(onReturn);
     return () => {
       clearInterval(timer);
+      clearTimeout(soon);
       document.removeEventListener('visibilitychange', onVisible);
       chrome.storage.onChanged.removeListener(onChanged);
+      chrome.tabs.onActivated.removeListener(onReturn);
+      chrome.windows.onFocusChanged.removeListener(onReturn);
     };
   }, [load]);
 
@@ -106,6 +137,17 @@ export function Tasks({ onSetUp, onError }: { onSetUp: () => void; onError: (e: 
       <div className="divider">
         <h2 className="drawer-title">Tasks</h2>
         <span className="divider-rule" />
+        {config && (
+          <button
+            type="button"
+            className={`icon-button small refresh${refreshing ? ' is-spinning' : ''}`}
+            aria-label="Refresh tasks"
+            title={updatedAt ? `Updated ${new Date(updatedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' })}` : 'Refresh tasks'}
+            onClick={() => void load()}
+          >
+            <RefreshIcon />
+          </button>
+        )}
         {config && projectId && (
           <a className="divider-action" href={`${config.url}/projects/${projectId}`} target="_blank" rel="noreferrer">
             Open in Vikunja

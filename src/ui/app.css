@@ -824,3 +824,8 @@ a.agenda-name:hover { text-decoration: underline; text-underline-offset: 3px; }
 .task-add-input { flex: 1; min-width: 0; height: 28px; border: 0; background: none; outline: none; font-size: var(--step-0); color: var(--ink); }
 .task-add-input::placeholder { color: var(--ink-3); }
 a.divider-action { text-decoration: none; }
+.divider .refresh { color: var(--ink-3); }
+.divider .refresh:hover { color: var(--ink); }
+.refresh.is-spinning .icon { animation: spin 700ms linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .refresh.is-spinning .icon { animation: none; opacity: 0.5; } }
