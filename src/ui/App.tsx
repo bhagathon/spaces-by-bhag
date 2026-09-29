@@ -63,10 +63,10 @@ export function App({ view }: { view: 'panel' | 'dashboard' }) {
   return (
     <div className={`app app-${view}`}>
       <header className="drawer-front">
-        <h1 className="visually-hidden">Spaces</h1>
+        <h1 className="wordmark">Spaces</h1>
         <button className="cmd-pill" onClick={() => setCommandOpen(true)} aria-keyshortcuts="Meta+K /" aria-label="Search Spaces and tabs">
           <SearchIcon />
-          <span className="cmd-pill-text">Search Spaces and tabs</span>
+          <span className="cmd-pill-text">Find a Space or tab</span>
           <kbd aria-hidden>⌘K</kbd>
         </button>
         <SyncStamp />
@@ -94,13 +94,8 @@ export function App({ view }: { view: 'panel' | 'dashboard' }) {
 
       <nav className="guide-tabs" role="tablist" aria-label="Views">
         {TABS.map(t => (
-          <button key={t.id} role="tab" aria-selected={tab === t.id} className="guide-tab" onClick={() => withViewTransition(() => setTab(t.id))}>
-            {/* One thumb, named for view transitions, so it slides between tabs instead of jumping. */}
-            {tab === t.id && <span className="guide-thumb" style={{ viewTransitionName: 'view-thumb' }} aria-hidden />}
-            {/* Labels get their own layers after the thumb's, so the sliding pill passes under them. */}
-            <span className="guide-label" style={{ viewTransitionName: `view-label-${t.id}` }}>
-              {t.label}
-            </span>
+          <button key={t.id} role="tab" aria-selected={tab === t.id} className="guide-tab" onClick={() => setTab(t.id)}>
+            {t.label}
           </button>
         ))}
       </nav>
@@ -156,13 +151,13 @@ export function App({ view }: { view: 'panel' | 'dashboard' }) {
         {tab === 'drawer' && view === 'panel' && (
           <p className="drawer-hint">
             <span className="key-entry">
-              <kbd>⌘K</kbd> search
+              <kbd>⌘K</kbd> find
             </span>
             <span className="key-entry">
               <kbd>1</kbd>–<kbd>9</kbd> switch
             </span>
             <span className="key-entry">
-              <kbd>V</kbd> resources
+              <kbd>V</kbd> flip card
             </span>
           </p>
         )}

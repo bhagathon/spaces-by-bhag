@@ -130,7 +130,7 @@ function ResourceEditor({ spaceId, workspaceId, readOnly, onError }: { spaceId: 
     <div className="resources">
       {!doc.sections.length && (
         <p className="verso-empty">
-          {readOnly ? 'No resources for this Space.' : 'No resources yet. Add a section for the notes, tasks and links that go with this Space.'}
+          {readOnly ? 'Nothing written on the back of this card.' : 'The back of the card is blank. Add a section for the notes, tasks and links that go with this Space.'}
         </p>
       )}
       {doc.sections.map(section => (

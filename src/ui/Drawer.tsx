@@ -206,9 +206,9 @@ export function Drawer({
     );
 
   const drawer = (
-    <section className="drawer" aria-label="Other Spaces">
+    <section className="drawer" aria-label="Spaces in the drawer">
       <div className="divider">
-        <h2 className="drawer-title">{view === 'panel' ? 'Other Spaces' : 'Spaces'}</h2>
+        <h2 className="drawer-title">In the drawer</h2>
         <span className="divider-rule" />
         <button
           className="divider-action"
@@ -223,7 +223,7 @@ export function Drawer({
         </button>
       </div>
       {spaces.length === 0 ? (
-        <p className="drawer-note">No Spaces yet. Name this window above and it becomes your first Space; each Space gets a number key.</p>
+        <p className="drawer-note">The drawer is empty. File this window above and its card goes here; every Space you file gets a card and a call number.</p>
       ) : (
         <ul className="drawer-list" ref={listRef}>
           {filed.map(({ workspace, spaces: items }) => (
@@ -237,7 +237,7 @@ export function Drawer({
                 </div>
               )}
               {items.length === 0 ? (
-                <p className="drawer-note">{view === 'panel' && current?.workspaceId === workspace.id ? 'No other Spaces here.' : 'No Spaces here yet.'}</p>
+                <p className="drawer-note">{view === 'panel' && current?.workspaceId === workspace.id ? 'No other cards filed here.' : 'No cards filed here yet.'}</p>
               ) : (
                 <ul className="drawer-list">
                   {items.map(({ space, via, callNo }) => {
@@ -281,7 +281,7 @@ export function Drawer({
       {view === 'dashboard' && (
         <p className="drawer-hint">
           <span className="key-entry">
-            <kbd>⌘K</kbd> search
+            <kbd>⌘K</kbd> find
           </span>
           <span className="key-entry">
             <kbd>1</kbd>–<kbd>9</kbd> open
@@ -539,7 +539,7 @@ function PulledCard({
   const meta = [
     plural(space.tabs.length, 'tab'),
     space.groups.length ? plural(space.groups.length, 'group') : null,
-    workspace && workspace.kind === 'team' ? `in ${workspace.name}` : null,
+    workspace && workspace.kind === 'team' ? `filed under ${workspace.name}` : null,
     `updated ${ago(space.updatedAt)}`,
   ]
     .filter(Boolean)
@@ -578,7 +578,7 @@ function PulledCard({
         {entries}
       </ol>
       {isHere && <LooseTabs spaceName={space.name} onError={onError} />}
-      {space.tabs.length === 0 && <p className="blank-lede">No tabs in this Space yet. Pages you open in this window can be added to it.</p>}
+      {space.tabs.length === 0 && <p className="blank-lede">No tabs on this card. Open pages in this window and add them to type them onto it.</p>}
       {space.tabs.length > ENTRY_LIMIT && !editing && (
         <div className="entries-more">
           <button className="text-button" onClick={() => setShowAll(v => !v)}>
@@ -633,7 +633,7 @@ function PulledCard({
       {confirmDelete ? (
         <>
           <button className="text-button danger" onClick={() => void remove()} aria-label={`Confirm delete ${space.name}`}>
-            Delete Space
+            Delete card
           </button>
           <button className="text-button" onClick={() => setConfirmDelete(false)}>
             Keep
@@ -814,12 +814,12 @@ function UnfiledCard({ onError }: { onError: (e: string) => void }) {
   };
 
   return (
-    <article className="card pulled blank-card" aria-label="This window isn't in a Space">
+    <article className="card pulled blank-card" aria-label="This window isn't filed">
       <header className="card-head">
-        <h2 className="card-name">New Space</h2>
+        <h2 className="card-name">Unfiled window</h2>
       </header>
       <p className="blank-lede">
-        {tabCount === null ? 'This window isn’t in any Space.' : `${plural(tabCount, 'tab')} open here, not in any Space.`} Name it to make it a Space; its tabs are
+        {tabCount === null ? 'This window isn’t in any Space.' : `${plural(tabCount, 'tab')} open here, not in any Space.`} Name it to file a card; its tabs are
         kept from then on.
       </p>
       <form
@@ -835,7 +835,7 @@ function UnfiledCard({ onError }: { onError: (e: string) => void }) {
         </label>
         {editable.length > 1 && (
           <label style={{ flex: '0 1 140px' }}>
-            Workspace
+            File under
             <select className="typed-input" value={workspaceId} onChange={e => setWorkspaceId(e.target.value)}>
               {editable.map(w => (
                 <option key={w.id} value={w.id}>
@@ -846,7 +846,7 @@ function UnfiledCard({ onError }: { onError: (e: string) => void }) {
           </label>
         )}
         <button type="submit" className="plate-button" disabled={busy || !name.trim()}>
-          {busy ? 'Creating…' : 'Create Space'}
+          {busy ? 'Filing…' : 'File card'}
         </button>
       </form>
     </article>

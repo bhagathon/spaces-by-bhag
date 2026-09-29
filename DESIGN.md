@@ -1,380 +1,325 @@
 ---
 name: Spaces
-description: The panel is the Space's own light; everything else is glass laid on it.
+description: A steel card-catalog drawer for tab contexts; this window's Space is the card pulled up and read.
 colors:
-  space-accent: "oklch(0.5 0.17 250)"
-  space-accent-soft: "oklch(0.5 0.17 250 / 0.14)"
-  on-accent: "#ffffff"
-  ground: "oklch(0.935 0.0455 250)"
-  blob-a: "oklch(0.84 0.07 250)"
-  blob-b: "oklch(0.89 0.07 30)"
-  blob-c: "oklch(0.86 0.07 166)"
-  ink: "oklch(0.24 0.02 250)"
-  ink-2: "oklch(0.4 0.02 250)"
-  ink-3: "oklch(0.5 0.018 250)"
-  pill: "#ffffff"
-  glass: "rgb(255 255 255 / 0.5)"
-  glass-hover: "rgb(255 255 255 / 0.62)"
-  glass-strong: "rgb(255 255 255 / 0.78)"
-  glass-sheet: "rgb(255 255 255 / 0.4)"
-  edge: "rgb(255 255 255 / 0.7)"
-  hairline: "oklch(0.3 0.02 250 / 0.1)"
-  pending: "oklch(0.52 0.13 70)"
-  danger: "oklch(0.52 0.19 25)"
-  gc-grey: "#5f6368"
-  gc-blue: "#1a73e8"
-  gc-cyan: "#007b83"
-  gc-green: "#188038"
-  gc-yellow: "#f9ab00"
-  gc-orange: "#fa903e"
-  gc-pink: "#d01884"
-  gc-purple: "#a142f4"
-  gc-red: "#d93025"
+  drawer: "#d4dad2"
+  drawer-deep: "#c5ccc3"
+  pressboard: "#b7c2ba"
+  pressboard-ink: "#2f3b35"
+  card: "#fbfaf6"
+  card-edge: "#cdc9bc"
+  ruling: "#d9e3ec"
+  ink: "#23211d"
+  ink-2: "#57534b"
+  ink-3: "#6f6a60"
+  red: "#b3301c"
+  on-red: "#ffffff"
+  stamp-blue: "#2b4968"
+  stamp-amber: "#7f5310"
 typography:
-  headline:
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif"
-    fontSize: "calc(17px * var(--scale))"
-    fontWeight: 650
-    lineHeight: 1.25
+  display:
+    fontFamily: "'Courier Prime', 'Courier New', monospace"
+    fontSize: "18px"
+    fontWeight: 700
+    lineHeight: 1.2
     letterSpacing: "-0.01em"
-  title:
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif"
-    fontSize: "calc(15px * var(--scale))"
-    fontWeight: 650
-    lineHeight: 1.25
+  headline:
+    fontFamily: "'Courier Prime', 'Courier New', monospace"
+    fontSize: "15px"
+    fontWeight: 700
+    lineHeight: 1.2
   body:
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif"
-    fontSize: "calc(13px * var(--scale))"
+    fontFamily: "'Courier Prime', 'Courier New', monospace"
+    fontSize: "13px"
+    fontWeight: 400
+    lineHeight: "20px"
+  meta:
+    fontFamily: "'Courier Prime', 'Courier New', monospace"
+    fontSize: "11px"
     fontWeight: 400
     lineHeight: 1.4
-  body-strong:
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif"
-    fontSize: "calc(13px * var(--scale))"
-    fontWeight: 550
-    lineHeight: 1.25
-  control:
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif"
-    fontSize: "calc(12px * var(--scale))"
-    fontWeight: 550
-    lineHeight: 1
-  note:
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif"
-    fontSize: "calc(12px * var(--scale))"
-    fontWeight: 400
-    lineHeight: 1.5
-  label:
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif"
-    fontSize: "calc(11px * var(--scale))"
-    fontWeight: 600
-    lineHeight: 1
-  key:
-    fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace"
-    fontSize: "calc(10.5px * var(--scale))"
-    fontWeight: 600
-    lineHeight: 1
+  callno:
+    fontFamily: "'Courier Prime', 'Courier New', monospace"
+    fontSize: "11px"
+    fontWeight: 700
+    lineHeight: "16px"
     fontFeature: "tnum"
+  ui:
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Segoe UI', sans-serif"
+    fontSize: "13px"
+    fontWeight: 400
+    lineHeight: 1.45
+  label:
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Segoe UI', sans-serif"
+    fontSize: "11px"
+    fontWeight: 600
+    lineHeight: 1.2
+    letterSpacing: "0.08em"
+  stamp:
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Segoe UI', sans-serif"
+    fontSize: "10px"
+    fontWeight: 700
+    lineHeight: "14px"
+    letterSpacing: "0.1em"
 rounded:
-  swatch: "3px"
-  key: "5px"
-  badge: "6px"
-  control-sm: "7px"
-  control: "8px"
-  row: "9px"
-  pill-bar: "10px"
-  track: "11px"
-  slip: "12px"
-  sheet: "14px"
-  command: "16px"
-  full: "9999px"
+  swatch: "1px"
+  stock: "2px"
+  holder: "3px"
+  tab: "4px 4px 0 0"
 spacing:
   hair: "2px"
   xs: "4px"
-  sm: "6px"
-  md: "8px"
-  lg: "10px"
-  xl: "12px"
-  2xl: "16px"
-  3xl: "24px"
-  row: "calc(32px * var(--scale))"
-  row-tall: "calc(36px * var(--scale))"
+  sm: "8px"
+  md: "12px"
+  line: "20px"
+  lg: "24px"
 components:
-  command-pill:
-    backgroundColor: "{colors.glass}"
-    textColor: "{colors.ink-3}"
-    typography: "{typography.body}"
-    rounded: "{rounded.pill-bar}"
-    padding: "0 8px 0 10px"
-    height: "34px"
-  command-pill-hover:
-    backgroundColor: "{colors.glass-hover}"
-  view-tabs:
-    backgroundColor: "{colors.glass}"
-    rounded: "{rounded.track}"
-    padding: "3px"
-  view-tab:
-    textColor: "{colors.ink-2}"
-    typography: "{typography.control}"
-    rounded: "{rounded.control}"
-    padding: "0 6px"
-    height: "26px"
-  view-tab-active:
-    backgroundColor: "{colors.pill}"
-    textColor: "{colors.ink}"
-  space-sheet:
-    backgroundColor: "{colors.glass-sheet}"
-    rounded: "{rounded.sheet}"
-    padding: "10px 8px 8px"
-  tab-row:
-    textColor: "{colors.ink}"
-    typography: "{typography.body}"
-    rounded: "{rounded.row}"
-    padding: "0 8px"
-    height: "{spacing.row}"
-  tab-row-hover:
-    backgroundColor: "{colors.glass-hover}"
-  tab-row-active:
-    backgroundColor: "{colors.pill}"
-    typography: "{typography.body-strong}"
-  space-row:
-    textColor: "{colors.ink}"
-    typography: "{typography.body-strong}"
-    rounded: "{rounded.pill-bar}"
-    padding: "0 8px 0 10px"
-    height: "{spacing.row-tall}"
-  space-row-current:
-    backgroundColor: "{colors.pill}"
-  space-row-switching:
-    backgroundColor: "{colors.space-accent-soft}"
-  text-button:
-    textColor: "{colors.ink-2}"
-    typography: "{typography.control}"
-    rounded: "{rounded.control}"
-    padding: "0 9px"
-    height: "28px"
-  text-button-hover:
-    backgroundColor: "{colors.glass-hover}"
-    textColor: "{colors.ink}"
-  text-button-switch:
-    textColor: "{colors.space-accent}"
   plate-button:
     backgroundColor: "{colors.ink}"
-    textColor: "{colors.pill}"
-    rounded: "{rounded.row}"
+    textColor: "{colors.card}"
+    typography: "{typography.label}"
+    rounded: "{rounded.stock}"
     padding: "0 12px"
     height: "30px"
-  plate-button-switch:
-    backgroundColor: "{colors.space-accent}"
-    textColor: "{colors.on-accent}"
+  plate-button-pull:
+    backgroundColor: "{colors.red}"
+    textColor: "{colors.on-red}"
+    typography: "{typography.label}"
+    rounded: "{rounded.stock}"
+    padding: "0 12px"
+    height: "30px"
   plate-button-outline:
-    backgroundColor: "{colors.pill}"
+    backgroundColor: "{colors.card}"
     textColor: "{colors.ink}"
-  icon-button:
+    typography: "{typography.label}"
+    rounded: "{rounded.stock}"
+    padding: "0 12px"
+    height: "30px"
+  text-button:
     textColor: "{colors.ink-2}"
-    rounded: "{rounded.row}"
-    size: "32px"
-  icon-button-pressed:
-    backgroundColor: "{colors.pill}"
+    typography: "{typography.label}"
+    padding: "2px 0"
+  text-button-hover:
     textColor: "{colors.ink}"
-  typed-input:
-    backgroundColor: "{colors.pill}"
+  text-button-pull:
+    textColor: "{colors.red}"
+  stamp:
+    textColor: "{colors.ink-2}"
+    typography: "{typography.stamp}"
+    rounded: "{rounded.stock}"
+    padding: "1px 5px 0"
+  stamp-here:
+    textColor: "{colors.ink}"
+  stamp-device:
+    textColor: "{colors.stamp-blue}"
+  stamp-pending:
+    textColor: "{colors.stamp-amber}"
+  callno:
+    textColor: "{colors.ink-2}"
+    typography: "{typography.callno}"
+    rounded: "{rounded.stock}"
+    padding: "1px 4px 0"
+  pulled-card:
+    backgroundColor: "{colors.card}"
     textColor: "{colors.ink}"
     typography: "{typography.body}"
-    rounded: "{rounded.control}"
-    padding: "0 10px"
+    rounded: "{rounded.stock}"
+    padding: "12px 14px"
+  card-top:
+    backgroundColor: "{colors.card}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body}"
+    padding: "6px 8px 6px 6px"
+    height: "36px"
+  drawer:
+    backgroundColor: "{colors.drawer-deep}"
+    rounded: "{rounded.holder}"
+    padding: "8px 8px 12px"
+  guide-name:
+    backgroundColor: "{colors.pressboard}"
+    textColor: "{colors.pressboard-ink}"
+    typography: "{typography.label}"
+    rounded: "{rounded.tab}"
+    padding: "3px 10px 2px"
+  guide-tab-active:
+    backgroundColor: "{colors.pressboard}"
+    textColor: "{colors.pressboard-ink}"
+    typography: "{typography.label}"
+    rounded: "{rounded.tab}"
+    padding: "5px 10px 4px"
+  label-holder:
+    backgroundColor: "{colors.card}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body}"
+    rounded: "{rounded.holder}"
+    padding: "0 8px"
     height: "32px"
-  badge:
-    backgroundColor: "{colors.hairline}"
-    textColor: "{colors.ink-2}"
-    rounded: "{rounded.badge}"
-    padding: "0 7px"
-    height: "20px"
-  badge-here:
-    backgroundColor: "{colors.space-accent-soft}"
-    textColor: "{colors.space-accent}"
-  command-bar:
-    backgroundColor: "{colors.glass-strong}"
-    rounded: "{rounded.command}"
-    width: "min(600px, 100%)"
-  command-item:
-    typography: "{typography.body-strong}"
-    rounded: "{rounded.row}"
-    padding: "0 10px"
-    height: "{spacing.row-tall}"
-  command-item-selected:
-    backgroundColor: "{colors.space-accent}"
-    textColor: "{colors.on-accent}"
-  slip:
-    backgroundColor: "{colors.glass-strong}"
-    rounded: "{rounded.slip}"
-    padding: "8px 8px 8px 12px"
-  settings-sheet:
-    backgroundColor: "{colors.glass-strong}"
-    rounded: "{rounded.sheet}"
-    padding: "12px 14px 14px"
-  color-chip:
-    rounded: "{rounded.full}"
-    size: "20px"
+  typed-input:
+    textColor: "{colors.ink}"
+    typography: "{typography.body}"
+    padding: "4px 0 3px"
 ---
 
 # Design System: Spaces
 
 ## Overview
 
-**Creative North Star: "The Space's Own Light"**
+**Creative North Star: "The Card Catalog"**
 
-Spaces is a Chrome side panel (320px and up) and a dashboard tab, drawn in the language of Arc's sidebar. Each Space has a colour, and that colour is not a label on a row: it floods the whole ground as a soft pastel mesh of three blurred OKLCH blobs. Everything the user touches sits on that light as frosted white glass. Switching Spaces is the light changing: the hue sweeps across the ground over 700ms while the sheet in front of it pulls to the next Space.
+Spaces is a steel card cabinet docked beside real work. The grey-green drawer is the ground; every Space is a typed index card standing in it; workspaces are pressboard guide cards with protruding tabs. The window's own Space is the card pulled up and read in full, sitting above the drawer with a red top rule. Every other Space is a one-line card top you flick to by call number. Rank is physical: how far a card is pulled up, never a badge or a highlighted row.
 
-Density is Arc-quiet: 32px tab rows, favicon plus title in the system sans, hairline section breaks with one quiet trailing action, and a single opaque white pill marking the current tab. Colour is spent almost entirely on one field, the ground; controls stay neutral glass, and the Space hue returns only where the user is choosing (selection, focus, the switch action). Ink itself is tinted by the Space hue, so even type belongs to the Space it sits in. A Space is never identified by colour alone: its name, colour dot, and number key always travel together.
+The system is dense and quiet, built to be read at a glance at 320 to 480px and to stay out of the page's way all day. Entries are typed in a typewriter face on faint blue ruling at a fixed 20px pitch. State is rubber-stamped in a fixed right-hand cell (HERE, OPEN, device name, PENDING, VIEW ONLY) in ink colours that are never red. Absence is drawn as a blank card waiting to be typed, never as an illustration. The world explicitly refuses the rounded-card SaaS sidebar with a highlighted row and a purple accent.
 
-The system is fully parametric. Three registered custom properties (`--space-h`, `--space-c`, `--space-spread`) drive every tinted token, so the frontmatter values are the resolved defaults for a Space with no colour (hue 250, chroma 0.07, spread 140). Dark mode re-derives the same formulas at low lightness rather than swapping to a separate palette.
+Light and dark are the same cabinet under different light: in dark the steel goes deep green-black, the stock goes charcoal, the ink goes to warm paper white, and red lightens to a coral so the pulled card's rule still reads.
 
 **Key Characteristics:**
-- One coloured field per screen: the ground mesh, in the current Space's hue.
-- Frosted glass sheets (backdrop saturate 1.6, blur 24px) with a 0.5px white inner edge.
-- The active item is an opaque white pill with a soft lifted shadow.
-- Tinted ink: every text grey carries the Space hue at low chroma.
-- The light glides between Spaces; reduced motion makes it instant.
-- Space colours come from Chrome's tab-group palette, minus red.
+- Typed ink (Courier Prime, self-hosted) for everything a card says; a small uppercase system sans only for guide tabs, stamps, field labels and actions.
+- One accent, red, spent only on the pulled card's top rule and the act of pulling.
+- State marks are stamped, bordered in their own ink, in a fixed cell.
+- Rank and focus expressed as lift (translateY), not colour.
+- Corners are cut stock: 2px on cards, 3px on the drawer and label holder, 4px top-only on guide tabs.
+- The card pull is the signature motion: a view transition carries the card top into the pulled slot and files the old card down.
 
 ## Colors
 
-A single variable hue, applied as light on the ground and as ink tint everywhere, with neutral white glass between.
+A muted steel-and-stock palette of greys, greens and warm off-whites, with one red and two stamp inks.
 
 ### Primary
-- **Space Accent** (space-accent; `oklch(0.5 0.17 var(--space-h))`, dark `oklch(0.56 0.15 var(--space-h))`): the Space's hue at full strength. Used for the selected command-bar result, focus rings, the text caret and checkboxes, the switch action (the filled switch plate button and the accent text button), the "Here" and device badges, and the next-up time. Never a row or container fill at rest.
-- **Accent Wash** (space-accent-soft; the accent at 14% alpha, dark 18%): text selection, search-match highlights, the input focus halo, the "Here" badge ground, and the Space row mid-switch.
-- **On Accent** (on-accent): white text on the accent fill.
+- **Pulled-Card Red** (`red`): the 3px top rule of the pulled card, the transient 2px top rule on a card top while it is being pulled, the "Switch this window" plate, and the pull text action. Nowhere else. Dark scheme: #ee7c65, with `on-red` becoming #1b1a17 so the plate's label stays legible.
 
 ### Secondary
-- **Tab-group colours** (gc-grey through gc-purple; lighter dark-mode variants `#dadce0`, `#8ab4f8`, `#78d9ec`, `#81c995`, `#fdd663`, `#fcad70`, `#ff8bcb`, `#c58af9`): Chrome's own tab-group colours, used only as identity swatches: the round Space dot beside a Space name, the rounded-square group swatch in a tab list, the edit-mode colour chips, and command-bar dots. Each Space colour maps to a light setting (hue, chroma, spread) that tints the ground; grey is near-achromatic (chroma 0.018), no colour is a wide-spread neutral mesh.
-- **Tab-group red** (gc-red): exists because Chrome tab groups the user made can be red; it is never offered as a Space colour.
+- **Device Stamp Blue** (`stamp-blue`): the stamp naming another device that has the Space open, and (at 22% mix) the find-match highlight behind matched characters in card tops. Dark: #93b3d4.
+- **Pending Stamp Amber** (`stamp-amber`): the PENDING sync stamp only. Dark: #d9a95a.
 
 ### Neutral
-- **Ground** (ground; `oklch(0.935 calc(var(--space-c) * 0.65) var(--space-h))`, dark L 0.2): the page base under the mesh.
-- **Light Blobs** (blob-a at the Space hue, blob-b at hue + spread, blob-c at hue − 0.6 × spread; L 0.84 / 0.89 / 0.86, dark 0.36 / 0.3 / 0.28): three radial gradients fixed to the viewport (top-left, right, bottom) that make the light.
-- **Ink** (ink / ink-2 / ink-3; L 0.24 / 0.4 / 0.5 at chroma 0.02 in the Space hue, dark L 0.96 / 0.83 / 0.72): primary text, secondary text and idle controls, and tertiary meta, placeholders and section labels. ink-3 is held at 4.5:1 or better on glass.
-- **Pill** (pill; white, dark `oklch(0.36 0.02 var(--space-h))`): the one opaque surface; see the rule below.
-- **Glass** (glass 50%, glass-hover 62%, glass-strong 78%, glass-sheet 40% white; dark 6% / 10% white and tinted 72% / 42% translucents): glass is the command pill and view-tab track, glass-hover is every row and button hover, glass-strong is floating layers (slips, command bar, settings sheets, next-up), and glass-sheet is the Space sheet, kept thin on purpose.
-- **Edge and Hairline** (edge: 70% white 0.5px inset highlight on glass; hairline: ink at 10%): glass rims, and 0.5px dividers, badge grounds and the segmented track inside sheets.
-- **Pending** (pending, amber `oklch(0.52 0.13 70)`, dark L 0.8) and **Danger** (danger, `oklch(0.52 0.19 25)`, dark L 0.76 chroma 0.13): a pending-sync badge, and destructive text buttons (Delete). Text only, never fills.
+- **Steel Drawer** (`drawer`): the page ground behind everything. Dark: #172019.
+- **Drawer Interior** (`drawer-deep`): inside the drawer, behind the standing card tops; carries an inset shadow. Dark: #101812.
+- **Pressboard** (`pressboard`) with **Pressboard Ink** (`pressboard-ink`): guide-card tabs (workspace names), the active view tab, and settings fieldset legends. Dark: #2c3530 / #c9d3cc.
+- **Card Stock** (`card`): every card, the label holder, slips, keycaps. Dark: #262825.
+- **Cut Edge** (`card-edge`): 1px borders of stock, dashed action dividers, the plain top rule of blank and verso cards. Dark: #3a3d38.
+- **Blue Ruling** (`ruling`): the 1px ruled lines under typed entries and list rows. Dark: #2f3841.
+- **Typed Ink** (`ink`): primary text, the ink plate button, focus rings, checkbox accent, error slips (reversed). Dark: #ebe7dc.
+- **Light Strike** (`ink-2`): secondary text, idle actions, default stamps, call numbers. Dark: #bcb7aa.
+- **Faint Strike** (`ink-3`): meta lines, placeholders, field labels; held at 4.5:1 or better on stock. Dark: #a19c90.
 
 ### Named Rules
-**The Ground Light Rule.** Colour is spent on the ground. Row and control fills stay neutral glass; the Space hue comes forward only for selection, focus, state badges tied to this Space, and the switch action. Identity swatches (the colour dot, group squares) are the only other colour on a row.
+**The One Red Rule.** Red belongs to one card and one act: the pulled card's top rule and pulling. The dashboard's verso card, blank cards, selected tabs and focus rings take stock edge or ink, never red.
 
-**The Tinted Ink Rule.** Every text grey, hairline and shadow is mixed with `--space-h`. Never use a pure neutral grey for ink; it would read as a different Space.
+**The Space Colour Rule.** A Space may carry one of Chrome's tab-group colours (never red), shown only as a small square swatch (9px on card tops, 11px on the pulled card) beside its name, with a hairline ink edge so pale inks still read. It matches the Space's tab group in the tab strip. Colour is an identifier, never a fill, row tint or border: rank is still pull height. Tokens `--gc-*` hold Chrome's light values and its dark-theme set.
 
-**The Tab-Group Palette Rule.** A Space's colour is one of Chrome's tab-group colours minus red (blue, cyan, green, yellow, orange, pink, purple, grey), or none. Red stays reserved for danger.
+**The Stamp Ink Rule.** State is stamped in ink, blue, or amber, bordered in its own colour (1.5px). Errors reverse to an ink plate. No state is ever red.
 
 ## Typography
 
-**UI Font:** the platform system sans (`-apple-system`, SF Pro Text, Segoe UI Variable, system-ui)
-**Key Font:** the platform monospace (`ui-monospace`, SF Mono, Menlo), for key caps and number keys only
+**Display Font:** Courier Prime (with Courier New, monospace), self-hosted woff2, 400 / 400 italic / 700.
+**Label Font:** the system sans stack (-apple-system, BlinkMacSystemFont, Helvetica Neue, Segoe UI).
 
-**Character:** Browser-chrome type. The panel sits beside Chrome's own UI, so it speaks the OS face at small sizes and carries hierarchy through weight (400 / 550 / 600 / 650) rather than size. There is no display face; the largest step is the 17px Space name.
+**Character:** A typewriter face for everything written on a card, and a small, tracked, uppercase sans for the cabinet's printed furniture (tab labels, stamps, button legends). The sans never names a Space.
 
 ### Hierarchy
-- **Headline** (650, 17px, 1.25, −0.01em): the current Space's name on its sheet.
-- **Title** (650, 15px, 1.25): sheet titles on Resources, History, Suspended, Today and settings pages.
-- **Body** (400, 13px, 1.4): tab titles, fields, notes in rows. The command-bar input steps up to 15px.
-- **Body Strong** (550, 13px): the active tab, Space names in the list, command results.
-- **Control** (550, 12px): view tabs, segments, text buttons.
-- **Note** (400, 12px, 1.5 to 1.55): hints and empty-state lines, capped at 70ch.
-- **Label** (600, 11px): section breaks ("Other Spaces"), group headers, command-bar groups, field labels, meta, counts. Sentence case, no tracking.
-- **Key** (600 mono, 10.5px, tabular): key caps (⌘K, 1 to 9) and number keys on Space rows.
-
-All steps multiply by `--scale` (the user's text-size setting).
+- **Display** (700, 18px, 1.2, -0.01em): the pulled card's Space name, and its rename input.
+- **Headline** (700, 15px, 1.2): the wordmark, verso title, page-card titles (History, Suspended, Settings).
+- **Body** (400, 13px, 20px line): typed entries, resources, find field, typed inputs. Line height equals the ruling pitch so text sits on the lines. Active tab entry and card-top names go to 700.
+- **Meta** (400, 11px, 1.4): card meta line, card-top sub line, tab counts, log rows.
+- **Call number** (700, 11px, 16px, tabular numerals): the boxed key number on each card.
+- **UI** (400, 13px, 1.45, sans): body default for checkboxes and settings controls.
+- **Note** (400, 12px, 1.55, sans, ink-3): hints and explanatory prose. Sentences are read, not scanned, so they sit a step above the 11px label size.
+- **Label** (600 to 700, 11px, 0.06 to 0.1em, uppercase, sans): guide tabs, view tabs, tab-group headings, field labels, text and plate buttons.
+- **Stamp** (700, 10px, 14px, 0.1em, uppercase, sans): state marks only.
 
 ### Named Rules
-**The Four-Fit Rule.** The view tabs are capped at the default size (`12px × min(--scale, 1)`) so all four (Spaces, Today, History, Suspended) fit a 320px panel at any text size. The in-sheet segmented control may grow to 1.15×.
+**The Typed Card Rule.** Anything a user wrote or a card records (names, tab titles, notes, counts) is set in Courier Prime. Sans is only for printed cabinet furniture.
 
-**The Weight-Not-Size Rule.** Emphasis is a weight step (550 for current, 650 for titles), not a bigger size. Counts, times and keys use tabular numerals.
+**The Ruling Pitch Rule.** Body line height on a card is the ruling pitch (20px); ruled backgrounds and list rows are built from the same value so type and lines never drift.
 
 ## Layout
 
-The side panel is a single column with 10px outer padding: a header row (command pill plus two 32px icon buttons, 6px apart), the view-tab track (12px below), the current Space sheet (16px below), then a hairline divider and the list of other Spaces, then a key-hint line. Tab rows are 32px (`--row`); Space rows and command results are 36px. Row insets are 8px horizontal, and rows inside a sheet sit flush to 8px sheet padding so the white pill nearly meets the glass edge.
+The panel is a single column at 320 to 480px: padding 10px 12px 28px. Top to bottom: the drawer front (wordmark, sync stamp, 32px icon buttons), the guide-tab view switcher, any slips, the pulled card at full width, then the drawer with its find field (the label holder) at the top, guide cards per workspace, and one-line card tops. A keyboard hint strip of keycaps closes the drawer.
 
-The dashboard (home tab) centres at max 1320px with 22px / 28px padding: a sidebar column of 280 to 340px and a main column, 24px apart; Space sheets tile at min 320px with 16px gaps. With Today present, the agenda takes a third column (300 to 380px) at 1360px and up (max width 1680px) and sits above the sidebar below that. Under 760px everything stacks to one column. Sidebar and agenda columns are sticky at 16px.
+A card top is a four-column grid: 24px call number, flexible name and sub line, a 4.6em count cell, and a 4.8em stamp cell. The stamp cell is fixed so stamps align down the drawer.
 
-Spacing is a tight 2 / 4 / 6 / 8 / 10 / 12 / 16 / 24px ladder; 2px separates segments and buttons in a row, 8px is the default gap.
+The dashboard centres at max 1240px with 24px padding. It sets the drawer in a sticky 300 to 380px column beside the opened card, and lays the card flat with recto and verso side by side (auto-fit, min 320px, 16px gap) instead of flipping it. Page cards cap at 720px; hint prose at 70ch. Below 760px the dashboard collapses to the single column.
+
+Spacing moves in small steps: 2, 4, 8, 12 and 24px, with 10px and 14px used inside cards and the 20px ruling pitch for typed rows.
 
 ## Elevation & Depth
 
-Depth is glass over light plus two soft, hue-tinted shadows. Layers stack as: the fixed ground mesh; glass sheets (backdrop blur 24px, saturate 1.6) with a 0.5px white inner edge; the opaque white pill; and, on top, the command bar with a heavier blur (30px, saturate 1.8) over a faintly tinted scrim. Shadows are ambient and tinted with the Space hue in light mode, pure black at higher alpha in dark mode. There are no hard or offset shadows.
+Depth is physical and shallow: cards are stock resting in or above a steel drawer. Shadows exist only as the consequence of that material, never as a decoration or a rank badge. The drawer is recessed (an inset shadow); card stock rests with a thin contact shadow; a card top lifts on hover, focus or keyboard "next", and the opened card on the dashboard stands higher. How far a card is lifted is the only elevation signal.
 
 ### Shadow Vocabulary
-- **Pill lift** (`0 1px 1px oklch(0.2 0.02 h / 0.06), 0 2px 6px -1px oklch(0.2 0.02 h / 0.12)`): the active tab, selected segment, pressed icon button, current Space row, live agenda row, plate buttons, next-up bar.
-- **Sheet float** (`0 1px 2px oklch(0.2 0.03 h / 0.05), 0 12px 32px -12px oklch(0.25 0.05 h / 0.28)`): the Space sheet, settings sheets, slips.
-- **Command float** (`0 24px 60px -16px oklch(0.2 0.05 h / 0.45)`): the command bar only.
+- **Resting stock** (`box-shadow: 0 1px 1px color-mix(in srgb, var(--ink) 10%, transparent), 0 6px 14px -8px color-mix(in srgb, var(--ink) 28%, transparent)`): pulled card, page cards.
+- **Drawer recess** (`box-shadow: inset 0 2px 5px color-mix(in srgb, var(--ink) 14%, transparent)`): the drawer interior.
+- **Label holder** (`box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 6%, transparent)`): the find field.
+- **Lifted card top** (`transform: translateY(-3px); box-shadow: 0 4px 6px -4px color-mix(in srgb, var(--ink) 35%, transparent)`): hover, focus-visible, next.
+- **Opened card top** (`translateY(-6px); box-shadow: 0 6px 8px -5px color-mix(in srgb, var(--ink) 40%, transparent)`): the dashboard's opened Space.
+- **Pulling** (`translateY(-8px)` with a 2px red top border): the card mid-pull.
 
 ### Named Rules
-**The One Opaque Pill Rule.** Opaque white means "this one": the current tab, the selected segment, the pressed toggle, the current Space row, the live agenda row, and fields you type into. Containers are always translucent; the Space sheet is kept at 40% so the active tab's pill is the brightest thing on it.
-
-**The Gliding Light Rule.** Switching Spaces transitions the registered `--space-h` over 700ms (`cubic-bezier(0.22, 1, 0.36, 1)`), with chroma and spread easing alongside, so the whole ground, ink and shadows sweep to the new hue together. Under reduced motion the change is instant.
+**The Pull-Height Rule.** Rank is how far a card is pulled: 0, -3px, -6px, -8px. Never a fill colour, badge, or accent bar on a row.
 
 ## Shapes
 
-Soft, continuous rounding that grows with the surface: 3px group swatches, 5px key caps, 6px badges, 7 to 8px controls and fields, 9px rows and buttons, 10px command pill and Space rows, 11px view-tab track, 12px slips, 14px sheets, 16px command bar. Inner radii sit 2 to 3px under their container so nested pills read concentric. Space identity dots and colour chips are circles; group swatches are rounded squares, so the two never get confused. Borders are almost absent: glass gets a 0.5px inset edge, dividers are 0.5px hairlines, and icons are one authored 16px set at 1.5 stroke with round joins in `currentColor`.
+Cut stock and pressed metal. Cards take 2px corners (2px 2px 3px 3px on a full card, 2px 2px 0 0 on a card top, since its bottom is hidden in the drawer). The drawer, label holder, keycaps and icon buttons take 3px. Guide tabs and legends are 4px top-only tabs with no bottom border, so they join what sits beneath them. Stamps and call numbers are 2px bordered boxes. Typed inputs have no box at all: a 1.5px underline, like a blank on a form. Dashed 1px stock-edge lines divide a card's actions from its entries and mark empty-drawer notes.
 
 ## Components
 
 ### Buttons
-- **Shape:** 9px for plate and icon buttons, 8px for text buttons.
-- **Plate (primary):** ink fill with pill-coloured text, 30px tall, 12px padding, 600 at 12.5px, pill lift. Hover brightens 12%.
-- **Plate, switch:** the accent fill with white text. Switching Spaces is the one control that carries the hue.
-- **Plate, outline:** a white pill with ink text and a hairline ring; hover drops to strong glass.
-- **Text button:** transparent, ink-2, 28px, control type; hover gains glass and ink. The switch variant is accent text; the danger variant is danger text.
-- **Icon button:** 32px square (24px small), transparent, ink-2 icon; hover glass; pressed (`aria-pressed`) becomes the white pill.
-- **Focus:** a 2px accent outline, 2px offset, on every focusable element.
+Tactile but quiet: typed actions on the card and one ink plate.
+- **Shape:** squared stock (2px), 30px tall, 0 12px padding, uppercase tracked sans label.
+- **Ink plate:** ink fill with stock-coloured label; hover mixes 14% stock into the ink. Disabled at 40% opacity.
+- **Pull plate:** the only red fill in the system, reserved for switching this window to a Space.
+- **Outline plate:** stock fill, ink label and border; hover tints 6% ink.
+- **Text button:** no box, ink-2 uppercase label, underline appears on hover (3px offset). The pull variant is red; the confirm-delete variant is ink and underlined at rest.
+- **Icon button:** 32px square, transparent border that becomes a stock edge on hover. Icons are one authored set: 16px grid, 1.5 stroke, round joins, currentColor.
+- **Focus:** 2px solid ink outline, 2px offset, everywhere.
 
-### Badges
-- **Style:** 20px, 6px radius, hairline ground, 600 at 10.5px, ink-2. "Here" uses the accent wash with accent text; device names use accent text; pending uses amber; offline is an outline; error inverts to ink. A new badge scales in over 220ms.
+### Stamps
+- **Style:** 1.5px border in the stamp's own colour, 2px corners, 10px uppercase sans at 0.1em.
+- **States:** HERE in ink; OPEN and VIEW ONLY in ink-2; device name in blue (truncated at 12ch); PENDING in amber; offline dashed; error reversed to an ink plate; quiet (no border) for passive sync text.
 
 ### Cards / Containers
-- **Space sheet:** 14px radius, 40% glass, sheet float plus white edge, 10 / 8 / 8px padding. Head row: number key, colour dot, 17px name, badges; meta in 11px ink-3 below.
-- **Settings sheet:** a fieldset as a 78% glass sheet, 14px radius, 12 to 14px padding, its legend as a 13px 650 title inside it.
-- **Slip:** a floating 78% glass strip (12px radius) for prompts and undo, sliding in over 260ms; the error slip inverts to ink.
+- **Pulled card:** stock, cut-edge border, 3px red top rule, 12px 14px padding, resting shadow. Head: call number, display name, stamp cell. Then the meta line, ruled typed entries with tab-group headings (colour swatch plus uppercase label), and a dashed-rule action footer.
+- **Blank card:** a pulled card whose top rule is cut edge, with a typed lede and underline fields; this is how an unfiled window is drawn.
+- **Verso:** the card's back, holding resources. In the panel the card turns over (rotateY 88deg out in 130ms, in in 170ms). On the dashboard it sits flat beside the recto with a stock-edge top rule.
+- **Page card:** History, Suspended and Settings are filed as cards (12px 14px padding); settings groups are stock fieldsets under pressboard legends.
+- **Slip:** a notice on stock with a 2px corner; an error slip reverses to an ink plate.
 
 ### Inputs / Fields
-- **Style:** a white pill field, 32px, 8px radius, a hairline inset ring and a faint inner top shadow; labels in 11px 600 ink-2 above.
-- **Focus:** a 1px accent inset ring plus a 2px accent-wash halo.
-- **Inline rename:** the Space name becomes a 30px pill field with an accent ring, in headline type.
+- **Label holder (find):** a 32px stock plate with a 3px corner, inset top shadow, search icon, typed placeholder and a `/` keycap. Focus puts a 2px ink ring on the whole holder.
+- **Typed input:** no box; 1.5px underline at 55% ink, typed text. Focus darkens the underline to full ink and doubles it with a 1.5px shadow line.
+- **Labels:** uppercase 11px sans in ink-3 above the field.
+- **Checkbox:** native, 14px, ink accent. Done tasks strike through in ink-3.
 
 ### Navigation
-- **Command pill:** a 34px glass bar at the top of the panel ("Search Spaces and tabs", ⌘K key cap), ink-3 placeholder, hover to glass-hover.
-- **View tabs:** a glass segmented track (3px padding, 11px radius, 2px gaps); segments are 26px, sized to their label, ink-2; the selected view is the white pill. The same control, on a hairline track, chooses options inside sheets.
-- **Tab rows:** favicon (16px, 4px radius) plus title, 32px, 9px radius; hover glass; the active tab is the white pill at 550. Grouped tabs indent 26px under an 11px group header with its square swatch.
-- **Section divider:** an 11px ink-3 label, a 0.5px hairline filling the row, and one quiet trailing text action (for example "Suspend tabs").
-- **Space rows:** 36px rows of name, count, badges and number key; hover glass; the current Space is the white pill; the row being switched to takes the accent wash.
+- **Guide tabs:** the view switcher (Spaces, History, Suspended, Settings) is a row of uppercase sans tabs on a 22% ink baseline. The active tab becomes a pressboard guide card that joins the baseline; idle tabs are ink-2 and go to ink on hover.
+- **Keyboard hints:** keycaps (stock, 1px edge with a 2px bottom, 3px corner, 11px bold typed) name each shortcut in the drawer's hint strip.
 
-### Command Bar
-A centred 600px glass layer (78%, 30px blur, 16px radius, command float) that drops in over 180ms under a lightly tinted scrim, 48px from the top in the panel and 14vh on the dashboard. A 48px input row at 15px sits above grouped results (11px group labels); each result is a 36px row with a colour dot, label and trailing meta. The selected result is filled with the Space accent in white text: the one place a row takes the hue.
+### The Drawer (signature)
+The recessed drawer holds guide cards (pressboard tabs with a rule running out to the right) and, under each, card tops that overlap by 1px like stacked stock. Pressing a call number or Enter pulls a card: a view transition (260ms, cubic-bezier(0.2, 0.8, 0.2, 1)) carries it up into the pulled slot while the old card files down. All motion is removed under reduced motion.
 
-### Edit Mode
-The Space sheet gains a colour row of 20px round chips (Chrome's colours minus red, plus a "none" chip struck through on white); the chosen chip gets a 2px ink ring at 2px offset. Rows grow to 34px and show move and remove icon buttons at the right; the action row becomes Rename, Delete (danger), and Done as an outline plate.
-
-### Today
-An agenda sheet of 32px rows (time column 5.4em in tabular 11px 600 ink-3, name, marks). The live event is the white pill; past events drop to ink-3. A next-up bar (34px, strong glass, pill lift) sits above with its time in accent.
-### Tasks
-Below the Space sheet, a divider ("Tasks", refresh icon, "Open in Vikunja") over 32px rows: a 16px round check (1.5px ink-3 ring) and the title. Checking off is the section's one authored moment. The ring fills with ink with a brief press, and the tick draws in pill colour (180ms). A 1px strike then sweeps across the words only (260ms, after 160ms), the title fades to ink-3, and the row folds shut (260ms) at 440ms. A task added here rises 8px out of the add field below it. One that arrives from Vikunja or BusyCal on a refresh rises the same way, then its strong-glass glow fades over 1.4s. One finished elsewhere folds away. The list's first appearance staggers 30ms per row, capped at 6 rows. Under reduced motion there is no movement: rows fade in and out, and the check, strike and glow change instantly or by colour.
-
-### Motion setting
-Settings → Display → Animations is **off by default** (since 1.5.14). Off, `:root[data-motion='off']` drops every animation and transition, and switches skip the view transition, so nothing moves or fades: not the light change, the card swipe, the flip, the slips, or the Tasks motion. The UI changes instantly, as under Reduce Motion. The motion described in this file is what you see with Animations on.
+### Added since 1.3.1 (same cabinet)
+The Arc redesign (1.4–1.5.14) was rolled back to this world in 1.5.15; features added meanwhile are drawn here:
+- **Find field → command bar.** The label-holder field in the drawer front opens ⌘K (or /): a card pulled over the drawer (red top rule, card stock, a 1.5px ink rule under a Type Step-1 input), results typed on its ruling, groups as small uppercase sans labels, and the picked line typed over in ink (ink ground, card-coloured type). The ⌘K window is the same card, full-window.
+- **Dividers.** A section title (small uppercase sans, ink-2), a dashed card-edge rule, and quiet uppercase text actions: "In the drawer … Suspend tabs", "Tasks … ↻ Open in Vikunja".
+- **Tasks card.** A card below the drawer with its tasks typed on the ruling. The check is a 13px typed box that inks in and gets a tick in card colour. The strike is typed across the words only, and the row fades away. The add line is a ruled entry led by a drawn plus.
+- **Tab lines are buttons.** A tab's line on a card goes to that tab. Hover underlines its title in card-edge.
+- **Animations** (Settings → Display) are off by default. Off, `:root[data-motion='off']` removes every animation and transition, and switches skip the view transition. Card tops still stand up on hover (a static lift).
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** derive every tinted value from `--space-h`, `--space-c` and `--space-spread`, so a Space switch re-tints ground, ink, hairlines and shadows together.
-- **Do** keep the Space sheet at 40% glass and floating layers at 78%, so the opaque pill stays the brightest surface.
-- **Do** mark the current item with the white pill and pill lift (current tab, view, Space, live event, pressed toggle).
-- **Do** pair every Space colour with its name and number key; colour is never the only cue.
-- **Do** transition `--space-h` over 700ms on switch and make it instant under `prefers-reduced-motion`.
-- **Do** cap the view tabs at 12px × min(scale, 1) so four fit a 320px panel.
-- **Do** use 0.5px hairlines with a single trailing text action for section breaks.
+- **Do** set every name, entry, note and count in Courier Prime on the 20px ruling pitch.
+- **Do** keep red to the pulled card's 3px top rule, the pull plate and the pulling card top.
+- **Do** express state as a bordered stamp in the fixed right cell, in ink, blue or amber.
+- **Do** show rank and focus by lifting a card (-3, -6, -8px), not by filling a row.
+- **Do** draw empty states as blank or dashed stock with a typed sentence.
+- **Do** use the 2px ink focus ring on every interactive element and keep every core action on a key.
+- **Do** join the active guide tab to the surface below it with pressboard fill and no bottom border.
 
 ### Don't:
-- **Don't** fill rows, buttons or containers with the Space hue at rest; the accent fill is reserved for the selected command result and the switch plate button.
-- **Don't** offer red as a Space colour; it is reserved for destructive actions.
-- **Don't** use neutral, untinted greys for ink or hairlines.
-- **Don't** make a container opaque, or give the Space sheet more than 40% white.
-- **Don't** use hard or offset shadows; depth is blur, translucency and soft tinted lift.
-- **Don't** introduce a display face or grow the type ramp past the 17px Space name; hierarchy is weight.
+- **Don't** use red for state, errors, focus, selection or a second card; errors reverse to ink.
+- **Don't** highlight the current row with a fill or accent bar, or add rank badges.
+- **Don't** round corners beyond 4px or use pill shapes; this is cut stock.
+- **Don't** set a Space name or typed content in the sans; the sans is for printed labels only.
+- **Don't** add shadows that aren't the consequence of stock resting, lifting or sitting in the drawer.
+- **Don't** use remote fonts or icon packages; fonts ship in static/fonts and icons come from the one authored 16px set.
