@@ -8,6 +8,7 @@ import { getStorage } from '../storage';
 import { buildBackup, importBackup } from '../shared/backup';
 import type { Notice } from './notice';
 import { getTextScale, setTextScale, TEXT_SCALES, type TextScale } from './textScale';
+import { getVikunjaConfig, setVikunjaConfig } from '../shared/vikunja';
 import { fetchLatestVersion, isNewer, type UpdateResult } from '../shared/update';
 import { disconnect, GCAL_CLIENT_ID_KEY, GCAL_CONNECTED_KEY, getToken, redirectUri } from '../shared/gcal';
 
@@ -83,6 +84,7 @@ export function Settings({ onError, onNotice }: { onError: (e: string) => void; 
         <FormGuardToggle onError={onError} />
       </fieldset>
       <SyncSettings onError={onError} />
+      <VikunjaSettings onError={onError} />
       <CalendarSettings onError={onError} />
       <BackupSettings onError={onError} onNotice={onNotice} />
       <UpdateSettings />
@@ -370,6 +372,81 @@ function UpdateSettings() {
       </p>
     </fieldset>
   );
+}
+
+function VikunjaSettings({ onError }: { onError: (e: string) => void }) {
+  const [url, setUrl] = useState('https://tasks.bhag.dev');
+  const [token, setToken] = useState('');
+  const [who, setWho] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    void getVikunjaConfig().then(async c => {
+      if (!c) return;
+      setUrl(c.url);
+      setWho(await whoAmI(c.url, c.token).catch(() => '(token not checked)'));
+    });
+  }, []);
+
+  const connect = async () => {
+    setBusy(true);
+    try {
+      const base = url.trim().replace(/\/+$/, '');
+      if (!/^https?:\/\//.test(base)) throw new Error('The Vikunja address must start with https://');
+      // Must be asked from the click, before other awaits.
+      const granted = await chrome.permissions.request({ origins: [`${new URL(base).origin}/*`] });
+      if (!granted) throw new Error('Spaces needs permission to reach your Vikunja server.');
+      const name = await whoAmI(base, token.trim());
+      await setVikunjaConfig({ url: base, token: token.trim() });
+      setWho(name);
+      setToken('');
+    } catch (e) {
+      onError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <fieldset>
+      <legend>Tasks (Vikunja)</legend>
+      <p className="hint">
+        Shows each Space’s tasks at the bottom of the panel. Each Space gets its own Vikunja project inside “Spaces”, so it also appears as a
+        calendar in BusyCal. Create an API token in Vikunja under Settings → API Tokens. It stays on this device.
+      </p>
+      {who ? (
+        <div className="row">
+          <span className="stamp stamp-here">Connected as {who}</span>
+          <button type="button" className="text-button" onClick={() => void setVikunjaConfig(null).then(() => setWho(null))}>
+            Disconnect
+          </button>
+        </div>
+      ) : (
+        <>
+          <label className="field stacked">
+            Server
+            <input className="typed-input" type="url" value={url} onChange={e => setUrl(e.target.value)} />
+          </label>
+          <label className="field stacked">
+            API token
+            <input className="typed-input" type="password" autoComplete="off" value={token} onChange={e => setToken(e.target.value)} placeholder="tk_…" />
+          </label>
+          <div className="row">
+            <button type="button" className="plate-button" disabled={busy || !token.trim()} onClick={() => void connect()}>
+              {busy ? 'Connecting…' : 'Connect Vikunja'}
+            </button>
+          </div>
+        </>
+      )}
+    </fieldset>
+  );
+}
+
+async function whoAmI(url: string, token: string) {
+  const res = await fetch(`${url}/api/v1/user`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error(res.status === 401 ? 'Vikunja rejected that token.' : `Vikunja answered ${res.status}.`);
+  const u = (await res.json()) as { username: string; name?: string };
+  return u.name || u.username;
 }
 
 function DisplaySettings() {

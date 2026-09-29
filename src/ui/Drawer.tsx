@@ -271,19 +271,17 @@ export function Drawer({
           ))}
         </ul>
       )}
-      <p className="drawer-hint">
-        <span className="key-entry">
-          <kbd>⌘K</kbd> search
-        </span>
-        <span className="key-entry">
-          <kbd>1</kbd>–<kbd>9</kbd> {view === 'panel' ? 'switch' : 'open'}
-        </span>
-        {view === 'panel' && (
+      {/* The panel shows its key hints under Tasks, at the very bottom (App). */}
+      {view === 'dashboard' && (
+        <p className="drawer-hint">
           <span className="key-entry">
-            <kbd>V</kbd> resources
+            <kbd>⌘K</kbd> search
           </span>
-        )}
-      </p>
+          <span className="key-entry">
+            <kbd>1</kbd>–<kbd>9</kbd> open
+          </span>
+        </p>
+      )}
     </section>
   );
 

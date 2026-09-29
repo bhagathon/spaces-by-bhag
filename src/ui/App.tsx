@@ -8,6 +8,7 @@ import { Settings } from './Settings';
 import { Agenda, NextUp } from './Agenda';
 import { TabPrompt } from './TabPrompt';
 import { CommandBar } from './CommandBar';
+import { Tasks } from './Tasks';
 import { currentSpaceIdAtom, spacesAtom } from './atoms';
 import { SearchIcon } from './Icons';
 import { spaceColor, type GroupColor } from '../shared/types';
@@ -146,6 +147,20 @@ export function App({ view }: { view: 'panel' | 'dashboard' }) {
       <main>
         {tab === 'drawer' && view === 'panel' && <NextUp />}
         {tab === 'drawer' && <Drawer view={view} onError={setError} onNotice={setNotice} />}
+        {tab === 'drawer' && view === 'panel' && <Tasks onSetUp={() => setTab('settings')} onError={setError} />}
+        {tab === 'drawer' && view === 'panel' && (
+          <p className="drawer-hint">
+            <span className="key-entry">
+              <kbd>⌘K</kbd> search
+            </span>
+            <span className="key-entry">
+              <kbd>1</kbd>–<kbd>9</kbd> switch
+            </span>
+            <span className="key-entry">
+              <kbd>V</kbd> resources
+            </span>
+          </p>
+        )}
         {tab === 'today' && <Agenda onSetUp={() => setTab('settings')} />}
         {tab === 'history' && <History onError={setError} />}
         {tab === 'suspension' && <Suspension onError={setError} />}

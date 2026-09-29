@@ -1,6 +1,8 @@
 # Spaces ↔ Vikunja task sync
 
-**Status:** proposed, awaiting review · 2026-09-28
+**Status:** superseded by a simpler build (1.5.0) · 2026-09-28
+
+> Built instead: the panel's **Tasks** section reads and writes Vikunja directly (Vikunja is the only store), so nothing is copied and nothing can drift. Each Space gets a project under **Spaces** on its first task (open question 1 settled on the proposed default). Resource-side tasks are not synced. Checking a task off sends the whole task back, because Vikunja blanks fields an update leaves out (verified on the live server).
 
 ## Goal
 

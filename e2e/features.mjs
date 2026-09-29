@@ -102,7 +102,7 @@ try {
   // ---- Sync: turn it on through Settings ----
   await ui.getByRole('button', { name: 'Settings', exact: true }).click();
   await ui.getByLabel('Server URL').fill(serverUrl);
-  await ui.getByLabel('Token').fill(token);
+  await ui.getByLabel('Token', { exact: true }).fill(token);
   await ui.getByLabel('This device’s name').fill('Test laptop');
   await ui.getByLabel(/Live updates/).check();
   await ui.getByRole('button', { name: 'Turn on sync' }).click();
