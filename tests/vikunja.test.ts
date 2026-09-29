@@ -103,16 +103,50 @@ describe('a borrowed Vikunja session', () => {
     expect(jwtSecondsLeft('tk_abc')).toBe(Infinity);
   });
 
-  it('is renewed when it has less than a day left, and left alone otherwise', async () => {
+  const shortJwt = (secondsLeft: number, lifetime = 900) => {
+    const now = Math.floor(Date.now() / 1000);
+    return `h.${btoa(JSON.stringify({ exp: now + secondsLeft, iat: now + secondsLeft - lifetime }))}.s`;
+  };
+
+  it('renews a Vikunja 2.x short-lived token through the refresh endpoint, with the sign-in cookie', async () => {
     const { renewIfNeeded, getVikunjaConfig } = await import('../src/shared/vikunja');
-    const renewed = jwt(30 * 24 * 3600);
-    const f = vi.fn(async () => new Response(JSON.stringify({ token: renewed }), { status: 200 })) as unknown as typeof fetch;
-    await setVikunjaConfig({ url: 'https://t', token: jwt(7 * 24 * 3600), username: 'bhag', kind: 'browser' });
-    await renewIfNeeded(f);
-    expect((f as unknown as ReturnType<typeof vi.fn>).mock.calls).toHaveLength(0);
-    await setVikunjaConfig({ url: 'https://t', token: jwt(3600), username: 'bhag', kind: 'browser' });
-    await renewIfNeeded(f);
+    const renewed = shortJwt(900);
+    const f = vi.fn(async (_u: string | URL | Request, _i?: RequestInit) => new Response(JSON.stringify({ token: renewed }), { status: 200 }));
+    await setVikunjaConfig({ url: 'https://t', token: shortJwt(600), username: 'bhag', kind: 'browser' });
+    await renewIfNeeded(f as unknown as typeof fetch);
+    expect(f.mock.calls).toHaveLength(0); // ten minutes left: not yet
+    await setVikunjaConfig({ url: 'https://t', token: shortJwt(60), username: 'bhag', kind: 'browser' });
+    await renewIfNeeded(f as unknown as typeof fetch);
     expect((await getVikunjaConfig())!.token).toBe(renewed);
-    expect(String((f as unknown as ReturnType<typeof vi.fn>).mock.calls[0][0])).toBe('https://t/api/v1/user/token');
+    expect(String(f.mock.calls[0][0])).toBe('https://t/api/v1/user/token/refresh');
+    expect(f.mock.calls[0][1]!.credentials).toBe('include');
+  });
+
+  it('falls back to renewing a month-long token on older servers, with a day to go', async () => {
+    const { renewIfNeeded, getVikunjaConfig } = await import('../src/shared/vikunja');
+    const renewed = shortJwt(30 * 24 * 3600, 30 * 24 * 3600);
+    const f = vi.fn(async (u: string | URL | Request) =>
+      String(u).endsWith('/refresh') ? new Response('{}', { status: 404 }) : new Response(JSON.stringify({ token: renewed }), { status: 200 }),
+    );
+    await setVikunjaConfig({ url: 'https://t', token: shortJwt(7 * 24 * 3600, 30 * 24 * 3600), username: 'bhag', kind: 'browser' });
+    await renewIfNeeded(f as unknown as typeof fetch);
+    expect(f.mock.calls).toHaveLength(0);
+    await setVikunjaConfig({ url: 'https://t', token: shortJwt(3600, 30 * 24 * 3600), username: 'bhag', kind: 'browser' });
+    await renewIfNeeded(f as unknown as typeof fetch);
+    expect((await getVikunjaConfig())!.token).toBe(renewed);
+    expect(f.mock.calls.map(c => String(c[0]))).toEqual(['https://t/api/v1/user/token/refresh', 'https://t/api/v1/user/token']);
+  });
+
+  it('renews after a 401 and retries the call once', async () => {
+    const { listOpenTasks, getVikunjaConfig } = await import('../src/shared/vikunja');
+    const renewed = shortJwt(900);
+    await setVikunjaConfig({ url: 'https://t', token: shortJwt(500), username: 'bhag', kind: 'browser' });
+    const f = vi.fn(async (u: string | URL | Request, i?: RequestInit) => {
+      if (String(u).endsWith('/user/token/refresh')) return new Response(JSON.stringify({ token: renewed }), { status: 200 });
+      const auth = (i?.headers as Record<string, string>).Authorization;
+      return auth === `Bearer ${renewed}` ? new Response('[{"id":1,"title":"a","done":false,"project_id":3}]', { status: 200 }) : new Response('{}', { status: 401 });
+    });
+    expect(await listOpenTasks(3, f as unknown as typeof fetch)).toHaveLength(1);
+    expect((await getVikunjaConfig())!.token).toBe(renewed);
   });
 });
