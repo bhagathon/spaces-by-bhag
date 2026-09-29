@@ -7,7 +7,7 @@ import { send } from './api';
 import { canEdit, SPACE_COLORS, type GroupColor, type PresenceUser, type Space, type SpaceEdit, type Workspace } from '../shared/types';
 import type { Notice } from './notice';
 import { Verso } from './Resources';
-import { CloseIcon, DownIcon, FlipIcon, SearchIcon, UpIcon } from './Icons';
+import { CloseIcon, DownIcon, FlipIcon, GlobeIcon, SearchIcon, UpIcon } from './Icons';
 
 /** Chrome's own tab-group colours: data, not decoration. */
 /** Chrome's tab-group colours, as theme tokens (app.css defines light and dark values). */
@@ -50,7 +50,7 @@ function Highlight({ text, q }: { text: string; q: string }) {
 }
 
 function Favicon({ url }: { url?: string }) {
-  return url && /^https?:/.test(url) ? <img className="favicon" src={url} alt="" width={14} height={14} /> : <span className="favicon-blank" aria-hidden />;
+  return url && /^https?:/.test(url) ? <img className="favicon" src={url} alt="" width={16} height={16} /> : <GlobeIcon className="icon favicon-blank" />;
 }
 
 /** Stamped state marks, always in the same cell. `single` keeps one stamp (card tops have one fixed cell). */
@@ -223,7 +223,21 @@ export function Drawer({
 
   const drawer = (
     <section className="drawer" aria-label="Other Spaces">
-      <h2 className="drawer-title">{view === 'panel' ? 'Other Spaces' : 'Spaces'}</h2>
+      <div className="divider">
+        <h2 className="drawer-title">{view === 'panel' ? 'Other Spaces' : 'Spaces'}</h2>
+        <span className="divider-rule" />
+        <button
+          className="divider-action"
+          title="Suspend background tabs now to free memory"
+          onClick={() =>
+            void send<number>({ type: 'suspendNow' })
+              .then(n => onNotice({ text: n ? `Suspended ${plural(n, 'background tab')}.` : 'No background tabs to suspend.' }))
+              .catch(e => onError(errText(e)))
+          }
+        >
+          Suspend tabs
+        </button>
+      </div>
       {spaces.length === 0 ? (
         <p className="drawer-note">No Spaces yet. Name this window above and it becomes your first Space; each Space gets a number key.</p>
       ) : (
@@ -390,9 +404,13 @@ function PulledCard({
     }
   };
 
+  const cardRef = useRef<HTMLElement>(null);
+  // The card keeps its height through the turn, so the list below doesn't jump mid-rotation.
+  const [heldHeight, setHeldHeight] = useState<number | null>(null);
   const turn = () => {
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) return setSide(s => (s === 'recto' ? 'verso' : 'recto'));
+    setHeldHeight(cardRef.current?.offsetHeight ?? null);
     setFlipPhase('out');
   };
 
@@ -660,14 +678,18 @@ function PulledCard({
 
   return (
     <article
+      ref={cardRef}
       className={`card pulled${flipPhase === 'out' ? ' flip-out' : flipPhase === 'in' ? ' flip-in' : ''}`}
-      style={{ viewTransitionName: vtName(space.id) }}
+      style={{ viewTransitionName: vtName(space.id), minHeight: heldHeight ?? undefined }}
       aria-label={`${space.name}, this window's Space`}
       onAnimationEnd={() => {
         if (flipPhase === 'out') {
           setSide(s => (s === 'recto' ? 'verso' : 'recto'));
           setFlipPhase('in');
-        } else if (flipPhase === 'in') setFlipPhase('idle');
+        } else if (flipPhase === 'in') {
+          setFlipPhase('idle');
+          setHeldHeight(null);
+        }
       }}
     >
       {side === 'recto' ? (

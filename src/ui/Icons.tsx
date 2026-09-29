@@ -76,6 +76,14 @@ export const SlidersIcon = () => (
   </Svg>
 );
 
+/** A tab with no favicon of its own (new tab, chrome:// pages, PDFs). */
+export const GlobeIcon = ({ className = 'icon' }: { className?: string }) => (
+  <Svg className={className}>
+    <circle cx="8" cy="8" r="5.5" />
+    <path d="M2.5 8h11M8 2.5c1.6 1.6 2.4 3.4 2.4 5.5S9.6 11.9 8 13.5M8 2.5C6.4 4.1 5.6 5.9 5.6 8s.8 3.9 2.4 5.5" />
+  </Svg>
+);
+
 /** A saved link with no favicon. */
 export const LinkIcon = () => (
   <Svg>

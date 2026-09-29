@@ -22,10 +22,10 @@
   --mono: ui-monospace, 'SF Mono', Menlo, monospace;
 
   /* The light. */
-  --ground: oklch(0.955 calc(var(--space-c) * 0.35) var(--space-h));
-  --blob-a: oklch(0.86 var(--space-c) var(--space-h));
-  --blob-b: oklch(0.9 var(--space-c) calc(var(--space-h) + var(--space-spread)));
-  --blob-c: oklch(0.88 var(--space-c) calc(var(--space-h) - var(--space-spread) * 0.6));
+  --ground: oklch(0.935 calc(var(--space-c) * 0.65) var(--space-h));
+  --blob-a: oklch(0.84 var(--space-c) var(--space-h));
+  --blob-b: oklch(0.89 var(--space-c) calc(var(--space-h) + var(--space-spread)));
+  --blob-c: oklch(0.86 var(--space-c) calc(var(--space-h) - var(--space-spread) * 0.6));
 
   /* Ink is tinted by the light, so type belongs to the Space it sits in. */
   --ink: oklch(0.24 0.02 var(--space-h));
@@ -36,6 +36,8 @@
   --glass: rgb(255 255 255 / 0.5);
   --glass-hover: rgb(255 255 255 / 0.62);
   --glass-strong: rgb(255 255 255 / 0.78);
+  /* The Space sheet stays thin, so the active tab's white pill is the one opaque surface. */
+  --glass-sheet: rgb(255 255 255 / 0.4);
   --pill: #fff;
   --hairline: oklch(0.3 0.02 var(--space-h) / 0.1);
   --edge: rgb(255 255 255 / 0.7);
@@ -60,8 +62,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --ground: oklch(0.2 calc(var(--space-c) * 0.5) var(--space-h));
-    --blob-a: oklch(0.34 calc(var(--space-c) * 1.1) var(--space-h));
+    --ground: oklch(0.2 calc(var(--space-c) * 0.7) var(--space-h));
+    --blob-a: oklch(0.36 calc(var(--space-c) * 1.1) var(--space-h));
     --blob-b: oklch(0.3 var(--space-c) calc(var(--space-h) + var(--space-spread)));
     --blob-c: oklch(0.28 var(--space-c) calc(var(--space-h) - var(--space-spread) * 0.6));
     --ink: oklch(0.96 0.01 var(--space-h));
@@ -70,6 +72,7 @@
     --glass: rgb(255 255 255 / 0.06);
     --glass-hover: rgb(255 255 255 / 0.1);
     --glass-strong: oklch(0.26 0.02 var(--space-h) / 0.72);
+    --glass-sheet: oklch(0.24 0.02 var(--space-h) / 0.42);
     --pill: oklch(0.36 0.02 var(--space-h));
     --hairline: rgb(255 255 255 / 0.1);
     --edge: rgb(255 255 255 / 0.08);
@@ -94,6 +97,9 @@ html {
     radial-gradient(70% 45% at 30% 100%, var(--blob-c), transparent 70%);
   background-attachment: fixed;
   min-height: 100%;
+  caret-color: var(--accent);
+  scrollbar-width: thin;
+  scrollbar-color: var(--hairline) transparent;
 }
 body {
   margin: 0;
@@ -146,7 +152,8 @@ kbd {
 }
 .cmd-pill:hover { background: var(--glass-hover); }
 .cmd-pill-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--step-0); }
-.app-dashboard .cmd-pill { max-width: 520px; }
+/* On the dashboard the header spans the whole grid, so both edges line up with the columns. */
+.app-dashboard .drawer-front { gap: 8px; }
 
 .icon-button {
   display: inline-grid;
@@ -264,7 +271,7 @@ kbd {
 .card {
   position: relative;
   border-radius: 14px;
-  background: var(--glass-strong);
+  background: var(--glass-sheet);
   box-shadow: var(--shadow-sheet), inset 0 0 0 0.5px var(--edge);
   backdrop-filter: var(--blur);
 }
@@ -333,7 +340,7 @@ kbd {
 .entry-grouped { padding-left: 26px; }
 .entry-group { gap: 8px; min-height: 28px; font: 600 var(--step--1) / 1 var(--sans); color: var(--ink-2); }
 .favicon { width: 16px; height: 16px; flex: none; border-radius: 4px; }
-.favicon-blank { width: 16px; height: 16px; flex: none; border-radius: 4px; background: var(--hairline); }
+.favicon-blank { width: 16px; height: 16px; flex: none; color: var(--ink-3); }
 .entries-more { padding: 4px 8px 0; }
 
 /* The action row: quiet glass buttons under a hairline. */
@@ -412,7 +419,21 @@ textarea.typed-input { height: auto; padding: 7px 10px; line-height: 1.45; }
 
 /* ============ Other Spaces ============ */
 
-.drawer-title { margin: 0 8px 6px; font: 600 var(--step--1) / 1 var(--sans); color: var(--ink-3); }
+.drawer-title { margin: 0; font: 600 var(--step--1) / 1 var(--sans); color: var(--ink-3); white-space: nowrap; }
+/* Arc's section break: a hairline with one quiet trailing action. */
+.divider { display: flex; align-items: center; gap: 8px; margin: 0 8px 6px; }
+.divider-rule { flex: 1; height: 0.5px; background: var(--hairline); }
+.divider-action {
+  flex: none;
+  padding: 2px 4px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  font: 550 var(--step--1) / 1 var(--sans);
+  color: var(--ink-3);
+  cursor: pointer;
+}
+.divider-action:hover { color: var(--ink); background: var(--glass-hover); }
 .drawer { margin-top: 4px; }
 .drawer-list { list-style: none; margin: 0; padding: 0; }
 .guide { display: flex; align-items: center; gap: 8px; margin: 12px 8px 4px; }

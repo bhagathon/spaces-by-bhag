@@ -181,15 +181,15 @@ function SyncStamp() {
    Grey is near-neutral; no colour is Arc's own mixed pastel. */
 const LIGHT: Record<GroupColor | 'none', { h: number; c: number; spread: number }> = {
   none: { h: 250, c: 0.07, spread: 140 },
-  grey: { h: 250, c: 0.012, spread: 20 },
-  blue: { h: 255, c: 0.08, spread: 28 },
-  cyan: { h: 205, c: 0.07, spread: 26 },
-  green: { h: 150, c: 0.07, spread: 30 },
-  yellow: { h: 95, c: 0.08, spread: 26 },
-  orange: { h: 60, c: 0.08, spread: 26 },
-  pink: { h: 355, c: 0.08, spread: 28 },
-  purple: { h: 300, c: 0.08, spread: 30 },
-  red: { h: 25, c: 0.08, spread: 24 },
+  grey: { h: 250, c: 0.018, spread: 30 },
+  blue: { h: 255, c: 0.12, spread: 50 },
+  cyan: { h: 205, c: 0.11, spread: 48 },
+  green: { h: 150, c: 0.11, spread: 52 },
+  yellow: { h: 95, c: 0.12, spread: 46 },
+  orange: { h: 60, c: 0.12, spread: 46 },
+  pink: { h: 355, c: 0.12, spread: 50 },
+  purple: { h: 300, c: 0.13, spread: 55 },
+  red: { h: 25, c: 0.12, spread: 44 },
 };
 
 /** Floods the page with the current Space's colour; --space-h is a registered property, so it glides. */

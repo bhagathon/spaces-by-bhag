@@ -3,7 +3,7 @@ import { useAtomValue } from 'jotai';
 import { currentSpaceIdAtom, spacesAtom, windowIdAtom } from './atoms';
 import { send } from './api';
 import type { Space } from '../shared/types';
-import { SearchIcon } from './Icons';
+import { GlobeIcon, SearchIcon } from './Icons';
 
 export type CommandTab = 'drawer' | 'today' | 'history' | 'suspension' | 'settings';
 
@@ -89,7 +89,7 @@ export function CommandBar({
               group: 'Tabs' as const,
               label: t.title || t.url,
               sub: s.name,
-              icon: t.favIconUrl ? <img className="favicon" src={t.favIconUrl} alt="" /> : <span className="favicon-blank" aria-hidden />,
+              icon: t.favIconUrl ? <img className="favicon" src={t.favIconUrl} alt="" /> : <GlobeIcon className="icon favicon-blank" />,
               run: go(s, t.url),
             })),
         )
