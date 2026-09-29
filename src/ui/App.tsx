@@ -25,11 +25,9 @@ const TABS: { id: Tab; label: string }[] = [
 
 export function App({ view }: { view: 'panel' | 'dashboard' }) {
   const [tab, setTab] = useState<Tab>('drawer');
-  const [query, setQuery] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [notice, setNoticeState] = useState<Notice | null>(null);
   const noticeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const filterRef = useRef<HTMLInputElement>(null);
   const [commandOpen, setCommandOpen] = useState(false);
   useSpaceLight();
 
@@ -147,7 +145,7 @@ export function App({ view }: { view: 'panel' | 'dashboard' }) {
 
       <main>
         {tab === 'drawer' && view === 'panel' && <NextUp />}
-        {tab === 'drawer' && <Drawer view={view} query={query} setQuery={setQuery} filterRef={filterRef} onError={setError} onNotice={setNotice} />}
+        {tab === 'drawer' && <Drawer view={view} onError={setError} onNotice={setNotice} />}
         {tab === 'today' && <Agenda onSetUp={() => setTab('settings')} />}
         {tab === 'history' && <History onError={setError} />}
         {tab === 'suspension' && <Suspension onError={setError} />}

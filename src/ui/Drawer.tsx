@@ -7,7 +7,7 @@ import { send } from './api';
 import { canEdit, SPACE_COLORS, type GroupColor, type PresenceUser, type Space, type SpaceEdit, type Workspace } from '../shared/types';
 import type { Notice } from './notice';
 import { Verso } from './Resources';
-import { CloseIcon, DownIcon, FlipIcon, GlobeIcon, SearchIcon, UpIcon } from './Icons';
+import { CloseIcon, DownIcon, FlipIcon, GlobeIcon, UpIcon } from './Icons';
 
 /** Chrome's own tab-group colours: data, not decoration. */
 /** Chrome's tab-group colours, as theme tokens (app.css defines light and dark values). */
@@ -81,16 +81,10 @@ interface Filed {
 
 export function Drawer({
   view,
-  query,
-  setQuery,
-  filterRef,
   onError,
   onNotice,
 }: {
   view: 'panel' | 'dashboard';
-  query: string;
-  setQuery: (q: string) => void;
-  filterRef: RefObject<HTMLInputElement | null>;
   onError: (e: string) => void;
   onNotice: (n: Notice) => void;
 }) {
@@ -103,7 +97,7 @@ export function Drawer({
   const [pulling, setPulling] = useState<string | null>(null);
   const [inspected, setInspected] = useState<string | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
-  const q = query.trim().toLowerCase();
+  const q = ''; // searching moved to the command bar; the drawer always lists every Space
 
   const current = spaces.find(s => s.id === currentId);
   // Panel: the pulled card is this window's Space. Dashboard: whichever card you opened.
@@ -182,30 +176,13 @@ export function Drawer({
     return () => window.removeEventListener('keydown', onKey);
   });
 
-  useEffect(() => {
-    const input = filterRef.current;
-    if (!input) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        listRef.current?.querySelector<HTMLButtonElement>('.card-top')?.focus();
-      } else if (e.key === 'Enter' && flat[0]) {
-        e.preventDefault();
-        activate(flat[0].space);
-      }
-    };
-    input.addEventListener('keydown', onKey);
-    return () => input.removeEventListener('keydown', onKey);
-  });
-
   const walk = (e: ReactKeyboardEvent<HTMLButtonElement>) => {
     if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
     e.preventDefault();
     const tops = [...(listRef.current?.querySelectorAll<HTMLButtonElement>('.card-top') ?? [])];
     const i = tops.indexOf(e.currentTarget);
     const next = tops[i + (e.key === 'ArrowDown' ? 1 : -1)];
-    if (next) next.focus();
-    else if (e.key === 'ArrowUp') filterRef.current?.focus();
+    next?.focus();
   };
 
   const pulledCard =
@@ -294,7 +271,6 @@ export function Drawer({
           ))}
         </ul>
       )}
-      {q && flat.length === 0 && spaces.length > 0 && <p className="drawer-note">No Space or tab matches “{query.trim()}”.</p>}
       <p className="drawer-hint">
         <span className="key-entry">
           <kbd>⌘K</kbd> search
