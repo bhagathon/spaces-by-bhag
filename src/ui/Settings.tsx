@@ -8,7 +8,7 @@ import { getStorage } from '../storage';
 import { buildBackup, importBackup } from '../shared/backup';
 import type { Notice } from './notice';
 import { getTextScale, setTextScale, TEXT_SCALES, type TextScale } from './textScale';
-import { getVikunjaConfig, setVikunjaConfig } from '../shared/vikunja';
+import { getVikunjaConfig, NeedsTotp, setVikunjaConfig, signInVikunja } from '../shared/vikunja';
 import { fetchLatestVersion, isNewer, type UpdateResult } from '../shared/update';
 import { disconnect, GCAL_CLIENT_ID_KEY, GCAL_CONNECTED_KEY, getToken, redirectUri } from '../shared/gcal';
 
@@ -376,6 +376,11 @@ function UpdateSettings() {
 
 function VikunjaSettings({ onError }: { onError: (e: string) => void }) {
   const [url, setUrl] = useState('https://tasks.bhag.dev');
+  const [mode, setMode] = useState<'password' | 'token'>('password');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [totp, setTotp] = useState('');
+  const [needTotp, setNeedTotp] = useState<string | null>(null);
   const [token, setToken] = useState('');
   const [who, setWho] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -384,7 +389,7 @@ function VikunjaSettings({ onError }: { onError: (e: string) => void }) {
     void getVikunjaConfig().then(async c => {
       if (!c) return;
       setUrl(c.url);
-      setWho(await whoAmI(c.url, c.token).catch(() => '(token not checked)'));
+      setWho(c.username ?? (await whoAmI(c.url, c.token).catch(() => '(token not checked)')));
     });
   }, []);
 
@@ -396,10 +401,26 @@ function VikunjaSettings({ onError }: { onError: (e: string) => void }) {
       // Must be asked from the click, before other awaits.
       const granted = await chrome.permissions.request({ origins: [`${new URL(base).origin}/*`] });
       if (!granted) throw new Error('Spaces needs permission to reach your Vikunja server.');
-      const name = await whoAmI(base, token.trim());
-      await setVikunjaConfig({ url: base, token: token.trim() });
-      setWho(name);
+      if (mode === 'password') {
+        try {
+          await signInVikunja({ url: base, username, password, totp: needTotp ? totp : undefined });
+        } catch (e) {
+          if (e instanceof NeedsTotp) {
+            setNeedTotp(e.message);
+            return;
+          }
+          throw e;
+        }
+        setWho(username.trim());
+      } else {
+        const name = await whoAmI(base, token.trim());
+        await setVikunjaConfig({ url: base, token: token.trim(), kind: 'api-token' });
+        setWho(name);
+      }
+      setPassword('');
+      setTotp('');
       setToken('');
+      setNeedTotp(null);
     } catch (e) {
       onError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -407,36 +428,87 @@ function VikunjaSettings({ onError }: { onError: (e: string) => void }) {
     }
   };
 
+  const ready = mode === 'password' ? !!username.trim() && !!password && (!needTotp || totp.trim().length >= 6) : !!token.trim();
+
   return (
     <fieldset>
       <legend>Tasks (Vikunja)</legend>
       <p className="hint">
         Shows each Space’s tasks at the bottom of the panel. Each Space gets its own Vikunja project inside “Spaces”, so it also appears as a
-        calendar in BusyCal. Create an API token in Vikunja under Settings → API Tokens. It stays on this device.
+        calendar in BusyCal. Your password is sent only to your Vikunja server and never stored; Spaces keeps the sign-in it gets back, which
+        lasts 30 days.
       </p>
       {who ? (
         <div className="row">
-          <span className="stamp stamp-here">Connected as {who}</span>
+          <span className="stamp stamp-here">Signed in as {who}</span>
           <button type="button" className="text-button" onClick={() => void setVikunjaConfig(null).then(() => setWho(null))}>
-            Disconnect
+            Sign out
           </button>
         </div>
       ) : (
-        <>
+        // Not a <form>: Settings is already one, and a nested form submits the outer one.
+        <div
+          className="settings-form"
+          onKeyDown={e => {
+            if (e.key === 'Enter' && (e.target as HTMLElement).tagName === 'INPUT') {
+              e.preventDefault();
+              if (ready && !busy) void connect();
+            }
+          }}
+        >
           <label className="field stacked">
             Server
             <input className="typed-input" type="url" value={url} onChange={e => setUrl(e.target.value)} />
           </label>
-          <label className="field stacked">
-            API token
-            <input className="typed-input" type="password" autoComplete="off" value={token} onChange={e => setToken(e.target.value)} placeholder="tk_…" />
-          </label>
+          {mode === 'password' ? (
+            <>
+              <label className="field stacked">
+                Username
+                <input className="typed-input" autoComplete="username" value={username} onChange={e => setUsername(e.target.value)} spellCheck={false} />
+              </label>
+              <label className="field stacked">
+                Password
+                <input className="typed-input" type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} />
+              </label>
+              {needTotp && (
+                <label className="field stacked">
+                  Two-factor code
+                  <span className="field-note">{needTotp}</span>
+                  <input
+                    className="typed-input"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={8}
+                    value={totp}
+                    onChange={e => setTotp(e.target.value.replace(/\s/g, ''))}
+                    autoFocus
+                  />
+                </label>
+              )}
+            </>
+          ) : (
+            <label className="field stacked">
+              API token
+              <span className="field-note">Vikunja → Settings → API Tokens. Tokens can be set never to expire.</span>
+              <input className="typed-input" type="password" autoComplete="off" value={token} onChange={e => setToken(e.target.value)} placeholder="tk_…" />
+            </label>
+          )}
           <div className="row">
-            <button type="button" className="plate-button" disabled={busy || !token.trim()} onClick={() => void connect()}>
-              {busy ? 'Connecting…' : 'Connect Vikunja'}
+            <button type="button" className="plate-button" disabled={busy || !ready} onClick={() => void connect()}>
+              {busy ? 'Signing in…' : mode === 'password' ? 'Sign in' : 'Connect'}
+            </button>
+            <button
+              type="button"
+              className="text-button"
+              onClick={() => {
+                setMode(m => (m === 'password' ? 'token' : 'password'));
+                setNeedTotp(null);
+              }}
+            >
+              {mode === 'password' ? 'Use an API token instead' : 'Sign in with username instead'}
             </button>
           </div>
-        </>
+        </div>
       )}
     </fieldset>
   );

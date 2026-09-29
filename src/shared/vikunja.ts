@@ -16,6 +16,9 @@ const PARENT_TITLE = 'Spaces';
 export interface VikunjaConfig {
   url: string;
   token: string;
+  /** Set when signed in with username and password (a 30-day session token). */
+  username?: string;
+  kind?: 'session' | 'api-token';
 }
 
 export interface VikunjaTask {
@@ -41,7 +44,33 @@ export async function getVikunjaConfig(): Promise<VikunjaConfig | null> {
 
 export async function setVikunjaConfig(c: VikunjaConfig | null) {
   if (!c) return chrome.storage.local.remove([CONFIG_KEY, PROJECTS_KEY]);
-  await chrome.storage.local.set({ [CONFIG_KEY]: { url: c.url.trim().replace(/\/+$/, ''), token: c.token.trim() } });
+  const { url, token, ...rest } = c;
+  await chrome.storage.local.set({ [CONFIG_KEY]: { url: url.trim().replace(/\/+$/, ''), token: token.trim(), ...rest } });
+}
+
+/** Vikunja wants the 6-digit code from the user's authenticator app. */
+export class NeedsTotp extends Error {}
+
+/**
+ * Sign in with username and password (and a two-factor code when the account has one).
+ * Vikunja returns a session token valid for 30 days (long_token); only that token is
+ * stored, never the password.
+ */
+export async function signInVikunja(
+  { url, username, password, totp }: { url: string; username: string; password: string; totp?: string },
+  fetchFn: Fetch = fetch,
+) {
+  const base = url.trim().replace(/\/+$/, '');
+  const res = await fetchFn(`${base}/api/v1/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: username.trim(), password, long_token: true, ...(totp ? { totp_passcode: totp.trim() } : {}) }),
+  });
+  const body = (await res.json().catch(() => ({}))) as { token?: string; code?: number; message?: string };
+  // Vikunja's error codes, not HTTP statuses, say what went wrong (1017: two-factor code needed or wrong).
+  if (body.code === 1017) throw new NeedsTotp(totp ? 'That two-factor code didn’t work. Try the current one.' : 'Enter the 6-digit code from your authenticator app.');
+  if (!res.ok || !body.token) throw new VikunjaError(body.message || `Vikunja answered ${res.status}.`, res.status);
+  await setVikunjaConfig({ url: base, token: body.token, username: username.trim(), kind: 'session' });
 }
 
 export class VikunjaError extends Error {
@@ -60,7 +89,12 @@ async function api<T>(path: string, init: RequestInit = {}, fetchFn: Fetch = fet
     ...init,
     headers: { Authorization: `Bearer ${c.token}`, 'Content-Type': 'application/json', ...(init.headers as Record<string, string> | undefined) },
   });
-  if (res.status === 401 || res.status === 403) throw new VikunjaError('Vikunja rejected the token. Check it in Settings.', res.status);
+  if (res.status === 401 || res.status === 403) {
+    throw new VikunjaError(
+      c.kind === 'session' ? 'Your Vikunja sign-in has expired. Sign in again in Settings.' : 'Vikunja rejected the token. Check it in Settings.',
+      res.status,
+    );
+  }
   if (!res.ok) throw new VikunjaError(`Vikunja: ${res.status} ${(await res.text().catch(() => '')).slice(0, 160)}`, res.status);
   return (await res.json()) as T;
 }

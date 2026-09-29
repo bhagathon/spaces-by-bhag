@@ -89,3 +89,25 @@ describe('checking a task off', () => {
     expect(v.tasks.find(t => t.id === 10)).toMatchObject({ done: true, title: 'Open task', description: 'keep me' });
   });
 });
+
+describe('signing in with username and password', () => {
+  const login = (status: number, body: unknown) =>
+    vi.fn(async () => new Response(JSON.stringify(body), { status })) as unknown as typeof fetch;
+
+  it('stores the returned session token and username, never the password', async () => {
+    const { signInVikunja } = await import('../src/shared/vikunja');
+    const f = login(200, { token: 'jwt-abc' });
+    await signInVikunja({ url: 'https://tasks.example/', username: 'bhag', password: 'hunter2' }, f);
+    expect(fake.local.vikunja).toEqual({ url: 'https://tasks.example', token: 'jwt-abc', username: 'bhag', kind: 'session' });
+    expect(JSON.stringify(fake.local)).not.toContain('hunter2');
+    const [url, init] = (f as unknown as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(url).toBe('https://tasks.example/api/v1/login');
+    expect(JSON.parse(String((init as RequestInit).body))).toMatchObject({ username: 'bhag', password: 'hunter2', long_token: true });
+  });
+
+  it('asks for the two-factor code when Vikunja wants one, and reports wrong credentials plainly', async () => {
+    const { signInVikunja, NeedsTotp } = await import('../src/shared/vikunja');
+    await expect(signInVikunja({ url: 'https://t', username: 'bhag', password: 'x' }, login(412, { code: 1017, message: 'Invalid totp passcode.' }))).rejects.toBeInstanceOf(NeedsTotp);
+    await expect(signInVikunja({ url: 'https://t', username: 'bhag', password: 'x' }, login(412, { code: 1011, message: 'Wrong username or password.' }))).rejects.toThrow(/Wrong username or password/);
+  });
+});
