@@ -218,6 +218,13 @@ export function useSpaceLight() {
   useEffect(() => {
     const l = LIGHT[color ?? 'none'] ?? LIGHT.none;
     const root = document.documentElement.style;
+    // While the light glides, every tinted element follows it through the variables; their
+    // own colour transitions would start dozens of extra animations on top, so pause them.
+    const html = document.documentElement;
+    if (root.getPropertyValue('--space-h') && root.getPropertyValue('--space-h') !== String(l.h)) {
+      html.dataset.lightChanging = '';
+      setTimeout(() => delete html.dataset.lightChanging, 750);
+    }
     root.setProperty('--space-h', String(l.h));
     root.setProperty('--space-c', String(l.c));
     root.setProperty('--space-spread', String(l.spread));

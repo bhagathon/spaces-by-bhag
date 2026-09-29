@@ -53,7 +53,14 @@ export function Tasks({ onSetUp, onError }: { onSetUp: () => void; onError: (e: 
   const checkingRef = useRef(checking);
   checkingRef.current = checking;
 
-  const load = useCallback(async () => {
+  /** The list depends on the Space only when tasks are separated by Space. */
+  const spaceRef = useRef(space);
+  spaceRef.current = space;
+  const bySpaceRef = useRef(false);
+  const listFor = bySpace ? `${space?.id}:${space?.name}` : 'all';
+
+  const load = useCallback(async ({ shown = false } = {}) => {
+    const space = spaceRef.current;
     if (inFlight.current) return; // a slow server never stacks overlapping refreshes
     inFlight.current = true;
     const c = await getVikunjaConfig();
@@ -62,9 +69,11 @@ export function Tasks({ onSetUp, onError }: { onSetUp: () => void; onError: (e: 
       inFlight.current = false;
       return;
     }
-    setRefreshing(true);
+    // Background refreshes stay still; only one you asked for spins the button.
+    if (shown) setRefreshing(true);
     try {
       const separate = await getTasksBySpace();
+      bySpaceRef.current = separate;
       setBySpace(separate);
       let id: number | undefined;
       let open: VikunjaTask[];
@@ -110,7 +119,12 @@ export function Tasks({ onSetUp, onError }: { onSetUp: () => void; onError: (e: 
       inFlight.current = false;
       setRefreshing(false);
     }
-  }, [space?.id, space?.name]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Switching Spaces reloads only when each Space has its own list.
+  useEffect(() => {
+    if (bySpaceRef.current) void load();
+  }, [listFor, load]);
 
   useEffect(() => {
     void load();
@@ -187,7 +201,7 @@ export function Tasks({ onSetUp, onError }: { onSetUp: () => void; onError: (e: 
             className={`icon-button small refresh${refreshing ? ' is-spinning' : ''}`}
             aria-label="Refresh tasks"
             title={updatedAt ? `Updated ${new Date(updatedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' })}` : 'Refresh tasks'}
-            onClick={() => void load()}
+            onClick={() => void load({ shown: true })}
           >
             <RefreshIcon />
           </button>

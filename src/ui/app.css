@@ -524,6 +524,9 @@ textarea.typed-input { height: auto; padding: 7px 10px; line-height: 1.45; }
 ::view-transition-new(view-label-drawer), ::view-transition-new(view-label-today),
 ::view-transition-new(view-label-history), ::view-transition-new(view-label-suspension) { animation: none; }
 
+/* During a Space switch the light carries the change; element transitions would only multiply the work. */
+:root[data-light-changing] body * { transition: none !important; }
+
 /* Quiet feedback: rows and controls fade their hover and selection instead of snapping. */
 .entry, .card-top, .cmd-item, .icon-button, .text-button, .guide-tab, .segment, .task-add { transition: background-color 120ms ease-out, color 120ms ease-out, box-shadow 120ms ease-out; }
 .cmd-item { transition-duration: 70ms; }
