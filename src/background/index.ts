@@ -22,6 +22,7 @@ import { addLooseTabs, forgetLooseTab, markNewTab, updateBadge } from './looseTa
 import { editSpace } from './editSpace';
 import { togglePanel, watchPanels } from './panelToggle';
 import { forgetCommandWindow, openCommandWindow } from './commandWindow';
+import { forgetSortedWindow, scheduleAutoSort, sortWindowTabs } from './tabSort';
 
 // All listeners are registered synchronously at top level so MV3 can wake the worker for them.
 
@@ -99,10 +100,12 @@ chrome.tabs.onCreated.addListener(t => {
   // Marked before the debounced save, so a new tab never lands in the Space unasked.
   void ready.then(() => markNewTab(t)).then(() => onTabChange(t.windowId));
   if (t.id !== undefined) joinSpaceGroup(t.id);
+  void scheduleAutoSort(t.windowId);
 });
 chrome.tabs.onUpdated.addListener((id, info, t) => {
   if (info.status === 'loading') void onTabLoading(id);
   if (info.url || info.title || info.pinned !== undefined || info.groupId !== undefined) onTabChange(t.windowId);
+  if (info.url) void scheduleAutoSort(t.windowId);
 });
 chrome.tabs.onMoved.addListener((_id, { windowId }) => onTabChange(windowId));
 chrome.tabs.onActivated.addListener(({ windowId }) => onTabChange(windowId));
@@ -134,6 +137,7 @@ chrome.windows.onRemoved.addListener(windowId => {
   clearTimeout(saveTimers.get(windowId));
   saveTimers.delete(windowId);
   forgetWindowHash(windowId);
+  forgetSortedWindow(windowId);
   void ready.then(() => forgetWindow(windowId)).then(updatePresence);
 });
 
@@ -165,6 +169,8 @@ async function handle(msg: Request, sender: chrome.runtime.MessageSender): Promi
       return addLooseTabs(msg.windowId, msg.tabIds);
     case 'editSpace':
       return editSpace(msg.edit).finally(updatePresence);
+    case 'sortTabs':
+      return sortWindowTabs(msg.windowId);
     case 'updateNow': {
       const result = (await chrome.runtime.sendNativeMessage(UPDATE_HOST, { cmd: 'update' })) as UpdateResult;
       // Reply first; the reload that runs the new version ends this worker.

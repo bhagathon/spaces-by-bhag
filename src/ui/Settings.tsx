@@ -9,6 +9,7 @@ import { buildBackup, importBackup } from '../shared/backup';
 import type { Notice } from './notice';
 import { getTextScale, setTextScale, TEXT_SCALES, type TextScale } from './textScale';
 import { getVikunjaConfig, logInWithVikunja, setVikunjaConfig } from '../shared/vikunja';
+import { getGeminiConfig, setGeminiConfig, type GeminiConfig } from '../shared/gemini';
 import { fetchLatestVersion, isNewer, type UpdateResult } from '../shared/update';
 import { disconnect, GCAL_CLIENT_ID_KEY, GCAL_CONNECTED_KEY, getToken, redirectUri } from '../shared/gcal';
 
@@ -85,6 +86,7 @@ export function Settings({ onError, onNotice }: { onError: (e: string) => void; 
       </fieldset>
       <SyncSettings onError={onError} />
       <VikunjaSettings onError={onError} />
+      <GeminiSettings />
       <CalendarSettings onError={onError} />
       <BackupSettings onError={onError} onNotice={onNotice} />
       <UpdateSettings />
@@ -370,6 +372,65 @@ function UpdateSettings() {
       <p className="hint">
         Log: <code>~/Library/Logs/Spaces-updater.log</code>
       </p>
+    </fieldset>
+  );
+}
+
+function GeminiSettings() {
+  const [config, setConfig] = useState<GeminiConfig | null>(null);
+  const [key, setKey] = useState('');
+
+  useEffect(() => void getGeminiConfig().then(setConfig), []);
+  const save = async (patch: Partial<GeminiConfig>) => {
+    await setGeminiConfig(patch);
+    setConfig(await getGeminiConfig());
+  };
+  if (!config) return null;
+
+  return (
+    <fieldset>
+      <legend>Sort tabs (Gemini)</legend>
+      <p className="hint">
+        Sort puts related tabs next to each other. It sends each tab’s title and address to Google’s Gemini. Pinned tabs and groups you made
+        stay where they are.
+      </p>
+      {config.apiKey ? (
+        <>
+          <div className="row">
+            <span className="stamp stamp-here">Key saved on this device</span>
+            <button type="button" className="text-button" onClick={() => void save({ apiKey: undefined, autoSort: false })}>
+              Remove key
+            </button>
+          </div>
+          <Check label="Sort automatically as tabs open" checked={config.autoSort} onChange={v => void save({ autoSort: v })} />
+          <p className="hint">Sort is on each window’s card and in ⌘K. Automatic sorting waits until tabs have settled for a few seconds.</p>
+        </>
+      ) : (
+        <>
+          <label className="field stacked">
+            API key
+            <span className="field-note">From Google AI Studio → Get API key. It stays on this device and is never synced.</span>
+            <input
+              className="typed-input"
+              type="password"
+              autoComplete="off"
+              value={key}
+              onChange={e => setKey(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && key.trim()) {
+                  e.preventDefault();
+                  void save({ apiKey: key.trim() }).then(() => setKey(''));
+                }
+              }}
+            />
+          </label>
+          <div className="row">
+            <button type="button" className="plate-button" disabled={!key.trim()} onClick={() => void save({ apiKey: key.trim() }).then(() => setKey(''))}>
+              Save key
+            </button>
+          </div>
+        </>
+      )}
     </fieldset>
   );
 }

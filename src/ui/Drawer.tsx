@@ -7,6 +7,7 @@ import { send } from './api';
 import { canEdit, spaceColor, SPACE_COLORS, type GroupColor, type PresenceUser, type Space, type SpaceEdit, type Workspace } from '../shared/types';
 import type { Notice } from './notice';
 import { Verso } from './Resources';
+import { sortTabs, useCanSort } from './sortTabs';
 import { CloseIcon, DownIcon, FlipIcon, GlobeIcon, UpIcon } from './Icons';
 
 /** Chrome's own tab-group colours: data, not decoration. */
@@ -337,6 +338,19 @@ function PulledCard({
   const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState(space.name);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const canSort = useCanSort();
+  const [sorting, setSorting] = useState(false);
+  const sort = async () => {
+    if (windowId == null) return;
+    setSorting(true);
+    try {
+      onNotice({ text: await sortTabs(windowId) });
+    } catch (e) {
+      onError(errText(e));
+    } finally {
+      setSorting(false);
+    }
+  };
   const [showAll, setShowAll] = useState(false);
   const [editing, setEditing] = useState(false);
 
@@ -632,6 +646,11 @@ function PulledCard({
           }}
         >
           Edit
+        </button>
+      )}
+      {isHere && view === 'panel' && canSort && (
+        <button className="text-button" onClick={() => void sort()} disabled={sorting} title="Put related tabs next to each other, with Gemini">
+          {sorting ? 'Sorting…' : 'Sort'}
         </button>
       )}
       {isHere && (

@@ -4,6 +4,7 @@ import { currentSpaceIdAtom, spacesAtom, windowIdAtom } from './atoms';
 import { send } from './api';
 import { spaceColor, type Space } from '../shared/types';
 import { GlobeIcon, SearchIcon } from './Icons';
+import { sortTabs, useCanSort } from './sortTabs';
 
 export type CommandTab = 'drawer' | 'today' | 'history' | 'suspension' | 'settings';
 
@@ -39,6 +40,7 @@ export function CommandBar({
   const spaces = useAtomValue(spacesAtom);
   const currentId = useAtomValue(currentSpaceIdAtom);
   const windowId = useAtomValue(windowIdAtom);
+  const canSort = useCanSort();
   const [q, setQ] = useState('');
   const [sel, setSel] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -102,7 +104,20 @@ export function CommandBar({
       ['settings', 'Settings'],
     ];
     // The floating ⌘K window only switches Spaces and tabs; views live in the panel.
-    const goItems: Item[] = view === 'command' ? [] : [
+    const sortItem: Item[] =
+      canSort && windowId != null && view !== 'dashboard'
+        ? [
+            {
+              id: 'a-sort',
+              group: 'Go to',
+              label: 'Sort tabs by topic',
+              sub: 'Gemini',
+              run: () => sortTabs(windowId).then(onNotice, e => onError(e instanceof Error ? e.message : String(e))),
+            },
+          ]
+        : [];
+    const goItems: Item[] = view === 'command' ? sortItem.filter(i => has(i.label)) : [
+      ...sortItem,
       ...views.map(([t, label]) => ({ id: `v-${t}`, group: 'Go to' as const, label, run: () => onTab(t) })),
       ...(currentId
         ? [
@@ -115,7 +130,7 @@ export function CommandBar({
         : []),
     ].filter(i => has(i.label));
     return [...spaceItems.slice(0, RESULT_LIMIT), ...tabItems.slice(0, RESULT_LIMIT), ...goItems];
-  }, [q, spaces, currentId, view, windowId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [q, spaces, currentId, view, windowId, canSort]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => setSel(0), [q]);
   useEffect(() => {

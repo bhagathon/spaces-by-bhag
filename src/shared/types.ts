@@ -155,7 +155,8 @@ export type Request =
   | { type: 'refreshSpaceGroups' }
   | { type: 'updateNow' }
   | { type: 'addLooseTabs'; windowId: number; tabIds?: number[] }
-  | { type: 'editSpace'; edit: SpaceEdit };
+  | { type: 'editSpace'; edit: SpaceEdit }
+  | { type: 'sortTabs'; windowId: number };
 
 export type SpaceEdit =
   | { spaceId: string; op: 'removeTab'; index: number }
