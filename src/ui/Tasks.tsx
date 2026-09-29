@@ -27,6 +27,8 @@ export function Tasks({ onSetUp, onError }: { onSetUp: () => void; onError: (e: 
   const [projectId, setProjectId] = useState<number | null>(null);
   const [tasks, setTasks] = useState<VikunjaTask[] | null>(null);
   const [checking, setChecking] = useState<Set<number>>(new Set());
+  const [leaving, setLeaving] = useState<Set<number>>(new Set());
+  const [fresh, setFresh] = useState<Set<number>>(new Set());
   const [draft, setDraft] = useState('');
   const [problem, setProblem] = useState<string | null>(null);
 
@@ -67,8 +69,9 @@ export function Tasks({ onSetUp, onError }: { onSetUp: () => void; onError: (e: 
     setChecking(s => new Set(s).add(t.id));
     try {
       await setTaskDone(t.id, true);
-      // Let the check read as done for a moment before the row leaves.
-      setTimeout(() => setTasks(list => list?.filter(x => x.id !== t.id) ?? null), 450);
+      // Struck through first, then the row folds away.
+      setTimeout(() => setLeaving(s => new Set(s).add(t.id)), 380);
+      setTimeout(() => setTasks(list => list?.filter(x => x.id !== t.id) ?? null), 380 + 260);
     } catch (e) {
       setChecking(s => {
         const n = new Set(s);
@@ -87,6 +90,7 @@ export function Tasks({ onSetUp, onError }: { onSetUp: () => void; onError: (e: 
       const id = projectId ?? (space ? await ensureSpaceProject(space) : await inboxProjectId());
       setProjectId(id);
       const t = await addTask(id, title);
+      setFresh(s => new Set(s).add(t.id));
       setTasks(list => [...(list ?? []), t]);
     } catch (e) {
       setDraft(title);
@@ -122,7 +126,10 @@ export function Tasks({ onSetUp, onError }: { onSetUp: () => void; onError: (e: 
           {tasks && tasks.length > 0 && (
             <ul className="entries task-list">
               {tasks.map(t => (
-                <li key={t.id} className={`entry task-row${checking.has(t.id) ? ' is-done' : ''}`}>
+                <li
+                  key={t.id}
+                  className={`entry task-row${checking.has(t.id) ? ' is-done' : ''}${leaving.has(t.id) ? ' is-leaving' : ''}${fresh.has(t.id) ? ' is-new' : ''}`}
+                >
                   <input type="checkbox" checked={checking.has(t.id)} onChange={() => void check(t)} aria-label={`Done: ${t.title}`} />
                   <span className="entry-title">{t.title}</span>
                 </li>

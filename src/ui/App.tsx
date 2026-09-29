@@ -9,7 +9,7 @@ import { Agenda, NextUp } from './Agenda';
 import { TabPrompt } from './TabPrompt';
 import { CommandBar } from './CommandBar';
 import { Tasks } from './Tasks';
-import { currentSpaceIdAtom, spacesAtom } from './atoms';
+import { currentSpaceIdAtom, spacesAtom, withViewTransition } from './atoms';
 import { SearchIcon } from './Icons';
 import { spaceColor, type GroupColor } from '../shared/types';
 import { getTextScale, setTextScale, stepScale } from './textScale';
@@ -94,8 +94,13 @@ export function App({ view }: { view: 'panel' | 'dashboard' }) {
 
       <nav className="guide-tabs" role="tablist" aria-label="Views">
         {TABS.map(t => (
-          <button key={t.id} role="tab" aria-selected={tab === t.id} className="guide-tab" onClick={() => setTab(t.id)}>
-            {t.label}
+          <button key={t.id} role="tab" aria-selected={tab === t.id} className="guide-tab" onClick={() => withViewTransition(() => setTab(t.id))}>
+            {/* One thumb, named for view transitions, so it slides between tabs instead of jumping. */}
+            {tab === t.id && <span className="guide-thumb" style={{ viewTransitionName: 'view-thumb' }} aria-hidden />}
+            {/* Labels get their own layers after the thumb's, so the sliding pill passes under them. */}
+            <span className="guide-label" style={{ viewTransitionName: `view-label-${t.id}` }}>
+              {t.label}
+            </span>
           </button>
         ))}
       </nav>

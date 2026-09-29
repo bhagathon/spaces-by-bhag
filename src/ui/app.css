@@ -200,7 +200,11 @@ kbd {
   white-space: nowrap;
 }
 .guide-tab:hover { color: var(--ink); }
-.guide-tab[aria-selected='true'] { background: var(--pill); color: var(--ink); box-shadow: var(--shadow-pill); }
+.guide-tab { position: relative; isolation: isolate; }
+.guide-tab[aria-selected='true'] { color: var(--ink); }
+/* The white pill is its own element so it can slide between tabs (view transition "view-thumb"). */
+.guide-thumb { position: absolute; inset: 0; z-index: -1; border-radius: 8px; background: var(--pill); box-shadow: var(--shadow-pill); }
+.guide-label { position: relative; }
 .app-dashboard .guide-tabs { display: inline-flex; min-width: 420px; }
 
 /* The same glass segmented control, for choices inside a sheet (text size). */
@@ -483,13 +487,40 @@ textarea.typed-input { height: auto; padding: 7px 10px; line-height: 1.45; }
 @keyframes flip-out { to { transform: perspective(900px) rotateY(88deg); } }
 @keyframes flip-in { from { transform: perspective(900px) rotateY(-88deg); } }
 @keyframes fade-in { from { opacity: 0; } }
+@keyframes fade-out { to { opacity: 0; } }
 ::view-transition-group(*) { animation-duration: 280ms; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 160ms; }
+
+/* Switching Spaces: Arc's swipe. The old sheet leaves toward the side you're moving from, the new one
+   arrives from the other; the group eases between their heights while the light glides behind. */
+::view-transition-group(space-sheet) { animation-duration: 380ms; }
+::view-transition-old(space-sheet) { animation: sheet-out-next 220ms cubic-bezier(0.4, 0, 1, 1) both; }
+::view-transition-new(space-sheet) { animation: sheet-in-next 380ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+:root[data-switch-dir='prev']::view-transition-old(space-sheet) { animation-name: sheet-out-prev; }
+:root[data-switch-dir='prev']::view-transition-new(space-sheet) { animation-name: sheet-in-prev; }
+@keyframes sheet-out-next { to { opacity: 0; transform: translateX(-32px) scale(0.985); } }
+@keyframes sheet-in-next { from { opacity: 0; transform: translateX(32px) scale(0.985); } }
+@keyframes sheet-out-prev { to { opacity: 0; transform: translateX(32px) scale(0.985); } }
+@keyframes sheet-in-prev { from { opacity: 0; transform: translateX(-32px) scale(0.985); } }
+/* The tab pill slides; its labels don't move. */
+::view-transition-group(view-thumb) { animation-duration: 300ms; }
+/* Labels hold still over the sliding pill: no cross-fade, just their new colour. */
+::view-transition-old(view-label-drawer), ::view-transition-old(view-label-today),
+::view-transition-old(view-label-history), ::view-transition-old(view-label-suspension) { display: none; }
+::view-transition-new(view-label-drawer), ::view-transition-new(view-label-today),
+::view-transition-new(view-label-history), ::view-transition-new(view-label-suspension) { animation: none; }
+
+/* Quiet feedback: rows and controls fade their hover and selection instead of snapping. */
+.entry, .card-top, .cmd-item, .icon-button, .text-button, .guide-tab, .segment, .task-add { transition: background-color 120ms ease-out, color 120ms ease-out, box-shadow 120ms ease-out; }
+.cmd-item { transition-duration: 70ms; }
 
 @media (prefers-reduced-motion: reduce) {
   :root { transition: none; }
   .flip-out, .flip-in { animation: none; }
   .slip, .stamp-press, .cmd { animation: fade-in 120ms ease-out; }
+  .task-row.is-leaving { animation: fade-out 160ms ease-out forwards; }
+  .task-row.is-new { animation: none; }
+  .entry, .card-top, .cmd-item, .icon-button, .text-button, .guide-tab, .segment, .task-add { transition: none; }
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }
 
@@ -775,6 +806,12 @@ a.agenda-name:hover { text-decoration: underline; text-underline-offset: 3px; }
 .task-row { gap: 10px; }
 .task-row.is-done .entry-title { color: var(--ink-3); text-decoration: line-through; text-decoration-color: var(--ink-3); }
 .task-row .entry-title { transition: color 180ms ease-out; }
+/* Done: struck through, then the row folds away. New: it settles in. */
+.task-row.is-leaving { animation: row-fold 260ms cubic-bezier(0.4, 0, 0.2, 1) forwards; overflow: hidden; }
+@keyframes row-fold { to { opacity: 0; transform: translateX(10px); max-height: 0; min-height: 0; padding-top: 0; padding-bottom: 0; } }
+.task-row { max-height: 60px; }
+.task-row.is-new { animation: row-settle 240ms cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes row-settle { from { opacity: 0; transform: translateY(-4px); } }
 .tasks-empty { padding: 0 8px; }
 .tasks-empty .drawer-note { margin: 4px 0 6px; }
 .task-add { display: flex; align-items: center; gap: 10px; min-height: var(--row); padding: 0 8px; border-radius: 9px; }

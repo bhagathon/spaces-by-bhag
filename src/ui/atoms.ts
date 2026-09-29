@@ -4,11 +4,15 @@ import { getStorage } from '../storage';
 import { PRESENCE_KEY, SYNC_STATUS_KEY, WINDOW_STATES_KEY } from '../shared/settings';
 import type { PresenceUser, Space, SyncStatus, WindowState, Workspace } from '../shared/types';
 
-export const windowIdAtom = atom<number | null>(null);
+/**
+ * The ⌘K command window (and any page opened with ?window=N) acts on that browser window,
+ * not on itself. It's the atom's starting value, so every reader has it from the first
+ * render; setting it during mount raced readers that had already rendered.
+ */
+const windowFromUrl = typeof location !== 'undefined' ? Number(new URLSearchParams(location.search).get('window')) || null : null;
+export const windowIdAtom = atom<number | null>(windowFromUrl);
 windowIdAtom.onMount = set => {
-  // The ⌘K command window acts on the browser window it was opened over, not on itself.
-  const over = Number(new URLSearchParams(location.search).get('window'));
-  if (over) return set(over);
+  if (windowFromUrl) return;
   void chrome.windows.getCurrent().then(w => set(w.id ?? null));
 };
 

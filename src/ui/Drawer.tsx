@@ -27,7 +27,8 @@ function ago(ts: number) {
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 const errText = (e: unknown) => (e instanceof Error ? e.message : String(e));
-const vtName = (id: string) => `card-${id.replace(/[^a-zA-Z0-9-]/g, '')}`;
+/** The Space sheet has one view-transition name: switching slides one sheet out and the next in. */
+const SHEET_VT = 'space-sheet';
 
 function matches(space: Space, q: string) {
   if (!q) return { hit: true as const };
@@ -134,6 +135,10 @@ export function Drawer({
 
   const pull = async (space: Space) => {
     if (windowId == null) return;
+    // Arc swipes between Spaces: moving to a later Space slides left, an earlier one right.
+    const from = currentId ? (callNumbers.get(currentId) ?? 0) : 0;
+    const to = callNumbers.get(space.id) ?? from + 1;
+    document.documentElement.dataset.switchDir = to < from ? 'prev' : 'next';
     setPulling(space.id);
     try {
       const result = await send<'switched' | 'focused' | 'unchanged'>({ type: 'switchSpace', windowId, spaceId: space.id });
@@ -241,7 +246,6 @@ export function Drawer({
                       <li key={space.id} className="card-top-wrap">
                         <button
                           className={`card-top${pulling === space.id ? ' pulling' : ''}${next ? ' next' : ''}`}
-                          style={{ viewTransitionName: view === 'panel' ? vtName(space.id) : undefined }}
                           aria-current={view === 'dashboard' && space.id === shownId ? 'true' : undefined}
                           aria-label={`${view === 'panel' ? 'Switch to' : 'Open'} ${space.name}${callNo ? `, key ${callNo}` : ''}`}
                           onClick={() => activate(space)}
@@ -658,7 +662,7 @@ function PulledCard({
     <article
       ref={cardRef}
       className={`card pulled${flipPhase === 'out' ? ' flip-out' : flipPhase === 'in' ? ' flip-in' : ''}`}
-      style={{ viewTransitionName: vtName(space.id), minHeight: heldHeight ?? undefined }}
+      style={{ viewTransitionName: SHEET_VT, minHeight: heldHeight ?? undefined }}
       aria-label={`${space.name}, this window's Space`}
       onAnimationEnd={() => {
         if (flipPhase === 'out') {

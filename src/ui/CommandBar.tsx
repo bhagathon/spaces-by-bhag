@@ -38,9 +38,7 @@ export function CommandBar({
 }) {
   const spaces = useAtomValue(spacesAtom);
   const currentId = useAtomValue(currentSpaceIdAtom);
-  // The floating ⌘K window names its target window in its own URL; read it directly so an
-  // action can never run with a window ID that hasn't arrived through state yet.
-  const windowId = useAtomValue(windowIdAtom) ?? (Number(new URLSearchParams(location.search).get('window')) || null);
+  const windowId = useAtomValue(windowIdAtom);
   const [q, setQ] = useState('');
   const [sel, setSel] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
