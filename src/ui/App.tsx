@@ -179,7 +179,7 @@ function SyncStamp() {
 
 /* The Space's light: Chrome's group colours as hues for the whole ground (OKLCH).
    Grey is near-neutral; no colour is Arc's own mixed pastel. */
-const LIGHT: Record<GroupColor | 'none', { h: number; c: number; spread: number }> = {
+const LIGHT: Partial<Record<GroupColor | 'none', { h: number; c: number; spread: number }>> & { none: { h: number; c: number; spread: number } } = {
   none: { h: 250, c: 0.07, spread: 140 },
   grey: { h: 250, c: 0.018, spread: 30 },
   blue: { h: 255, c: 0.12, spread: 50 },
@@ -189,7 +189,6 @@ const LIGHT: Record<GroupColor | 'none', { h: number; c: number; spread: number 
   orange: { h: 60, c: 0.12, spread: 46 },
   pink: { h: 355, c: 0.12, spread: 50 },
   purple: { h: 300, c: 0.13, spread: 55 },
-  red: { h: 25, c: 0.12, spread: 44 },
 };
 
 /** Floods the page with the current Space's colour; --space-h is a registered property, so it glides. */
@@ -197,7 +196,7 @@ function useSpaceLight() {
   const currentId = useAtomValue(currentSpaceIdAtom);
   const color = useAtomValue(spacesAtom).find(s => s.id === currentId)?.color;
   useEffect(() => {
-    const l = LIGHT[color ?? 'none'];
+    const l = LIGHT[color ?? 'none'] ?? LIGHT.none;
     const root = document.documentElement.style;
     root.setProperty('--space-h', String(l.h));
     root.setProperty('--space-c', String(l.c));

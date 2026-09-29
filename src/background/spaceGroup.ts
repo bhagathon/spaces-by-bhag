@@ -15,7 +15,8 @@ import { allStates, getState, isBusy, setState } from './state';
  */
 
 const NONE = -1; // chrome.tabGroups.TAB_GROUP_ID_NONE
-const COLORS: GroupColor[] = ['blue', 'green', 'purple', 'cyan', 'orange', 'pink', 'yellow', 'red', 'grey'];
+// Chrome's group colours minus red, which Spaces never uses for a Space (the Tab-Group Palette Rule).
+const COLORS: GroupColor[] = ['blue', 'green', 'purple', 'cyan', 'orange', 'pink', 'yellow', 'grey'];
 
 /** The Space's own colour if it has one, else a stable colour from its ID. */
 export function colorFor(spaceId: string, color?: GroupColor): GroupColor {

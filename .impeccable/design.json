@@ -1,487 +1,768 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-27T21:41:21+00:00",
+  "generatedAt": "2026-09-29T00:43:19.554Z",
   "title": "Design System: Spaces",
   "extensions": {
     "colorMeta": {
-      "drawer": {
-        "role": "neutral",
-        "displayName": "Steel Drawer",
-        "canonical": "oklch(88.1% 0.013 137.8)",
-        "dark": "#172019",
-        "cssVar": "--drawer",
+      "space-accent": {
+        "role": "primary",
+        "displayName": "Space Accent",
+        "canonical": "oklch(0.5 0.17 var(--space-h))",
+        "dark": "oklch(0.56 0.15 var(--space-h))",
+        "cssVar": "--accent",
         "tonalRamp": [
-          "#090c07",
-          "#212620",
-          "#3d413b",
-          "#5a5f58",
-          "#7d827b",
-          "#a1a79f",
-          "#c7cdc5",
-          "#eaf1e8"
+          "oklch(0.15 0.17 250)",
+          "oklch(0.27 0.17 250)",
+          "oklch(0.39 0.17 250)",
+          "oklch(0.51 0.17 250)",
+          "oklch(0.63 0.17 250)",
+          "oklch(0.75 0.17 250)",
+          "oklch(0.87 0.17 250)",
+          "oklch(0.95 0.17 250)"
         ]
       },
-      "drawer-deep": {
-        "role": "neutral",
-        "displayName": "Drawer Interior",
-        "canonical": "oklch(83.7% 0.014 138.7)",
-        "dark": "#101812",
-        "cssVar": "--drawer-deep",
+      "space-accent-soft": {
+        "role": "primary",
+        "displayName": "Accent Wash",
+        "canonical": "oklch(0.5 0.17 var(--space-h) / 0.14)",
+        "dark": "oklch(0.7 0.13 var(--space-h) / 0.18)",
+        "cssVar": "--accent-soft",
         "tonalRamp": [
-          "#080d07",
-          "#21261f",
-          "#3c423a",
-          "#5a6058",
-          "#7c827a",
-          "#a0a79e",
-          "#c6cdc4",
-          "#eaf1e8"
+          "oklch(0.15 0.17 250)",
+          "oklch(0.27 0.17 250)",
+          "oklch(0.39 0.17 250)",
+          "oklch(0.51 0.17 250)",
+          "oklch(0.63 0.17 250)",
+          "oklch(0.75 0.17 250)",
+          "oklch(0.87 0.17 250)",
+          "oklch(0.95 0.17 250)"
         ]
       },
-      "pressboard": {
-        "role": "neutral",
-        "displayName": "Pressboard",
-        "canonical": "oklch(80.3% 0.016 154.4)",
-        "dark": "#2c3530",
-        "cssVar": "--pressboard",
+      "on-accent": {
+        "role": "primary",
+        "displayName": "On Accent",
+        "canonical": "#fff",
+        "cssVar": "--on-accent",
         "tonalRamp": [
-          "#060d08",
-          "#1e2620",
-          "#39423c",
-          "#576059",
-          "#79837c",
-          "#9da8a0",
-          "#c3cec6",
-          "#e6f2ea"
+          "oklch(0.15 0 0)",
+          "oklch(0.27 0 0)",
+          "oklch(0.39 0 0)",
+          "oklch(0.51 0 0)",
+          "oklch(0.63 0 0)",
+          "oklch(0.75 0 0)",
+          "oklch(0.87 0 0)",
+          "oklch(0.95 0 0)"
         ]
       },
-      "pressboard-ink": {
+      "ground": {
         "role": "neutral",
-        "displayName": "Pressboard Ink",
-        "canonical": "oklch(33.9% 0.019 163.6)",
-        "dark": "#c9d3cc",
-        "cssVar": "--pressboard-ink",
+        "displayName": "Ground",
+        "canonical": "oklch(0.935 calc(var(--space-c) * 0.65) var(--space-h))",
+        "dark": "oklch(0.2 calc(var(--space-c) * 0.7) var(--space-h))",
+        "cssVar": "--ground",
         "tonalRamp": [
-          "#040e09",
-          "#1c2721",
-          "#37433d",
-          "#54615b",
-          "#76847d",
-          "#9aa9a1",
-          "#c0cfc7",
-          "#e4f3eb"
+          "oklch(0.15 0.0455 250)",
+          "oklch(0.27 0.0455 250)",
+          "oklch(0.39 0.0455 250)",
+          "oklch(0.51 0.0455 250)",
+          "oklch(0.63 0.0455 250)",
+          "oklch(0.75 0.0455 250)",
+          "oklch(0.87 0.0455 250)",
+          "oklch(0.95 0.0455 250)"
         ]
       },
-      "card": {
+      "blob-a": {
         "role": "neutral",
-        "displayName": "Card Stock",
-        "canonical": "oklch(98.5% 0.005 95.1)",
-        "dark": "#262825",
-        "cssVar": "--card",
+        "displayName": "Light Blob A",
+        "canonical": "oklch(0.84 var(--space-c) var(--space-h))",
+        "dark": "oklch(0.36 calc(var(--space-c) * 1.1) var(--space-h))",
+        "cssVar": "--blob-a",
         "tonalRamp": [
-          "#0c0b09",
-          "#252421",
-          "#40403d",
-          "#5e5e5a",
-          "#81807d",
-          "#a5a5a1",
-          "#cbcac7",
-          "#efeeea"
+          "oklch(0.15 0.07 250)",
+          "oklch(0.27 0.07 250)",
+          "oklch(0.39 0.07 250)",
+          "oklch(0.51 0.07 250)",
+          "oklch(0.63 0.07 250)",
+          "oklch(0.75 0.07 250)",
+          "oklch(0.87 0.07 250)",
+          "oklch(0.95 0.07 250)"
         ]
       },
-      "card-edge": {
+      "blob-b": {
         "role": "neutral",
-        "displayName": "Cut Edge",
-        "canonical": "oklch(83.5% 0.018 92.7)",
-        "dark": "#3a3d38",
-        "cssVar": "--card-edge",
+        "displayName": "Light Blob B",
+        "canonical": "oklch(0.89 var(--space-c) calc(var(--space-h) + var(--space-spread)))",
+        "dark": "oklch(0.3 var(--space-c) calc(var(--space-h) + var(--space-spread)))",
+        "cssVar": "--blob-b",
         "tonalRamp": [
-          "#0e0b04",
-          "#27241a",
-          "#434035",
-          "#615e52",
-          "#848074",
-          "#a8a598",
-          "#cecabd",
-          "#f3eee1"
+          "oklch(0.15 0.07 30)",
+          "oklch(0.27 0.07 30)",
+          "oklch(0.39 0.07 30)",
+          "oklch(0.51 0.07 30)",
+          "oklch(0.63 0.07 30)",
+          "oklch(0.75 0.07 30)",
+          "oklch(0.87 0.07 30)",
+          "oklch(0.95 0.07 30)"
         ]
       },
-      "ruling": {
+      "blob-c": {
         "role": "neutral",
-        "displayName": "Blue Ruling",
-        "canonical": "oklch(91.1% 0.016 245.1)",
-        "dark": "#2f3841",
-        "cssVar": "--ruling",
+        "displayName": "Light Blob C",
+        "canonical": "oklch(0.86 var(--space-c) calc(var(--space-h) - var(--space-spread) * 0.6))",
+        "dark": "oklch(0.28 var(--space-c) calc(var(--space-h) - var(--space-spread) * 0.6))",
+        "cssVar": "--blob-c",
         "tonalRamp": [
-          "#060c12",
-          "#1e252c",
-          "#394148",
-          "#565f66",
-          "#78818a",
-          "#9ca6ae",
-          "#c2ccd5",
-          "#e6f0f9"
+          "oklch(0.15 0.07 166)",
+          "oklch(0.27 0.07 166)",
+          "oklch(0.39 0.07 166)",
+          "oklch(0.51 0.07 166)",
+          "oklch(0.63 0.07 166)",
+          "oklch(0.75 0.07 166)",
+          "oklch(0.87 0.07 166)",
+          "oklch(0.95 0.07 166)"
         ]
       },
       "ink": {
         "role": "neutral",
-        "displayName": "Typed Ink",
-        "canonical": "oklch(24.8% 0.008 84.6)",
-        "dark": "#ebe7dc",
+        "displayName": "Ink",
+        "canonical": "oklch(0.24 0.02 var(--space-h))",
+        "dark": "oklch(0.96 0.01 var(--space-h))",
         "cssVar": "--ink",
         "tonalRamp": [
-          "#0d0b08",
-          "#262420",
-          "#423f3b",
-          "#605d59",
-          "#82807b",
-          "#a7a49f",
-          "#cdcac5",
-          "#f1eee9"
+          "oklch(0.15 0.02 250)",
+          "oklch(0.27 0.02 250)",
+          "oklch(0.39 0.02 250)",
+          "oklch(0.51 0.02 250)",
+          "oklch(0.63 0.02 250)",
+          "oklch(0.75 0.02 250)",
+          "oklch(0.87 0.02 250)",
+          "oklch(0.95 0.02 250)"
         ]
       },
       "ink-2": {
         "role": "neutral",
-        "displayName": "Light Strike",
-        "canonical": "oklch(44.3% 0.014 84.6)",
-        "dark": "#bcb7aa",
+        "displayName": "Ink 2",
+        "canonical": "oklch(0.4 0.02 var(--space-h))",
+        "dark": "oklch(0.83 0.015 var(--space-h))",
         "cssVar": "--ink-2",
         "tonalRamp": [
-          "#0e0b05",
-          "#27241d",
-          "#433f38",
-          "#615d55",
-          "#848077",
-          "#a9a49b",
-          "#cfcac1",
-          "#f3eee4"
+          "oklch(0.15 0.02 250)",
+          "oklch(0.27 0.02 250)",
+          "oklch(0.39 0.02 250)",
+          "oklch(0.51 0.02 250)",
+          "oklch(0.63 0.02 250)",
+          "oklch(0.75 0.02 250)",
+          "oklch(0.87 0.02 250)",
+          "oklch(0.95 0.02 250)"
         ]
       },
       "ink-3": {
         "role": "neutral",
-        "displayName": "Faint Strike",
-        "canonical": "oklch(52.6% 0.017 84.6)",
-        "dark": "#a19c90",
+        "displayName": "Ink 3",
+        "canonical": "oklch(0.5 0.018 var(--space-h))",
+        "dark": "oklch(0.72 0.015 var(--space-h))",
         "cssVar": "--ink-3",
         "tonalRamp": [
-          "#0e0b04",
-          "#28231b",
-          "#443f36",
-          "#625d53",
-          "#858075",
-          "#a9a499",
-          "#cfcabf",
-          "#f4eee2"
+          "oklch(0.15 0.018 250)",
+          "oklch(0.27 0.018 250)",
+          "oklch(0.39 0.018 250)",
+          "oklch(0.51 0.018 250)",
+          "oklch(0.63 0.018 250)",
+          "oklch(0.75 0.018 250)",
+          "oklch(0.87 0.018 250)",
+          "oklch(0.95 0.018 250)"
         ]
       },
-      "red": {
-        "role": "primary",
-        "displayName": "Pulled-Card Red",
-        "canonical": "oklch(51.0% 0.171 31.6)",
-        "dark": "#ee7c65",
-        "cssVar": "--red",
+      "pill": {
+        "role": "neutral",
+        "displayName": "Pill",
+        "canonical": "#fff",
+        "dark": "oklch(0.36 0.02 var(--space-h))",
+        "cssVar": "--pill",
         "tonalRamp": [
-          "#2e0000",
-          "#550000",
-          "#7f0000",
-          "#a92510",
-          "#d24e39",
-          "#f97962",
-          "#ffa690",
-          "#ffd0bb"
+          "oklch(0.15 0.02 250)",
+          "oklch(0.27 0.02 250)",
+          "oklch(0.39 0.02 250)",
+          "oklch(0.51 0.02 250)",
+          "oklch(0.63 0.02 250)",
+          "oklch(0.75 0.02 250)",
+          "oklch(0.87 0.02 250)",
+          "oklch(0.95 0.02 250)"
         ]
       },
-      "stamp-blue": {
+      "glass": {
+        "role": "neutral",
+        "displayName": "Glass",
+        "canonical": "rgb(255 255 255 / 0.5)",
+        "dark": "rgb(255 255 255 / 0.06)",
+        "cssVar": "--glass",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.27 0 0)",
+          "oklch(0.39 0 0)",
+          "oklch(0.51 0 0)",
+          "oklch(0.63 0 0)",
+          "oklch(0.75 0 0)",
+          "oklch(0.87 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "glass-hover": {
+        "role": "neutral",
+        "displayName": "Glass Hover",
+        "canonical": "rgb(255 255 255 / 0.62)",
+        "dark": "rgb(255 255 255 / 0.1)",
+        "cssVar": "--glass-hover",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.27 0 0)",
+          "oklch(0.39 0 0)",
+          "oklch(0.51 0 0)",
+          "oklch(0.63 0 0)",
+          "oklch(0.75 0 0)",
+          "oklch(0.87 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "glass-strong": {
+        "role": "neutral",
+        "displayName": "Strong Glass",
+        "canonical": "rgb(255 255 255 / 0.78)",
+        "dark": "oklch(0.26 0.02 var(--space-h) / 0.72)",
+        "cssVar": "--glass-strong",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.27 0 0)",
+          "oklch(0.39 0 0)",
+          "oklch(0.51 0 0)",
+          "oklch(0.63 0 0)",
+          "oklch(0.75 0 0)",
+          "oklch(0.87 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "glass-sheet": {
+        "role": "neutral",
+        "displayName": "Sheet Glass",
+        "canonical": "rgb(255 255 255 / 0.4)",
+        "dark": "oklch(0.24 0.02 var(--space-h) / 0.42)",
+        "cssVar": "--glass-sheet",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.27 0 0)",
+          "oklch(0.39 0 0)",
+          "oklch(0.51 0 0)",
+          "oklch(0.63 0 0)",
+          "oklch(0.75 0 0)",
+          "oklch(0.87 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "edge": {
+        "role": "neutral",
+        "displayName": "Glass Edge",
+        "canonical": "rgb(255 255 255 / 0.7)",
+        "dark": "rgb(255 255 255 / 0.08)",
+        "cssVar": "--edge",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.27 0 0)",
+          "oklch(0.39 0 0)",
+          "oklch(0.51 0 0)",
+          "oklch(0.63 0 0)",
+          "oklch(0.75 0 0)",
+          "oklch(0.87 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "oklch(0.3 0.02 var(--space-h) / 0.1)",
+        "dark": "rgb(255 255 255 / 0.1)",
+        "cssVar": "--hairline",
+        "tonalRamp": [
+          "oklch(0.15 0.02 250)",
+          "oklch(0.27 0.02 250)",
+          "oklch(0.39 0.02 250)",
+          "oklch(0.51 0.02 250)",
+          "oklch(0.63 0.02 250)",
+          "oklch(0.75 0.02 250)",
+          "oklch(0.87 0.02 250)",
+          "oklch(0.95 0.02 250)"
+        ]
+      },
+      "pending": {
+        "role": "neutral",
+        "displayName": "Pending Amber",
+        "canonical": "oklch(0.52 0.13 70)",
+        "dark": "oklch(0.8 0.12 75)",
+        "cssVar": "--pending",
+        "tonalRamp": [
+          "oklch(0.15 0.13 70)",
+          "oklch(0.27 0.13 70)",
+          "oklch(0.39 0.13 70)",
+          "oklch(0.51 0.13 70)",
+          "oklch(0.63 0.13 70)",
+          "oklch(0.75 0.13 70)",
+          "oklch(0.87 0.13 70)",
+          "oklch(0.95 0.13 70)"
+        ]
+      },
+      "danger": {
+        "role": "neutral",
+        "displayName": "Danger",
+        "canonical": "oklch(0.52 0.19 25)",
+        "dark": "oklch(0.76 0.13 25)",
+        "tonalRamp": [
+          "oklch(0.15 0.19 25)",
+          "oklch(0.27 0.19 25)",
+          "oklch(0.39 0.19 25)",
+          "oklch(0.51 0.19 25)",
+          "oklch(0.63 0.19 25)",
+          "oklch(0.75 0.19 25)",
+          "oklch(0.87 0.19 25)",
+          "oklch(0.95 0.19 25)"
+        ]
+      },
+      "gc-grey": {
         "role": "secondary",
-        "displayName": "Device Stamp Blue",
-        "canonical": "oklch(39.7% 0.064 250.5)",
-        "dark": "#93b3d4",
-        "cssVar": "--stamp-blue",
+        "displayName": "Chrome grey",
+        "dark": "#dadce0",
+        "cssVar": "--gc-grey",
         "tonalRamp": [
-          "#000b22",
-          "#072541",
-          "#244260",
-          "#416081",
-          "#6383a6",
-          "#87a8cc",
-          "#accef3",
-          "#d2f2ff"
+          "oklch(0.15 0.01 250)",
+          "oklch(0.27 0.01 250)",
+          "oklch(0.39 0.01 250)",
+          "oklch(0.51 0.01 250)",
+          "oklch(0.63 0.01 250)",
+          "oklch(0.75 0.01 250)",
+          "oklch(0.87 0.01 250)",
+          "oklch(0.95 0.01 250)"
         ]
       },
-      "stamp-amber": {
+      "gc-blue": {
         "role": "secondary",
-        "displayName": "Pending Stamp Amber",
-        "canonical": "oklch(48.0% 0.096 71.3)",
-        "dark": "#d9a95a",
-        "cssVar": "--stamp-amber",
+        "displayName": "Chrome blue",
+        "dark": "#8ab4f8",
+        "cssVar": "--gc-blue",
         "tonalRamp": [
-          "#1d0200",
-          "#3d1900",
-          "#5e3500",
-          "#7f5310",
-          "#a4763a",
-          "#cb9a5e",
-          "#efc18a",
-          "#ffe7b6"
+          "oklch(0.15 0.18 259)",
+          "oklch(0.27 0.18 259)",
+          "oklch(0.39 0.18 259)",
+          "oklch(0.51 0.18 259)",
+          "oklch(0.63 0.18 259)",
+          "oklch(0.75 0.18 259)",
+          "oklch(0.87 0.18 259)",
+          "oklch(0.95 0.18 259)"
         ]
       },
-      "on-red": {
-        "role": "primary",
-        "displayName": "On Red",
-        "canonical": "#ffffff",
-        "dark": "#1b1a17",
-        "cssVar": "--on-red"
+      "gc-cyan": {
+        "role": "secondary",
+        "displayName": "Chrome cyan",
+        "dark": "#78d9ec",
+        "cssVar": "--gc-cyan",
+        "tonalRamp": [
+          "oklch(0.15 0.1 200)",
+          "oklch(0.27 0.1 200)",
+          "oklch(0.39 0.1 200)",
+          "oklch(0.51 0.1 200)",
+          "oklch(0.63 0.1 200)",
+          "oklch(0.75 0.1 200)",
+          "oklch(0.87 0.1 200)",
+          "oklch(0.95 0.1 200)"
+        ]
+      },
+      "gc-green": {
+        "role": "secondary",
+        "displayName": "Chrome green",
+        "dark": "#81c995",
+        "cssVar": "--gc-green",
+        "tonalRamp": [
+          "oklch(0.15 0.14 150)",
+          "oklch(0.27 0.14 150)",
+          "oklch(0.39 0.14 150)",
+          "oklch(0.51 0.14 150)",
+          "oklch(0.63 0.14 150)",
+          "oklch(0.75 0.14 150)",
+          "oklch(0.87 0.14 150)",
+          "oklch(0.95 0.14 150)"
+        ]
+      },
+      "gc-yellow": {
+        "role": "secondary",
+        "displayName": "Chrome yellow",
+        "dark": "#fdd663",
+        "cssVar": "--gc-yellow",
+        "tonalRamp": [
+          "oklch(0.15 0.17 75)",
+          "oklch(0.27 0.17 75)",
+          "oklch(0.39 0.17 75)",
+          "oklch(0.51 0.17 75)",
+          "oklch(0.63 0.17 75)",
+          "oklch(0.75 0.17 75)",
+          "oklch(0.87 0.17 75)",
+          "oklch(0.95 0.17 75)"
+        ]
+      },
+      "gc-orange": {
+        "role": "secondary",
+        "displayName": "Chrome orange",
+        "dark": "#fcad70",
+        "cssVar": "--gc-orange",
+        "tonalRamp": [
+          "oklch(0.15 0.15 55)",
+          "oklch(0.27 0.15 55)",
+          "oklch(0.39 0.15 55)",
+          "oklch(0.51 0.15 55)",
+          "oklch(0.63 0.15 55)",
+          "oklch(0.75 0.15 55)",
+          "oklch(0.87 0.15 55)",
+          "oklch(0.95 0.15 55)"
+        ]
+      },
+      "gc-pink": {
+        "role": "secondary",
+        "displayName": "Chrome pink",
+        "dark": "#ff8bcb",
+        "cssVar": "--gc-pink",
+        "tonalRamp": [
+          "oklch(0.15 0.2 355)",
+          "oklch(0.27 0.2 355)",
+          "oklch(0.39 0.2 355)",
+          "oklch(0.51 0.2 355)",
+          "oklch(0.63 0.2 355)",
+          "oklch(0.75 0.2 355)",
+          "oklch(0.87 0.2 355)",
+          "oklch(0.95 0.2 355)"
+        ]
+      },
+      "gc-purple": {
+        "role": "secondary",
+        "displayName": "Chrome purple",
+        "dark": "#c58af9",
+        "cssVar": "--gc-purple",
+        "tonalRamp": [
+          "oklch(0.15 0.22 305)",
+          "oklch(0.27 0.22 305)",
+          "oklch(0.39 0.22 305)",
+          "oklch(0.51 0.22 305)",
+          "oklch(0.63 0.22 305)",
+          "oklch(0.75 0.22 305)",
+          "oklch(0.87 0.22 305)",
+          "oklch(0.95 0.22 305)"
+        ]
+      },
+      "gc-red": {
+        "role": "secondary",
+        "displayName": "Chrome red (tab groups only, never a Space colour)",
+        "dark": "#f28b82",
+        "cssVar": "--gc-red",
+        "tonalRamp": [
+          "oklch(0.15 0.19 28)",
+          "oklch(0.27 0.19 28)",
+          "oklch(0.39 0.19 28)",
+          "oklch(0.51 0.19 28)",
+          "oklch(0.63 0.19 28)",
+          "oklch(0.75 0.19 28)",
+          "oklch(0.87 0.19 28)",
+          "oklch(0.95 0.19 28)"
+        ]
       }
     },
     "typographyMeta": {
-      "display": {
-        "displayName": "Display",
-        "purpose": "Pulled card Space name and rename input."
-      },
       "headline": {
         "displayName": "Headline",
-        "purpose": "Wordmark, verso title, page-card titles."
+        "purpose": "The current Space name on its sheet."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Sheet titles: Resources, History, Suspended, Today, settings."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Typed entries, resources, find field, typed inputs; line height equals the 20px ruling pitch."
+        "purpose": "Tab titles, fields, notes in rows."
       },
-      "meta": {
-        "displayName": "Meta",
-        "purpose": "Card meta line, card-top sub line, counts, log rows."
+      "body-strong": {
+        "displayName": "Body Strong",
+        "purpose": "Active tab, Space names in the list, command results."
       },
-      "callno": {
-        "displayName": "Call number",
-        "purpose": "Boxed key number on each card, tabular numerals."
+      "control": {
+        "displayName": "Control",
+        "purpose": "View tabs (capped at scale 1), segments, text buttons."
       },
-      "ui": {
-        "displayName": "UI",
-        "purpose": "Sans body default for hints, checkboxes and settings prose."
+      "note": {
+        "displayName": "Note",
+        "purpose": "Hints and empty states, max 70ch."
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Uppercase tracked sans for guide tabs, group headings, field labels, button legends."
+        "purpose": "Section breaks, group headers, meta, counts. Sentence case."
       },
-      "stamp": {
-        "displayName": "Stamp",
-        "purpose": "Uppercase state marks in the fixed stamp cell only."
+      "key": {
+        "displayName": "Key",
+        "purpose": "Key caps and number keys."
       }
     },
     "shadows": [
       {
-        "name": "resting-stock",
-        "value": "0 1px 1px color-mix(in srgb, var(--ink) 10%, transparent), 0 6px 14px -8px color-mix(in srgb, var(--ink) 28%, transparent)",
-        "purpose": "Pulled card and page cards resting above the drawer."
+        "name": "shadow-pill",
+        "value": "0 1px 1px oklch(0.2 0.02 var(--space-h) / 0.06), 0 2px 6px -1px oklch(0.2 0.02 var(--space-h) / 0.12)",
+        "dark": "0 1px 2px rgb(0 0 0 / 0.3), 0 2px 8px -2px rgb(0 0 0 / 0.4)",
+        "purpose": "Lift under the white pill: active tab, selected segment, current Space row, live agenda row, plate buttons, next-up."
       },
       {
-        "name": "drawer-recess",
-        "value": "inset 0 2px 5px color-mix(in srgb, var(--ink) 14%, transparent)",
-        "purpose": "Drawer interior behind the card tops."
+        "name": "shadow-sheet",
+        "value": "0 1px 2px oklch(0.2 0.03 var(--space-h) / 0.05), 0 12px 32px -12px oklch(0.25 0.05 var(--space-h) / 0.28)",
+        "dark": "0 1px 2px rgb(0 0 0 / 0.3), 0 16px 36px -14px rgb(0 0 0 / 0.6)",
+        "purpose": "Space sheet, settings sheets, slips; always paired with inset 0 0 0 0.5px var(--edge)."
       },
       {
-        "name": "label-holder",
-        "value": "inset 0 1px 0 color-mix(in srgb, var(--ink) 6%, transparent)",
-        "purpose": "Find field set into the drawer front."
+        "name": "shadow-command",
+        "value": "0 24px 60px -16px oklch(0.2 0.05 var(--space-h) / 0.45), inset 0 0 0 0.5px var(--edge)",
+        "purpose": "Command bar only."
       },
       {
-        "name": "card-top-lift",
-        "value": "0 4px 6px -4px color-mix(in srgb, var(--ink) 35%, transparent)",
-        "purpose": "Card top on hover, focus-visible or keyboard next, with translateY(-3px)."
-      },
-      {
-        "name": "card-top-opened",
-        "value": "0 6px 8px -5px color-mix(in srgb, var(--ink) 40%, transparent)",
-        "purpose": "Dashboard opened Space, with translateY(-6px)."
+        "name": "blur",
+        "value": "saturate(1.6) blur(24px)",
+        "purpose": "Backdrop filter on all glass; the command bar uses saturate(1.8) blur(30px)."
       }
     ],
     "motion": [
       {
-        "name": "ease-lift",
-        "value": "cubic-bezier(0.2, 0.8, 0.2, 1)",
-        "purpose": "Card-top lift (140ms) and the card pull view transition (260ms)."
+        "name": "space-light",
+        "value": "--space-h 700ms cubic-bezier(0.22, 1, 0.36, 1), --space-c 700ms ease, --space-spread 700ms ease",
+        "purpose": "The light gliding between Spaces (registered @property); none under reduced motion."
+      },
+      {
+        "name": "ease-out-soft",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Entrances: slips 260ms, command bar 180ms, badge press 220ms, view transitions 280ms."
       },
       {
         "name": "card-pull",
-        "value": "260ms cubic-bezier(0.2, 0.8, 0.2, 1)",
-        "purpose": "::view-transition-group for a card top rising into the pulled slot; root crossfade 140ms."
+        "value": "flip-out 140ms cubic-bezier(0.4, 0, 1, 1); flip-in 190ms cubic-bezier(0, 0, 0.2, 1)",
+        "purpose": "Sheet turning to Resources and back; off under reduced motion."
       },
       {
-        "name": "flip-out",
-        "value": "130ms cubic-bezier(0.4, 0, 1, 1) rotateY(88deg) perspective(900px)",
-        "purpose": "Panel card turning to its verso, first half."
-      },
-      {
-        "name": "flip-in",
-        "value": "170ms cubic-bezier(0, 0, 0.2, 1) from rotateY(-88deg)",
-        "purpose": "Panel card turning to its verso, second half."
-      },
-      {
-        "name": "reduced-motion",
-        "value": "none",
-        "purpose": "prefers-reduced-motion removes lift, flip and all view-transition animation."
+        "name": "reduced",
+        "value": "fade-in 120ms ease-out",
+        "purpose": "Replaces slip, badge and command entrances under reduced motion."
       }
     ],
     "breakpoints": [
       {
-        "name": "panel",
-        "value": "320px-480px",
-        "purpose": "Chrome side panel, single column."
+        "name": "panel-min",
+        "value": "320px"
       },
       {
-        "name": "dashboard-collapse",
-        "value": "760px",
-        "purpose": "Below this the dashboard drops to one column and the drawer stops being sticky."
+        "name": "dash-stack",
+        "value": "760px"
       },
       {
-        "name": "dashboard-max",
-        "value": "1240px",
-        "purpose": "Dashboard container max width."
+        "name": "dash-three-col",
+        "value": "1360px"
       }
     ],
-    "colorSchemes": {
-      "dark": "prefers-color-scheme: dark overrides every colour token; values in colorMeta.<token>.dark."
-    },
-    "fonts": [
-      {
-        "family": "Courier Prime",
-        "source": "static/fonts (OFL, self-hosted woff2)",
-        "weights": [
-          "400",
-          "400 italic",
-          "700"
-        ],
-        "fontDisplay": "block"
-      }
-    ]
+    "spaceLight": {
+      "source": "src/ui/App.tsx LIGHT map via useSpaceLight(); sets --space-h / --space-c / --space-spread on :root",
+      "registered": "@property --space-h <number> 250; --space-c <number> 0.07; --space-spread <number> 140",
+      "map": {
+        "none": {
+          "h": 250,
+          "c": 0.07,
+          "spread": 140
+        },
+        "grey": {
+          "h": 250,
+          "c": 0.018,
+          "spread": 30
+        },
+        "blue": {
+          "h": 255,
+          "c": 0.12,
+          "spread": 50
+        },
+        "cyan": {
+          "h": 205,
+          "c": 0.11,
+          "spread": 48
+        },
+        "green": {
+          "h": 150,
+          "c": 0.11,
+          "spread": 52
+        },
+        "yellow": {
+          "h": 95,
+          "c": 0.12,
+          "spread": 46
+        },
+        "orange": {
+          "h": 60,
+          "c": 0.12,
+          "spread": 46
+        },
+        "pink": {
+          "h": 355,
+          "c": 0.12,
+          "spread": 50
+        },
+        "purple": {
+          "h": 300,
+          "c": 0.13,
+          "spread": 55
+        }
+      },
+      "note": "Frontmatter colours are resolved at the none setting (h 250, c 0.07, spread 140). Component previews use the purple setting (h 300)."
+    }
   },
   "components": [
     {
-      "name": "Pull Plate",
-      "kind": "button",
-      "refersTo": "plate-button-pull",
-      "description": "The one red fill: switch this window to the pulled Space.",
-      "html": "<button class=\"ds-plate ds-plate-pull\">Switch this window</button>",
-      "css": ".ds-plate{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:30px;padding:0 12px;border:1px solid var(--ink);border-radius:2px;background:var(--ink);color:var(--card);font:600 11px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}.ds-plate-pull{background:var(--red);border-color:var(--red);color:var(--on-red)}.ds-plate:focus-visible{outline:2px solid var(--focus);outline-offset:2px}.ds-plate:disabled{opacity:.4;cursor:default}"
+      "name": "Command Pill",
+      "kind": "input",
+      "refersTo": "command-pill",
+      "description": "The glass search bar at the top of the panel; opens the command bar.",
+      "html": "<button class=\"ds-cmd-pill\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\"><circle cx=\"7\" cy=\"7\" r=\"4.75\"/><path d=\"M10.5 10.5l3.5 3.5\"/></svg><span>Search Spaces and tabs</span><kbd class=\"ds-kbd\">⌘K</kbd></button>",
+      "css": ".ds-cmd-pill { display: flex; align-items: center; gap: 8px; width: 300px; height: 34px; padding: 0 8px 0 10px; border: 0; border-radius: 10px; background: rgb(255 255 255 / 0.5); box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.7); backdrop-filter: saturate(1.6) blur(24px); color: oklch(0.5 0.018 300); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif; font-size: 13px; cursor: text; text-align: left; } .ds-cmd-pill span { flex: 1; } .ds-cmd-pill:hover { background: rgb(255 255 255 / 0.62); } .ds-cmd-pill:focus-visible { outline: 2px solid oklch(0.5 0.17 300); outline-offset: 2px; } .ds-kbd { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 5px; background: rgb(255 255 255 / 0.78); box-shadow: inset 0 -1px 0 oklch(0.3 0.02 300 / 0.1), 0 0 0 0.5px oklch(0.3 0.02 300 / 0.1); font: 600 10.5px/1 ui-monospace, 'SF Mono', Menlo, monospace; color: oklch(0.4 0.02 300); }"
     },
     {
-      "name": "Ink Plate",
+      "name": "View Tabs",
+      "kind": "nav",
+      "refersTo": "view-tabs",
+      "description": "Glass segmented control; the selected view is the white pill. Capped at 12px so four fit 320px.",
+      "html": "<div class=\"ds-tabs\" role=\"tablist\"><button class=\"ds-tab\" aria-selected=\"true\">Spaces</button><button class=\"ds-tab\">Today</button><button class=\"ds-tab\">History</button><button class=\"ds-tab\">Suspended</button></div>",
+      "css": ".ds-tabs { display: flex; gap: 2px; padding: 3px; width: 300px; border-radius: 11px; background: rgb(255 255 255 / 0.5); box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.7); backdrop-filter: saturate(1.6) blur(24px); } .ds-tab { flex: 1 1 auto; height: 26px; padding: 0 6px; border: 0; border-radius: 8px; background: none; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif; font-size: 12px; font-weight: 550; line-height: 1; color: oklch(0.4 0.02 300); cursor: pointer; white-space: nowrap; } .ds-tab:hover { color: oklch(0.24 0.02 300); } .ds-tab[aria-selected='true'] { background: #fff; color: oklch(0.24 0.02 300); box-shadow: 0 1px 1px oklch(0.2 0.02 300 / 0.06), 0 2px 6px -1px oklch(0.2 0.02 300 / 0.12); } .ds-tab:focus-visible { outline: 2px solid oklch(0.5 0.17 300); outline-offset: 2px; }"
+    },
+    {
+      "name": "Space Sheet with Tab Rows",
+      "kind": "card",
+      "refersTo": "space-sheet",
+      "description": "The current Space: thin glass sheet, tab rows, the active tab as the one opaque white pill, a quiet action row.",
+      "html": "<section class=\"ds-sheet\"><div class=\"ds-head\"><span class=\"ds-num\">1</span><span class=\"ds-dot\"></span><h3>Deep work</h3><span class=\"ds-badge-here\">Here</span></div><p class=\"ds-meta\">4 tabs · updated just now</p><ul class=\"ds-rows\"><li class=\"ds-row\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"8\" cy=\"8\" r=\"6.25\"/><path d=\"M1.75 8h12.5M8 1.75c1.8 1.9 2.6 4 2.6 6.25S9.8 12.35 8 14.25C6.2 12.35 5.4 10.25 5.4 8S6.2 3.65 8 1.75z\"/></svg><span>Q4 launch plan — Docs</span></li><li class=\"ds-row ds-row-active\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"8\" cy=\"8\" r=\"6.25\"/><path d=\"M1.75 8h12.5M8 1.75c1.8 1.9 2.6 4 2.6 6.25S9.8 12.35 8 14.25C6.2 12.35 5.4 10.25 5.4 8S6.2 3.65 8 1.75z\"/></svg><span>Launch notes: pricing page copy</span></li><li class=\"ds-row\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"8\" cy=\"8\" r=\"6.25\"/><path d=\"M1.75 8h12.5M8 1.75c1.8 1.9 2.6 4 2.6 6.25S9.8 12.35 8 14.25C6.2 12.35 5.4 10.25 5.4 8S6.2 3.65 8 1.75z\"/></svg><span>Fix sync tombstones · PR #212</span></li></ul><div class=\"ds-actions\"><button class=\"ds-text-btn\">Resources</button><button class=\"ds-text-btn\">Edit</button><button class=\"ds-text-btn\">Detach</button></div></section>",
+      "css": ".ds-sheet { width: 320px; padding: 10px 8px 8px; background: var(--glass-sheet, rgb(255 255 255 / 0.4)); border-radius: 14px; box-shadow: 0 1px 2px oklch(0.2 0.03 300 / 0.05), 0 12px 32px -12px oklch(0.25 0.05 300 / 0.28), inset 0 0 0 0.5px rgb(255 255 255 / 0.7); backdrop-filter: saturate(1.6) blur(24px); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif; color: oklch(0.24 0.02 300); } .ds-head { display: flex; align-items: center; gap: 8px; padding: 2px 6px 0; } .ds-head h3 { flex: 1; margin: 0; font-size: 17px; font-weight: 650; line-height: 1.25; letter-spacing: -0.01em; } .ds-num { display: inline-grid; place-items: center; min-width: 18px; height: 18px; border-radius: 5px; background: oklch(0.3 0.02 300 / 0.1); font: 600 10.5px/1 ui-monospace, monospace; color: oklch(0.5 0.018 300); } .ds-dot { width: 9px; height: 9px; border-radius: 50%; background: #a142f4; } .ds-badge-here { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 6px; background: oklch(0.5 0.17 300 / 0.14); color: oklch(0.5 0.17 300); font-size: 10.5px; font-weight: 600; } .ds-meta { margin: 2px 6px 8px; font-size: 11px; color: oklch(0.5 0.018 300); } .ds-rows { list-style: none; margin: 0; padding: 0; font-size: 13px; } .ds-row { display: flex; align-items: center; gap: 9px; min-height: 32px; padding: 0 8px; border-radius: 9px; } .ds-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .ds-row:hover { background: rgb(255 255 255 / 0.62); } .ds-row-active, .ds-row-active:hover { background: #fff; box-shadow: 0 1px 1px oklch(0.2 0.02 300 / 0.06), 0 2px 6px -1px oklch(0.2 0.02 300 / 0.12); font-weight: 550; } .ds-actions { display: flex; gap: 2px; margin-top: 8px; padding: 8px 2px 0; border-top: 0.5px solid oklch(0.3 0.02 300 / 0.1); } .ds-text-btn { height: 28px; padding: 0 9px; border: 0; border-radius: 8px; background: none; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif; font-size: 12px; font-weight: 550; color: oklch(0.4 0.02 300); cursor: pointer; } .ds-text-btn:hover { background: rgb(255 255 255 / 0.62); color: oklch(0.24 0.02 300); } .ds-text-btn:focus-visible { outline: 2px solid oklch(0.5 0.17 300); outline-offset: 2px; }"
+    },
+    {
+      "name": "Plate Button",
       "kind": "button",
       "refersTo": "plate-button",
-      "description": "Solid ink action, e.g. filing an unfiled window.",
-      "html": "<button class=\"ds-plate\">File this window</button>",
-      "css": ".ds-plate{display:inline-flex;align-items:center;justify-content:center;height:30px;padding:0 12px;border:1px solid var(--ink);border-radius:2px;background:var(--ink);color:var(--card);font:600 11px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}.ds-plate:hover{background:color-mix(in srgb,var(--ink) 86%,var(--card))}.ds-plate:focus-visible{outline:2px solid var(--focus);outline-offset:2px}"
+      "description": "Primary action: ink fill, pill text.",
+      "html": "<button class=\"ds-plate\">Save</button>",
+      "css": ".ds-plate { height: 30px; padding: 0 12px; border: 0; border-radius: 9px; background: oklch(0.24 0.02 300); color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif; font-size: 12.5px; font-weight: 600; box-shadow: 0 1px 1px oklch(0.2 0.02 300 / 0.06), 0 2px 6px -1px oklch(0.2 0.02 300 / 0.12); cursor: pointer; } .ds-plate:hover { filter: brightness(1.12); } .ds-plate:focus-visible { outline: 2px solid oklch(0.5 0.17 300); outline-offset: 2px; } .ds-plate:disabled { opacity: 0.4; }"
     },
     {
-      "name": "Text Button",
+      "name": "Switch Plate Button",
       "kind": "button",
-      "refersTo": "text-button",
-      "description": "Typed actions in a card footer; underline appears on hover.",
-      "html": "<button class=\"ds-text-btn\">Rename</button> <button class=\"ds-text-btn\">Delete</button>",
-      "css": ".ds-text-btn{display:inline-flex;align-items:center;gap:5px;padding:2px 0;border:0;background:none;font:600 11px/1.4 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);cursor:pointer;text-decoration:underline;text-decoration-color:transparent;text-underline-offset:3px}.ds-text-btn:hover{color:var(--ink);text-decoration-color:currentColor}.ds-text-btn:focus-visible{outline:2px solid var(--focus);outline-offset:2px}"
+      "refersTo": "plate-button-switch",
+      "description": "The one control that carries the Space hue: moving into another Space.",
+      "html": "<button class=\"ds-plate-switch\">Switch to Lisbon trip</button>",
+      "css": ".ds-plate-switch { height: 30px; padding: 0 12px; border: 0; border-radius: 9px; background: oklch(0.5 0.17 300); color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif; font-size: 12.5px; font-weight: 600; box-shadow: 0 1px 1px oklch(0.2 0.02 300 / 0.06), 0 2px 6px -1px oklch(0.2 0.02 300 / 0.12); cursor: pointer; } .ds-plate-switch:hover { filter: brightness(1.12); } .ds-plate-switch:focus-visible { outline: 2px solid oklch(0.5 0.17 300); outline-offset: 2px; }"
     },
     {
-      "name": "Label Holder",
-      "kind": "input",
-      "refersTo": "label-holder",
-      "description": "The find field, set at the top of the drawer.",
-      "html": "<label class=\"ds-holder\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\"><circle cx=\"7\" cy=\"7\" r=\"4.25\"/><path d=\"M10.2 10.2 13.5 13.5\"/></svg><input placeholder=\"Find a Space or tab\"><kbd class=\"ds-kbd\">/</kbd></label>",
-      "css": ".ds-holder{display:flex;align-items:center;gap:6px;height:32px;padding:0 8px;background:var(--card);border:1px solid var(--card-edge);border-radius:3px;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ink) 6%,transparent);color:var(--ink-3)}.ds-holder:focus-within{outline:2px solid var(--focus);outline-offset:1px;color:var(--ink)}.ds-holder input{flex:1;min-width:0;border:0;background:none;padding:0;font:13px/1 var(--type);color:var(--ink);outline:none}.ds-holder input::placeholder{color:var(--ink-3)}.ds-kbd{font:700 11px/1 var(--type);padding:2px 4px;border:1px solid var(--card-edge);border-bottom-width:2px;border-radius:3px;color:var(--ink-2);background:var(--card)}"
+      "name": "Outline Plate Button",
+      "kind": "button",
+      "refersTo": "plate-button-outline",
+      "description": "Secondary action standing on the white pill (Done in edit mode).",
+      "html": "<button class=\"ds-plate-outline\">Done</button>",
+      "css": ".ds-plate-outline { height: 30px; padding: 0 12px; border: 0; border-radius: 9px; background: #fff; color: oklch(0.24 0.02 300); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif; font-size: 12.5px; font-weight: 600; box-shadow: 0 1px 1px oklch(0.2 0.02 300 / 0.06), 0 2px 6px -1px oklch(0.2 0.02 300 / 0.12), inset 0 0 0 0.5px oklch(0.3 0.02 300 / 0.1); cursor: pointer; } .ds-plate-outline:hover { background: rgb(255 255 255 / 0.78); } .ds-plate-outline:focus-visible { outline: 2px solid oklch(0.5 0.17 300); outline-offset: 2px; }"
     },
     {
       "name": "Typed Input",
       "kind": "input",
       "refersTo": "typed-input",
-      "description": "Underline blank on a card, with an uppercase sans label.",
-      "html": "<label class=\"ds-field\">Name<input class=\"ds-typed\" placeholder=\"e.g. Quarterly review\"></label>",
-      "css": ".ds-field{display:grid;gap:2px;font:600 11px/1.2 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}.ds-typed{width:100%;border:0;border-bottom:1.5px solid color-mix(in srgb,var(--ink) 55%,transparent);border-radius:0;background:none;padding:4px 0 3px;font:13px/1.3 var(--type);color:var(--ink);text-transform:none;letter-spacing:0}.ds-typed:focus{outline:none;border-bottom-color:var(--ink);box-shadow:0 1.5px 0 var(--ink)}.ds-typed::placeholder{color:var(--ink-3)}"
+      "description": "White pill field with accent ring and wash on focus.",
+      "html": "<label class=\"ds-field\"><span>Space name</span><input class=\"ds-input\" placeholder=\"Deep work\"></label>",
+      "css": ".ds-field { display: grid; gap: 4px; width: 280px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif; } .ds-field span { font-size: 11px; font-weight: 600; color: oklch(0.4 0.02 300); } .ds-input { height: 32px; padding: 0 10px; border: 0; border-radius: 8px; background: #fff; box-shadow: inset 0 0 0 0.5px oklch(0.3 0.02 300 / 0.1), inset 0 1px 1px oklch(0.2 0 0 / 0.04); font: inherit; font-size: 13px; color: oklch(0.24 0.02 300); outline: none; } .ds-input::placeholder { color: oklch(0.5 0.018 300); } .ds-input:focus { box-shadow: 0 0 0 2px oklch(0.5 0.17 300 / 0.14), inset 0 0 0 1px oklch(0.5 0.17 300); }"
     },
     {
-      "name": "Guide Tabs",
+      "name": "Section Divider and Space Rows",
       "kind": "nav",
-      "refersTo": "guide-tab-active",
-      "description": "View switcher; the active tab is a pressboard guide card joined to the baseline.",
-      "html": "<div class=\"ds-tabs\" role=\"tablist\"><button class=\"ds-tab\" aria-selected=\"true\">Spaces</button><button class=\"ds-tab\">History</button><button class=\"ds-tab\">Settings</button></div>",
-      "css": ".ds-tabs{display:flex;gap:2px;border-bottom:1px solid color-mix(in srgb,var(--ink) 22%,transparent)}.ds-tab{position:relative;top:1px;padding:5px 10px 4px;border:1px solid transparent;border-bottom:0;border-radius:4px 4px 0 0;background:none;font:600 11px/1.2 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);cursor:pointer}.ds-tab:hover{color:var(--ink)}.ds-tab[aria-selected=true]{color:var(--pressboard-ink);background:var(--pressboard);border-color:color-mix(in srgb,var(--ink) 22%,transparent)}.ds-tab:focus-visible{outline:2px solid var(--focus);outline-offset:2px}"
+      "refersTo": "space-row",
+      "description": "Hairline break with one quiet trailing action; other Spaces as 36px rows with dot, count and number key.",
+      "html": "<div class=\"ds-list\"><div class=\"ds-divider\"><span class=\"ds-label\">Other Spaces</span><span class=\"ds-rule\"></span><button class=\"ds-trail\">Suspend tabs</button></div><button class=\"ds-srow\"><span class=\"ds-sname\"><i style=\"background:#fa903e\"></i>Lisbon trip</span><span class=\"ds-count\">4 tabs</span><span class=\"ds-num\">2</span></button><button class=\"ds-srow\" aria-current=\"true\"><span class=\"ds-sname\"><i style=\"background:#188038\"></i>MV3 research</span><span class=\"ds-count\">8 tabs</span><span class=\"ds-num\">3</span></button></div>",
+      "css": ".ds-list { width: 320px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif; color: oklch(0.24 0.02 300); } .ds-divider { display: flex; align-items: center; gap: 8px; margin: 0 8px 6px; } .ds-label { font-size: 11px; font-weight: 600; color: oklch(0.5 0.018 300); } .ds-rule { flex: 1; height: 0.5px; background: oklch(0.3 0.02 300 / 0.1); } .ds-trail { padding: 2px 4px; border: 0; border-radius: 6px; background: none; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif; font-size: 11px; font-weight: 550; color: oklch(0.5 0.018 300); cursor: pointer; } .ds-trail:hover { color: oklch(0.24 0.02 300); background: rgb(255 255 255 / 0.62); } .ds-srow { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; width: 100%; min-height: 36px; padding: 0 8px 0 10px; border: 0; border-radius: 10px; background: none; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif; color: inherit; text-align: left; cursor: pointer; } .ds-srow:hover { background: rgb(255 255 255 / 0.62); } .ds-srow[aria-current='true'] { background: #fff; box-shadow: 0 1px 1px oklch(0.2 0.02 300 / 0.06), 0 2px 6px -1px oklch(0.2 0.02 300 / 0.12); } .ds-srow:focus-visible { outline: 2px solid oklch(0.5 0.17 300); outline-offset: 2px; } .ds-sname { font-size: 13px; font-weight: 550; display: flex; align-items: center; } .ds-sname i { width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; } .ds-count { font-size: 11px; color: oklch(0.5 0.018 300); font-variant-numeric: tabular-nums; } .ds-num { display: inline-grid; place-items: center; min-width: 18px; height: 18px; border-radius: 5px; background: oklch(0.3 0.02 300 / 0.1); font: 600 10.5px/1 ui-monospace, monospace; color: oklch(0.5 0.018 300); }"
     },
     {
-      "name": "Stamps",
-      "kind": "chip",
-      "refersTo": "stamp",
-      "description": "State marks in the fixed right cell; never red.",
-      "html": "<span class=\"ds-stamp ds-here\">Here</span> <span class=\"ds-stamp\">Open</span> <span class=\"ds-stamp ds-device\">MacBook</span> <span class=\"ds-stamp ds-pending\">Pending 2</span> <span class=\"ds-stamp ds-offline\">Offline</span> <span class=\"ds-stamp ds-error\">Sync error</span>",
-      "css": ".ds-stamp{display:inline-flex;align-items:center;padding:1px 5px 0;border:1.5px solid currentColor;border-radius:2px;font:700 10px/14px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap}.ds-here{color:var(--ink)}.ds-device{color:var(--stamp-blue)}.ds-pending{color:var(--stamp-amber)}.ds-offline{border-style:dashed}.ds-error{background:var(--ink);color:var(--card);border-color:var(--ink)}"
-    },
-    {
-      "name": "Pulled Card",
-      "kind": "card",
-      "refersTo": "pulled-card",
-      "description": "This window's Space: red top rule, call number, typed entries on ruling, stamp cell.",
-      "html": "<article class=\"ds-pulled\"><header class=\"ds-head\"><span class=\"ds-callno\">3</span><h2 class=\"ds-name\">Launch week</h2><span class=\"ds-stamp\">Here</span></header><p class=\"ds-meta\">8 tabs · 2 groups · updated just now</p><ol class=\"ds-entries\"><li><b>Fix sync tombstones</b></li><li>Card pull transition</li><li>Inbox (3)</li></ol></article>",
-      "css": ".ds-pulled{background:var(--card);border:1px solid var(--card-edge);border-top:3px solid var(--red);border-radius:2px 2px 3px 3px;padding:12px 14px;font-family:var(--type);color:var(--ink);box-shadow:0 1px 1px color-mix(in srgb,var(--ink) 10%,transparent),0 6px 14px -8px color-mix(in srgb,var(--ink) 28%,transparent)}.ds-head{display:flex;align-items:baseline;gap:10px}.ds-callno{min-width:22px;padding:1px 4px 0;border:1px solid color-mix(in srgb,var(--ink) 35%,transparent);border-radius:2px;font:700 11px/16px var(--type);text-align:center;color:var(--ink-2);font-variant-numeric:tabular-nums}.ds-name{flex:1;margin:0;font:700 18px/1.2 var(--type);letter-spacing:-.01em}.ds-stamp{padding:1px 5px 0;border:1.5px solid currentColor;border-radius:2px;font:700 10px/14px var(--sans);letter-spacing:.1em;text-transform:uppercase}.ds-meta{margin:4px 0 10px;font:11px/1.4 var(--type);color:var(--ink-3)}.ds-entries{list-style:none;margin:0;padding:0;font:13px/20px var(--type);background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 19px,var(--ruling) 19px,var(--ruling) 20px)}"
-    },
-    {
-      "name": "Drawer with Card Tops",
+      "name": "Command Bar",
       "kind": "custom",
-      "refersTo": "card-top",
-      "description": "Recessed drawer, pressboard guide card, one-line card tops that lift on hover and focus.",
-      "html": "<section class=\"ds-drawer\"><div class=\"ds-guide\"><span class=\"ds-guide-name\">Personal</span><span class=\"ds-guide-rule\"></span></div><button class=\"ds-top\"><span class=\"ds-callno\">1</span><b>Hiring: design lead</b><span class=\"ds-count\">3 tabs</span></button><button class=\"ds-top\"><span class=\"ds-callno\">2</span><b>Home admin</b><span class=\"ds-count\">3 tabs</span></button></section>",
-      "css": ".ds-drawer{background:var(--drawer-deep);border:1px solid color-mix(in srgb,var(--ink) 16%,transparent);border-radius:3px;padding:8px 8px 12px;box-shadow:inset 0 2px 5px color-mix(in srgb,var(--ink) 14%,transparent)}.ds-guide{display:flex;align-items:center;gap:8px;margin:2px 0 4px}.ds-guide-name{padding:3px 10px 2px;background:var(--pressboard);color:var(--pressboard-ink);border:1px solid color-mix(in srgb,var(--ink) 20%,transparent);border-bottom:0;border-radius:4px 4px 0 0;font:700 11px/1.2 var(--sans);letter-spacing:.1em;text-transform:uppercase}.ds-guide-rule{flex:1;border-top:1px solid color-mix(in srgb,var(--pressboard-ink) 30%,transparent)}.ds-top{display:grid;grid-template-columns:24px minmax(0,1fr) 4.6em;align-items:center;gap:8px;width:100%;min-height:36px;margin-top:-1px;padding:6px 8px 6px 6px;background:var(--card);border:1px solid var(--card-edge);border-radius:2px 2px 0 0;text-align:left;cursor:pointer;font:13px/1.25 var(--type);color:var(--ink);transition:transform 140ms cubic-bezier(.2,.8,.2,1),box-shadow 140ms}.ds-top:hover,.ds-top:focus-visible{transform:translateY(-3px);box-shadow:0 4px 6px -4px color-mix(in srgb,var(--ink) 35%,transparent);position:relative;z-index:1;outline:2px solid var(--focus);outline-offset:-1px}.ds-top:hover{outline:none}.ds-callno{padding:1px 4px 0;border:1px solid color-mix(in srgb,var(--ink) 35%,transparent);border-radius:2px;font:700 11px/16px var(--type);text-align:center;color:var(--ink-2)}.ds-count{font:11px/1 var(--type);color:var(--ink-3);text-align:right}"
+      "refersTo": "command-bar",
+      "description": "Centred glass layer; the selected result takes the Space accent, the one row that carries the hue.",
+      "html": "<div class=\"ds-cmd\"><div class=\"ds-cmd-field\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\"><circle cx=\"7\" cy=\"7\" r=\"4.75\"/><path d=\"M10.5 10.5l3.5 3.5\"/></svg><input value=\"lis\" aria-label=\"Search\"></div><div class=\"ds-cmd-results\"><div class=\"ds-cmd-group\">Spaces</div><div class=\"ds-cmd-item\" aria-selected=\"true\"><i style=\"background:#fa903e\"></i><span>Lisbon trip</span><small>2 tabs</small></div><div class=\"ds-cmd-group\">Tabs</div><div class=\"ds-cmd-item\"><i style=\"background:#dadce0\"></i><span>Lisbon: where to stay</span><small>Lisbon trip</small></div></div></div>",
+      "css": ".ds-cmd { width: 360px; border-radius: 16px; background: rgb(255 255 255 / 0.78); box-shadow: 0 24px 60px -16px oklch(0.2 0.05 300 / 0.45), inset 0 0 0 0.5px rgb(255 255 255 / 0.7); backdrop-filter: saturate(1.8) blur(30px); overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif; color: oklch(0.24 0.02 300); } .ds-cmd-field { display: flex; align-items: center; gap: 10px; height: 48px; padding: 0 14px; border-bottom: 0.5px solid oklch(0.3 0.02 300 / 0.1); color: oklch(0.5 0.018 300); } .ds-cmd-field input { flex: 1; border: 0; background: none; outline: none; font: inherit; font-size: 15px; color: oklch(0.24 0.02 300); } .ds-cmd-results { padding: 6px; } .ds-cmd-group { padding: 8px 10px 4px; font-size: 11px; font-weight: 600; color: oklch(0.5 0.018 300); } .ds-cmd-item { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 10px; border-radius: 9px; cursor: pointer; font-size: 13px; } .ds-cmd-item span { flex: 1; font-weight: 550; } .ds-cmd-item small { font-size: 11px; color: oklch(0.5 0.018 300); } .ds-cmd-item i { width: 10px; height: 10px; border-radius: 50%; margin: 0 3px; box-shadow: inset 0 0 0 1px oklch(0.2 0 0 / 0.14); } .ds-cmd-item:hover { background: rgb(255 255 255 / 0.62); } .ds-cmd-item[aria-selected='true'] { background: oklch(0.5 0.17 300); color: #fff; } .ds-cmd-item[aria-selected='true'] small { color: inherit; opacity: 0.78; }"
+    },
+    {
+      "name": "Edit Mode Colour Chips",
+      "kind": "chip",
+      "refersTo": "color-chip",
+      "description": "Chrome's tab-group colours minus red, plus none; the chosen chip gets an ink ring.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip ds-none\" aria-label=\"No colour\"></button><button class=\"ds-chip\" style=\"background:#1a73e8\" aria-label=\"colour\"></button><button class=\"ds-chip\" style=\"background:#007b83\" aria-label=\"colour\"></button><button class=\"ds-chip\" style=\"background:#188038\" aria-label=\"colour\"></button><button class=\"ds-chip\" style=\"background:#f9ab00\" aria-label=\"colour\"></button><button class=\"ds-chip\" style=\"background:#fa903e\" aria-label=\"colour\"></button><button class=\"ds-chip\" style=\"background:#d01884\" aria-label=\"colour\"></button><button class=\"ds-chip ds-chosen\" style=\"background:#a142f4\" aria-label=\"colour\"></button><button class=\"ds-chip\" style=\"background:#5f6368\" aria-label=\"colour\"></button></div>",
+      "css": ".ds-chips { display: flex; gap: 7px; align-items: center; } .ds-chip { width: 20px; height: 20px; padding: 0; border: 0; border-radius: 50%; cursor: pointer; box-shadow: inset 0 0 0 1px oklch(0.2 0 0 / 0.14); } .ds-chip:hover { transform: scale(1.08); } .ds-chip:focus-visible { outline: 2px solid oklch(0.5 0.17 300); outline-offset: 2px; } .ds-chosen { outline: 2px solid oklch(0.24 0.02 300); outline-offset: 2px; } .ds-none { background: linear-gradient(to top right, transparent calc(50% - 0.75px), oklch(0.5 0.018 300) calc(50% - 0.75px), oklch(0.5 0.018 300) calc(50% + 0.75px), transparent calc(50% + 0.75px)), #fff; }"
     }
   ],
   "narrative": {
-    "northStar": "The Card Catalog",
-    "overview": "**Creative North Star: \"The Card Catalog\"**\n\nSpaces is a steel card cabinet docked beside real work. The grey-green drawer is the ground; every Space is a typed index card standing in it; workspaces are pressboard guide cards with protruding tabs. The window's own Space is the card pulled up and read in full, sitting above the drawer with a red top rule. Every other Space is a one-line card top you flick to by call number. Rank is physical: how far a card is pulled up, never a badge or a highlighted row.\n\nThe system is dense and quiet, built to be read at a glance at 320 to 480px and to stay out of the page's way all day. Entries are typed in a typewriter face on faint blue ruling at a fixed 20px pitch. State is rubber-stamped in a fixed right-hand cell (HERE, OPEN, device name, PENDING, VIEW ONLY) in ink colours that are never red. Absence is drawn as a blank card waiting to be typed, never as an illustration. The world explicitly refuses the rounded-card SaaS sidebar with a highlighted row and a purple accent.\n\nLight and dark are the same cabinet under different light: in dark the steel goes deep green-black, the stock goes charcoal, the ink goes to warm paper white, and red lightens to a coral so the pulled card's rule still reads.",
+    "northStar": "The Space's Own Light",
+    "overview": "Spaces is a Chrome side panel (320px and up) and a dashboard tab, drawn in the language of Arc's sidebar. Each Space has a colour, and that colour is not a label on a row: it floods the whole ground as a soft pastel mesh of three blurred OKLCH blobs. Everything the user touches sits on that light as frosted white glass. Switching Spaces is the light changing: the hue sweeps across the ground over 700ms while the sheet in front of it pulls to the next Space.\n\nDensity is Arc-quiet: 32px tab rows, favicon plus title in the system sans, hairline section breaks with one quiet trailing action, and a single opaque white pill marking the current tab. Colour is spent almost entirely on one field, the ground; controls stay neutral glass, and the Space hue returns only where the user is choosing (selection, focus, the switch action). Ink itself is tinted by the Space hue, so even type belongs to the Space it sits in. A Space is never identified by colour alone: its name, colour dot, and number key always travel together.\n\nThe system is fully parametric. Three registered custom properties (`--space-h`, `--space-c`, `--space-spread`) drive every tinted token, so the frontmatter values are the resolved defaults for a Space with no colour (hue 250, chroma 0.07, spread 140). Dark mode re-derives the same formulas at low lightness rather than swapping to a separate palette.",
     "keyCharacteristics": [
-      "Typed ink (Courier Prime, self-hosted) for everything a card says; a small uppercase system sans only for guide tabs, stamps, field labels and actions.",
-      "One accent, red, spent only on the pulled card's top rule and the act of pulling.",
-      "State marks are stamped, bordered in their own ink, in a fixed cell.",
-      "Rank and focus expressed as lift (translateY), not colour.",
-      "Corners are cut stock: 2px on cards, 3px on the drawer and label holder, 4px top-only on guide tabs.",
-      "The card pull is the signature motion: a view transition carries the card top into the pulled slot and files the old card down."
+      "One coloured field per screen: the ground mesh, in the current Space's hue.",
+      "Frosted glass sheets (backdrop saturate 1.6, blur 24px) with a 0.5px white inner edge.",
+      "The active item is an opaque white pill with a soft lifted shadow.",
+      "Tinted ink: every text grey carries the Space hue at low chroma.",
+      "The light glides between Spaces; reduced motion makes it instant.",
+      "Space colours come from Chrome's tab-group palette, minus red."
     ],
     "rules": [
       {
-        "name": "The One Red Rule",
-        "body": "Red belongs to one card and one act: the pulled card's top rule and pulling. The dashboard's verso card, blank cards, selected tabs and focus rings take stock edge or ink, never red.",
+        "name": "The Ground Light Rule",
+        "body": "Colour is spent on the ground. Row and control fills stay neutral glass; the Space hue comes forward only for selection, focus, state badges tied to this Space, and the switch action. Identity swatches (the colour dot, group squares) are the only other colour on a row.",
         "section": "colors"
       },
       {
-        "name": "The Stamp Ink Rule",
-        "body": "State is stamped in ink, blue, or amber, bordered in its own colour (1.5px). Errors reverse to an ink plate. No state is ever red.",
+        "name": "The Tinted Ink Rule",
+        "body": "Every text grey, hairline and shadow is mixed with `--space-h`. Never use a pure neutral grey for ink; it would read as a different Space.",
         "section": "colors"
       },
       {
-        "name": "The Typed Card Rule",
-        "body": "Anything a user wrote or a card records (names, tab titles, notes, counts) is set in Courier Prime. Sans is only for printed cabinet furniture.",
+        "name": "The Tab-Group Palette Rule",
+        "body": "A Space's colour is one of Chrome's tab-group colours minus red (blue, cyan, green, yellow, orange, pink, purple, grey), or none. Red stays reserved for danger.",
+        "section": "colors"
+      },
+      {
+        "name": "The Four-Fit Rule",
+        "body": "The view tabs are capped at the default size (`12px × min(--scale, 1)`) so all four (Spaces, Today, History, Suspended) fit a 320px panel at any text size. The in-sheet segmented control may grow to 1.15×.",
         "section": "typography"
       },
       {
-        "name": "The Ruling Pitch Rule",
-        "body": "Body line height on a card is the ruling pitch (20px); ruled backgrounds and list rows are built from the same value so type and lines never drift.",
+        "name": "The Weight-Not-Size Rule",
+        "body": "Emphasis is a weight step (550 for current, 650 for titles), not a bigger size. Counts, times and keys use tabular numerals.",
         "section": "typography"
       },
       {
-        "name": "The Pull-Height Rule",
-        "body": "Rank is how far a card is pulled: 0, -3px, -6px, -8px. Never a fill colour, badge, or accent bar on a row.",
+        "name": "The One Opaque Pill Rule",
+        "body": "Opaque white means \"this one\": the current tab, the selected segment, the pressed toggle, the current Space row, the live agenda row, and fields you type into. Containers are always translucent; the Space sheet is kept at 40% so the active tab's pill is the brightest thing on it.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Gliding Light Rule",
+        "body": "Switching Spaces transitions the registered `--space-h` over 700ms (`cubic-bezier(0.22, 1, 0.36, 1)`), with chroma and spread easing alongside, so the whole ground, ink and shadows sweep to the new hue together. Under reduced motion the change is instant.",
         "section": "elevation"
       }
     ],
     "dos": [
-      "**Do** set every name, entry, note and count in Courier Prime on the 20px ruling pitch.",
-      "**Do** keep red to the pulled card's 3px top rule, the pull plate and the pulling card top.",
-      "**Do** express state as a bordered stamp in the fixed right cell, in ink, blue or amber.",
-      "**Do** show rank and focus by lifting a card (-3, -6, -8px), not by filling a row.",
-      "**Do** draw empty states as blank or dashed stock with a typed sentence.",
-      "**Do** use the 2px ink focus ring on every interactive element and keep every core action on a key.",
-      "**Do** join the active guide tab to the surface below it with pressboard fill and no bottom border."
+      "**Do** derive every tinted value from `--space-h`, `--space-c` and `--space-spread`, so a Space switch re-tints ground, ink, hairlines and shadows together.",
+      "**Do** keep the Space sheet at 40% glass and floating layers at 78%, so the opaque pill stays the brightest surface.",
+      "**Do** mark the current item with the white pill and pill lift (current tab, view, Space, live event, pressed toggle).",
+      "**Do** pair every Space colour with its name and number key; colour is never the only cue.",
+      "**Do** transition `--space-h` over 700ms on switch and make it instant under `prefers-reduced-motion`.",
+      "**Do** cap the view tabs at 12px × min(scale, 1) so four fit a 320px panel.",
+      "**Do** use 0.5px hairlines with a single trailing text action for section breaks."
     ],
     "donts": [
-      "**Don't** use red for state, errors, focus, selection or a second card; errors reverse to ink.",
-      "**Don't** highlight the current row with a fill or accent bar, or add rank badges.",
-      "**Don't** round corners beyond 4px or use pill shapes; this is cut stock.",
-      "**Don't** set a Space name or typed content in the sans; the sans is for printed labels only.",
-      "**Don't** add shadows that aren't the consequence of stock resting, lifting or sitting in the drawer.",
-      "**Don't** use remote fonts or icon packages; fonts ship in static/fonts and icons come from the one authored 16px set."
+      "**Don't** fill rows, buttons or containers with the Space hue at rest; the accent fill is reserved for the selected command result and the switch plate button.",
+      "**Don't** offer red as a Space colour; it is reserved for destructive actions.",
+      "**Don't** use neutral, untinted greys for ink or hairlines.",
+      "**Don't** make a container opaque, or give the Space sheet more than 40% white.",
+      "**Don't** use hard or offset shadows; depth is blur, translucency and soft tinted lift.",
+      "**Don't** introduce a display face or grow the type ramp past the 17px Space name; hierarchy is weight."
     ]
   }
 }
