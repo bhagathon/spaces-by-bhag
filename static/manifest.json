@@ -20,7 +20,8 @@
     "scripting",
     "identity",
     "nativeMessaging",
-    "notifications"
+    "notifications",
+    "declarativeNetRequestWithHostAccess"
   ],
   "host_permissions": [
     "https://www.googleapis.com/*",

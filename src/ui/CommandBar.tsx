@@ -111,7 +111,7 @@ export function CommandBar({
               id: 'a-sort',
               group: 'Go to',
               label: 'Sort tabs by topic',
-              sub: 'Gemini',
+              sub: 'Local model',
               run: () => sortTabs(windowId).then(onNotice, e => onError(e instanceof Error ? e.message : String(e))),
             },
           ]

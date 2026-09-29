@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { getGeminiConfig } from '../shared/gemini';
+import { getTabModelConfig } from '../shared/localModel';
 import { send } from './api';
 
-/** Whether a Gemini key is set, so Sort only shows when it can work. */
+/** Whether tab sorting is set up, so Sort only shows when it can work. */
 export function useCanSort() {
   const [ok, setOk] = useState(false);
   useEffect(() => {
-    const read = () => void getGeminiConfig().then(c => setOk(!!c.apiKey));
+    const read = () => void getTabModelConfig().then(c => setOk(c.enabled));
     read();
-    const onChanged = (changes: Record<string, chrome.storage.StorageChange>, area: string) => area === 'local' && 'gemini' in changes && read();
+    const onChanged = (changes: Record<string, chrome.storage.StorageChange>, area: string) => area === 'local' && 'tabModel' in changes && read();
     chrome.storage.onChanged.addListener(onChanged);
     return () => chrome.storage.onChanged.removeListener(onChanged);
   }, []);

@@ -24,6 +24,7 @@ import { editSpace } from './editSpace';
 import { togglePanel, watchPanels } from './panelToggle';
 import { forgetCommandWindow, openCommandWindow } from './commandWindow';
 import { forgetSortedWindow, scheduleAutoSort, sortWindowTabs } from './tabSort';
+import { allowOllama, dropLegacyGemini } from '../shared/localModel';
 
 // All listeners are registered synchronously at top level so MV3 can wake the worker for them.
 
@@ -69,6 +70,12 @@ chrome.alarms.onAlarm.addListener(async ({ name }) => {
   else if (name === 'prune') await pruneSnapshots();
   else if (name === 'sync') await syncTick();
   else if (name === 'self-update') await reloadIfUpdatedOnDisk();
+});
+
+// Sorting runs on a local model now: forget the old Gemini key, and keep Ollama reachable.
+void dropLegacyGemini().then(() => allowOllama()).catch(() => {});
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && 'tabModel' in changes) void allowOllama().catch(() => {});
 });
 
 watchPanels({

@@ -1,14 +1,16 @@
-// Real-browser test for sorting tabs with Gemini. It calls the real Gemini API, so it
-// runs only with GEMINI_API_KEY set (the key is never stored in the repo).
+// Real-browser test for sorting tabs with the local model (Ollama on this Mac). It
+// runs the real model, so it's skipped when Ollama isn't running.
 import { chromium } from 'playwright';
 import http from 'node:http';
-import { mkdtempSync } from 'node:fs';
+import { cpSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-const apiKey = process.env.GEMINI_API_KEY;
-if (!apiKey) {
-  console.log('SKIP tab sort (set GEMINI_API_KEY to run it against Gemini)');
+const OLLAMA = 'http://localhost:11434';
+const MODEL = process.env.LOCAL_MODEL || 'llama3.1:latest';
+const installed = await fetch(`${OLLAMA}/api/tags`).then(r => r.json()).then(j => j.models.map(m => m.name), () => null);
+if (!installed?.includes(MODEL)) {
+  console.log(`SKIP tab sort (needs Ollama running with ${MODEL})`);
   process.exit(0);
 }
 
@@ -39,7 +41,12 @@ const mixed = [
   'Tomato pasta sauce recipe',
 ];
 
-const ext = path.resolve('dist');
+// Settings asks for access to Ollama on the click that turns sorting on; grant it up front here.
+const ext = mkdtempSync(path.join(tmpdir(), 'spaces-ext-'));
+cpSync('dist', ext, { recursive: true });
+const manifest = JSON.parse(readFileSync(path.join(ext, 'manifest.json'), 'utf8'));
+manifest.host_permissions.push('http://localhost/*');
+writeFileSync(path.join(ext, 'manifest.json'), JSON.stringify(manifest));
 const ctx = await chromium.launchPersistentContext(mkdtempSync(path.join(tmpdir(), 'spaces-')), {
   channel: 'chromium',
   headless: !process.env.HEADED,
@@ -70,13 +77,14 @@ try {
   check('window became a Space', created.ok, created);
 
   const r = await send({ type: 'sortTabs', windowId });
-  check('sort without a key explains what to do', !r.ok && /Gemini API key/.test(r.error), r);
+  check('sort before it’s turned on explains what to do', !r.ok && /Turn on tab sorting/.test(r.error), r);
 
-  await sw.evaluate(k => chrome.storage.local.set({ gemini: { apiKey: k, autoSort: false } }), apiKey);
+  await sw.evaluate(({ url, model }) => chrome.storage.local.set({ tabModel: { enabled: true, url, model, autoSort: false } }), { url: OLLAMA, model: MODEL });
+  await wait(500); // the worker installs the rule that lets it talk to Ollama
   const t0 = Date.now();
   const sorted = await send({ type: 'sortTabs', windowId });
   const after = await titles();
-  console.log(`  Gemini took ${Date.now() - t0} ms; topics: ${sorted.value?.topics?.join(', ')}`);
+  console.log(`  The local model took ${Date.now() - t0} ms; topics: ${sorted.value?.topics?.join(', ')}`);
   check('sort succeeds', sorted.ok && sorted.value.moved, sorted);
   check('pinned tab stays first', after[0] === '📌Pinned', after);
   check('related tabs end up together (3 runs of topics)', runs(after.slice(1)) === 3, after);
@@ -95,10 +103,10 @@ try {
   check('the Space saves the new order', saved.some(s => JSON.stringify(s) === JSON.stringify(after.slice(1))), { saved, after });
 
   // Automatic: a new tab about code, opened at the end, moves next to the code tabs.
-  await sw.evaluate(k => chrome.storage.local.set({ gemini: { apiKey: k, autoSort: true } }), apiKey);
+  await sw.evaluate(({ url, model }) => chrome.storage.local.set({ tabModel: { enabled: true, url, model, autoSort: true } }), { url: OLLAMA, model: MODEL });
   await sw.evaluate(({ w, url }) => chrome.tabs.create({ windowId: w, url }), { w: windowId, url: `${base}/${encodeURIComponent('React hooks tutorial')}` });
   let auto = [];
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 60; i++) {
     await wait(1000);
     auto = await titles();
     if (auto.at(-1) !== 'React hooks tutorial' && runs(auto.slice(1)) === 3) break;

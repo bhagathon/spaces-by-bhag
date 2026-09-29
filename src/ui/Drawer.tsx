@@ -673,7 +673,7 @@ function PulledCard({
         </button>
       )}
       {isHere && view === 'panel' && canSort && (
-        <button className="text-button" onClick={() => void sort()} disabled={sorting} title="Put related tabs next to each other, with Gemini">
+        <button className="text-button" onClick={() => void sort()} disabled={sorting} title="Put related tabs next to each other, using the model on this Mac">
           {sorting ? 'Sorting…' : 'Sort'}
         </button>
       )}

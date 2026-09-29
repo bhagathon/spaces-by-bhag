@@ -1,4 +1,4 @@
-import { getGeminiConfig, orderByTopic } from '../shared/gemini';
+import { getTabModelConfig, orderByTopic } from '../shared/localModel';
 import { getState, withWindowLock } from './state';
 import { isHomeTab } from './homeTab';
 import { saveWindowToSpace } from './switcher';
@@ -17,20 +17,20 @@ const lastSorted = new Map<number, string>();
 const fingerprint = (tabs: chrome.tabs.Tab[]) => tabs.map(t => t.url || t.pendingUrl || '').sort().join('\n');
 
 /**
- * Sorts a window's tabs by topic with Gemini. The tabs move as one block to where the
+ * Sorts a window's tabs by topic with the local model. The tabs move as one block to where the
  * first of them was, so pinned tabs, the home tab and the user's own groups stay put.
  */
 export async function sortWindowTabs(windowId: number): Promise<{ moved: boolean; topics: string[] }> {
-  const { apiKey } = await getGeminiConfig();
-  if (!apiKey) throw new Error('Add a Gemini API key in Settings to sort tabs.');
+  const config = await getTabModelConfig();
+  if (!config.enabled) throw new Error('Turn on tab sorting in Settings first.');
   const tabs = await sortable(windowId);
   if (tabs.length < 3) return { moved: false, topics: [] };
   const { order, topics } = await orderByTopic(
     tabs.map(t => ({ title: t.title ?? '', url: t.url || t.pendingUrl || '' })),
-    apiKey,
+    config,
   );
   return withWindowLock(windowId, async () => {
-    // Tabs may have opened or closed while Gemini thought: keep the ones still here,
+    // Tabs may have opened or closed while the model thought: keep the ones still here,
     // and put any new ones after them in their current order.
     const now = await sortable(windowId);
     const nowIds = new Set(now.map(t => t.id!));
@@ -47,10 +47,16 @@ export async function sortWindowTabs(windowId: number): Promise<{ moved: boolean
 
 const timers = new Map<number, ReturnType<typeof setTimeout>>();
 
+/** Whether auto-sort is on, kept in memory: a switch opens dozens of tabs, and each would otherwise read storage to learn it's off. */
+let autoSortOn: Promise<boolean> | undefined;
+const isAutoSortOn = () => (autoSortOn ??= getTabModelConfig().then(c => c.enabled && c.autoSort));
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && 'tabModel' in changes) autoSortOn = undefined;
+});
+
 /** Auto-sort: a few seconds after tabs settle, when it's on and the tabs have changed. */
 export async function scheduleAutoSort(windowId: number) {
-  const { apiKey, autoSort } = await getGeminiConfig();
-  if (!apiKey || !autoSort) return;
+  if (!(await isAutoSortOn())) return;
   clearTimeout(timers.get(windowId));
   timers.set(
     windowId,

@@ -9,7 +9,7 @@ import { buildBackup, importBackup } from '../shared/backup';
 import type { Notice } from './notice';
 import { getTextScale, setTextScale, TEXT_SCALES, type TextScale } from './textScale';
 import { getTasksBySpace, getVikunjaConfig, logInWithVikunja, setVikunjaConfig, TASKS_BY_SPACE_KEY } from '../shared/vikunja';
-import { getGeminiConfig, setGeminiConfig, type GeminiConfig } from '../shared/gemini';
+import { getTabModelConfig, listModels, setTabModelConfig, type TabModelConfig } from '../shared/localModel';
 import { fetchLatestVersion, isNewer, type UpdateResult } from '../shared/update';
 import { disconnect, GCAL_CLIENT_ID_KEY, GCAL_CONNECTED_KEY, getToken, redirectUri } from '../shared/gcal';
 
@@ -93,7 +93,7 @@ export function Settings({ onError, onNotice }: { onError: (e: string) => void; 
       </fieldset>
       <SyncSettings onError={onError} />
       <VikunjaSettings onError={onError} />
-      <GeminiSettings />
+      <TabModelSettings onError={onError} />
       <CalendarSettings onError={onError} />
       <BackupSettings onError={onError} onNotice={onNotice} />
       <UpdateSettings />
@@ -383,57 +383,78 @@ function UpdateSettings() {
   );
 }
 
-function GeminiSettings() {
-  const [config, setConfig] = useState<GeminiConfig | null>(null);
-  const [key, setKey] = useState('');
+function TabModelSettings({ onError }: { onError: (e: string) => void }) {
+  const [config, setConfig] = useState<TabModelConfig | null>(null);
+  const [models, setModels] = useState<string[]>([]);
+  const [busy, setBusy] = useState(false);
 
-  useEffect(() => void getGeminiConfig().then(setConfig), []);
-  const save = async (patch: Partial<GeminiConfig>) => {
-    await setGeminiConfig(patch);
-    setConfig(await getGeminiConfig());
+  useEffect(() => void getTabModelConfig().then(setConfig), []);
+  useEffect(() => {
+    if (config?.enabled) void listModels(config.url).then(setModels, () => setModels([]));
+  }, [config?.enabled, config?.url]);
+  const save = async (patch: Partial<TabModelConfig>) => {
+    await setTabModelConfig(patch);
+    setConfig(await getTabModelConfig());
+  };
+  const turnOn = async () => {
+    if (!config) return;
+    setBusy(true);
+    try {
+      // Asked from the click, before other awaits: lets Spaces talk to the server on this Mac.
+      const origin = `${new URL(config.url).protocol}//${new URL(config.url).hostname}/*`;
+      if (!(await chrome.permissions.request({ origins: [origin] }))) throw new Error('Spaces needs access to Ollama on this Mac to sort tabs.');
+      const found = await listModels(config.url);
+      if (!found.length) throw new Error('Ollama has no models yet. Install one, for example: ollama pull llama3.1');
+      setModels(found);
+      await save({ enabled: true, model: found.includes(config.model) ? config.model : found[0] });
+    } catch (e) {
+      onError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
   };
   if (!config) return null;
 
   return (
     <fieldset>
-      <legend>Sort tabs (Gemini)</legend>
+      <legend>Sort tabs (local model)</legend>
       <p className="hint">
-        Sort puts related tabs next to each other. It sends each tab’s title and address to Google’s Gemini. Pinned tabs and groups you made
-        stay where they are.
+        Sort puts related tabs next to each other, using a model running on this Mac with Ollama. Tab titles and addresses stay on this
+        computer. Pinned tabs and groups you made stay where they are.
       </p>
-      {config.apiKey ? (
+      {config.enabled ? (
         <>
           <div className="row">
-            <span className="stamp stamp-here">Key saved on this device</span>
-            <button type="button" className="text-button" onClick={() => void save({ apiKey: undefined, autoSort: false })}>
-              Remove key
+            <span className="stamp stamp-here">On · {config.model}</span>
+            <button type="button" className="text-button" onClick={() => void save({ enabled: false, autoSort: false })}>
+              Turn off
             </button>
           </div>
+          {models.length > 1 && (
+            <label className="field stacked">
+              Model
+              <span className="field-note">Smaller models answer faster; llama3.1 sorts well in a few seconds.</span>
+              <select className="typed-input" value={config.model} onChange={e => void save({ model: e.target.value })}>
+                {models.map(m => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <Check label="Sort automatically as tabs open" checked={config.autoSort} onChange={v => void save({ autoSort: v })} />
           <p className="hint">Sort is on each window’s card and in ⌘K. Automatic sorting waits until tabs have settled for a few seconds.</p>
         </>
       ) : (
         <>
           <label className="field stacked">
-            API key
-            <span className="field-note">From Google AI Studio → Get API key. It stays on this device and is never synced.</span>
-            <input
-              className="typed-input"
-              type="password"
-              autoComplete="off"
-              value={key}
-              onChange={e => setKey(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter' && key.trim()) {
-                  e.preventDefault();
-                  void save({ apiKey: key.trim() }).then(() => setKey(''));
-                }
-              }}
-            />
+            Ollama server
+            <input className="typed-input" type="url" value={config.url} onChange={e => setConfig({ ...config, url: e.target.value })} onBlur={() => void save({ url: config.url })} />
           </label>
           <div className="row">
-            <button type="button" className="plate-button" disabled={!key.trim()} onClick={() => void save({ apiKey: key.trim() }).then(() => setKey(''))}>
-              Save key
+            <button type="button" className="plate-button" disabled={busy} onClick={() => void turnOn()}>
+              {busy ? 'Connecting…' : 'Turn on sorting'}
             </button>
           </div>
         </>
