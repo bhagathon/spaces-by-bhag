@@ -19,7 +19,8 @@
     "sidePanel",
     "scripting",
     "identity",
-    "nativeMessaging"
+    "nativeMessaging",
+    "notifications"
   ],
   "host_permissions": [
     "https://www.googleapis.com/*",

@@ -14,7 +14,7 @@ import { forgetWindowHash, pruneSnapshots, snapshotAllWindows } from './snapshot
 import { sweep } from './suspender';
 import { onTabLoading, onTabRemoved, setFormGuard, setTabDirty } from './formGuard';
 import { restartSync, startSync, syncNow, syncTick, updatePresence } from './sync';
-import { reloadIfUpdatedOnDisk } from './selfUpdate';
+import { offerPanelBack, onUpdateNotificationClicked, panelIsBack, reloadIfUpdatedOnDisk } from './selfUpdate';
 import { addToSpaceGroup, refreshSpaceGroups } from './spaceGroup';
 import { openDashboard, refreshHomeTabs } from './homeTab';
 import { UPDATE_HOST, type UpdateResult } from '../shared/update';
@@ -43,7 +43,10 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
   // An update reloads the extension, which clears the session record of which window holds
   // which Space. Clear leftover Space groups first (so none is saved as the user's), then
   // re-attach open windows the way a browser restart does.
-  if (reason === 'update') void ready.then(refreshSpaceGroups).then(reattachWindows).then(updatePresence);
+  if (reason === 'update') {
+    void ready.then(refreshSpaceGroups).then(reattachWindows).then(updatePresence);
+    void offerPanelBack().catch(() => {});
+  }
 });
 
 chrome.runtime.onStartup.addListener(() => {
@@ -67,7 +70,12 @@ chrome.alarms.onAlarm.addListener(async ({ name }) => {
   else if (name === 'self-update') await reloadIfUpdatedOnDisk();
 });
 
-watchPanels();
+watchPanels({
+  onOpened: () => void panelIsBack().then(async back => { if (back) await ready.then(updateBadge); }).catch(() => {}),
+  // An update that waited for the panel to close can run now.
+  onAllClosed: () => void ready.then(() => reloadIfUpdatedOnDisk()),
+});
+chrome.notifications.onClicked.addListener(onUpdateNotificationClicked);
 
 chrome.commands.onCommand.addListener((command, tab) => {
   if (command === 'toggle-panel' && tab?.windowId !== undefined) return togglePanel(tab.windowId);
@@ -174,7 +182,7 @@ async function handle(msg: Request, sender: chrome.runtime.MessageSender): Promi
     case 'updateNow': {
       const result = (await chrome.runtime.sendNativeMessage(UPDATE_HOST, { cmd: 'update' })) as UpdateResult;
       // Reply first; the reload that runs the new version ends this worker.
-      if (result.updated) setTimeout(() => void reloadIfUpdatedOnDisk(), 1500);
+      if (result.updated) setTimeout(() => void reloadIfUpdatedOnDisk({ evenWithPanelOpen: true }), 1500);
       return result;
     }
   }

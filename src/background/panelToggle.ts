@@ -17,16 +17,24 @@ function hydrate() {
 }
 const persist = () => void chrome.storage.session.set({ [KEY]: [...open] });
 
-export function watchPanels() {
+/** Windows with the panel open right now. */
+export async function openPanelWindows(): Promise<number[]> {
+  await hydrate();
+  return [...open];
+}
+
+export function watchPanels({ onOpened, onAllClosed }: { onOpened?: (windowId: number) => void; onAllClosed?: () => void } = {}) {
   chrome.runtime.onConnect.addListener(port => {
     const m = /^panel:(\d+)$/.exec(port.name);
     if (!m) return;
     const windowId = Number(m[1]);
     open.add(windowId);
     persist();
+    onOpened?.(windowId);
     port.onDisconnect.addListener(() => {
       open.delete(windowId);
       persist();
+      if (!open.size) onAllClosed?.();
     });
   });
 }

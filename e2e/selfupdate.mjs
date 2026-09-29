@@ -27,8 +27,20 @@ try {
   // with --load-extension, which reload() unloads rather than restarts; with "Load unpacked" in
   // real Chrome the same call restarts it on the new files, so the restart itself isn't asserted here.
   const closed = new Promise(r => sw.on('close', () => r(true)));
+  const within = ms => Promise.race([closed, new Promise(r => setTimeout(() => r(false), ms))]);
+
+  // With the side panel open, an automatic update waits: a reload would close the panel,
+  // and Chrome won't reopen it without a click.
+  const extId = new URL(sw.url()).host;
+  const panel = await ctx.newPage();
+  await panel.goto(`chrome-extension://${extId}/panel.html`); // connects as an open panel
+  await panel.waitForTimeout(800);
   await sw.evaluate(() => chrome.alarms.create('self-update', { when: Date.now() + 50 })).catch(() => {});
-  check('self-update alarm reloads the extension', await Promise.race([closed, new Promise(r => setTimeout(() => r(false), 15000))]));
+  check('an automatic update waits while the panel is open', !(await within(3000)));
+
+  // Closing the panel lets the waiting update run.
+  await panel.close();
+  check('closing the panel lets the update reload the extension', await within(15000));
 } finally {
   await ctx.close();
 }
