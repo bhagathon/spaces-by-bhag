@@ -90,24 +90,25 @@ describe('checking a task off', () => {
   });
 });
 
-describe('signing in with username and password', () => {
-  const login = (status: number, body: unknown) =>
-    vi.fn(async () => new Response(JSON.stringify(body), { status })) as unknown as typeof fetch;
+describe('a borrowed Vikunja session', () => {
+  const jwt = (secondsLeft: number) => `h.${btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + secondsLeft }))}.s`;
 
-  it('stores the returned session token and username, never the password', async () => {
-    const { signInVikunja } = await import('../src/shared/vikunja');
-    const f = login(200, { token: 'jwt-abc' });
-    await signInVikunja({ url: 'https://tasks.example/', username: 'bhag', password: 'hunter2' }, f);
-    expect(fake.local.vikunja).toEqual({ url: 'https://tasks.example', token: 'jwt-abc', username: 'bhag', kind: 'session' });
-    expect(JSON.stringify(fake.local)).not.toContain('hunter2');
-    const [url, init] = (f as unknown as ReturnType<typeof vi.fn>).mock.calls[0];
-    expect(url).toBe('https://tasks.example/api/v1/login');
-    expect(JSON.parse(String((init as RequestInit).body))).toMatchObject({ username: 'bhag', password: 'hunter2', long_token: true });
+  it('reads a JWT expiry, and treats API tokens as not expiring', async () => {
+    const { jwtSecondsLeft } = await import('../src/shared/vikunja');
+    expect(jwtSecondsLeft(jwt(3600))).toBeGreaterThan(3500);
+    expect(jwtSecondsLeft('tk_abc')).toBe(Infinity);
   });
 
-  it('asks for the two-factor code when Vikunja wants one, and reports wrong credentials plainly', async () => {
-    const { signInVikunja, NeedsTotp } = await import('../src/shared/vikunja');
-    await expect(signInVikunja({ url: 'https://t', username: 'bhag', password: 'x' }, login(412, { code: 1017, message: 'Invalid totp passcode.' }))).rejects.toBeInstanceOf(NeedsTotp);
-    await expect(signInVikunja({ url: 'https://t', username: 'bhag', password: 'x' }, login(412, { code: 1011, message: 'Wrong username or password.' }))).rejects.toThrow(/Wrong username or password/);
+  it('is renewed when it has less than a day left, and left alone otherwise', async () => {
+    const { renewIfNeeded, getVikunjaConfig } = await import('../src/shared/vikunja');
+    const renewed = jwt(30 * 24 * 3600);
+    const f = vi.fn(async () => new Response(JSON.stringify({ token: renewed }), { status: 200 })) as unknown as typeof fetch;
+    await setVikunjaConfig({ url: 'https://t', token: jwt(7 * 24 * 3600), username: 'bhag', kind: 'browser' });
+    await renewIfNeeded(f);
+    expect((f as unknown as ReturnType<typeof vi.fn>).mock.calls).toHaveLength(0);
+    await setVikunjaConfig({ url: 'https://t', token: jwt(3600), username: 'bhag', kind: 'browser' });
+    await renewIfNeeded(f);
+    expect((await getVikunjaConfig())!.token).toBe(renewed);
+    expect(String((f as unknown as ReturnType<typeof vi.fn>).mock.calls[0][0])).toBe('https://t/api/v1/user/token');
   });
 });

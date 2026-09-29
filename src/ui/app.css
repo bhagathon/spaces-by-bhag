@@ -628,8 +628,6 @@ input[type='checkbox'] { accent-color: var(--accent); width: 15px; height: 15px;
   gap: 10px;
 }
 .settings fieldset > .hint, .settings fieldset > .row { margin: 0; }
-.settings-form { display: grid; gap: 10px; }
-.settings-form .row { margin: 0; }
 /* Legends sit inside the sheet as its title. */
 .settings legend { float: left; width: 100%; padding: 0; margin: 0 0 2px; font: 650 var(--step-0) / 1.3 var(--sans); color: var(--ink); }
 .settings legend + * { clear: both; }

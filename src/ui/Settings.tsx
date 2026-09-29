@@ -8,7 +8,7 @@ import { getStorage } from '../storage';
 import { buildBackup, importBackup } from '../shared/backup';
 import type { Notice } from './notice';
 import { getTextScale, setTextScale, TEXT_SCALES, type TextScale } from './textScale';
-import { getVikunjaConfig, NeedsTotp, setVikunjaConfig, signInVikunja } from '../shared/vikunja';
+import { getVikunjaConfig, logInWithVikunja, setVikunjaConfig } from '../shared/vikunja';
 import { fetchLatestVersion, isNewer, type UpdateResult } from '../shared/update';
 import { disconnect, GCAL_CLIENT_ID_KEY, GCAL_CONNECTED_KEY, getToken, redirectUri } from '../shared/gcal';
 
@@ -376,11 +376,7 @@ function UpdateSettings() {
 
 function VikunjaSettings({ onError }: { onError: (e: string) => void }) {
   const [url, setUrl] = useState('https://tasks.bhag.dev');
-  const [mode, setMode] = useState<'password' | 'token'>('password');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [totp, setTotp] = useState('');
-  const [needTotp, setNeedTotp] = useState<string | null>(null);
+  const [useToken, setUseToken] = useState(false);
   const [token, setToken] = useState('');
   const [who, setWho] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -398,29 +394,17 @@ function VikunjaSettings({ onError }: { onError: (e: string) => void }) {
     try {
       const base = url.trim().replace(/\/+$/, '');
       if (!/^https?:\/\//.test(base)) throw new Error('The Vikunja address must start with https://');
-      // Must be asked from the click, before other awaits.
+      // Asked from the click, before other awaits: lets Spaces reach the server and read its tab.
       const granted = await chrome.permissions.request({ origins: [`${new URL(base).origin}/*`] });
-      if (!granted) throw new Error('Spaces needs permission to reach your Vikunja server.');
-      if (mode === 'password') {
-        try {
-          await signInVikunja({ url: base, username, password, totp: needTotp ? totp : undefined });
-        } catch (e) {
-          if (e instanceof NeedsTotp) {
-            setNeedTotp(e.message);
-            return;
-          }
-          throw e;
-        }
-        setWho(username.trim());
-      } else {
+      if (!granted) throw new Error('Spaces needs access to your Vikunja site to use its sign-in.');
+      if (useToken) {
         const name = await whoAmI(base, token.trim());
-        await setVikunjaConfig({ url: base, token: token.trim(), kind: 'api-token' });
+        await setVikunjaConfig({ url: base, token: token.trim(), username: name, kind: 'api-token' });
         setWho(name);
+        setToken('');
+      } else {
+        setWho(await logInWithVikunja(base));
       }
-      setPassword('');
-      setTotp('');
-      setToken('');
-      setNeedTotp(null);
     } catch (e) {
       onError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -428,15 +412,12 @@ function VikunjaSettings({ onError }: { onError: (e: string) => void }) {
     }
   };
 
-  const ready = mode === 'password' ? !!username.trim() && !!password && (!needTotp || totp.trim().length >= 6) : !!token.trim();
-
   return (
     <fieldset>
       <legend>Tasks (Vikunja)</legend>
       <p className="hint">
         Shows each Space’s tasks at the bottom of the panel. Each Space gets its own Vikunja project inside “Spaces”, so it also appears as a
-        calendar in BusyCal. Your password is sent only to your Vikunja server and never stored; Spaces keeps the sign-in it gets back, which
-        lasts 30 days.
+        calendar in BusyCal.
       </p>
       {who ? (
         <div className="row">
@@ -446,47 +427,12 @@ function VikunjaSettings({ onError }: { onError: (e: string) => void }) {
           </button>
         </div>
       ) : (
-        // Not a <form>: Settings is already one, and a nested form submits the outer one.
-        <div
-          className="settings-form"
-          onKeyDown={e => {
-            if (e.key === 'Enter' && (e.target as HTMLElement).tagName === 'INPUT') {
-              e.preventDefault();
-              if (ready && !busy) void connect();
-            }
-          }}
-        >
+        <>
           <label className="field stacked">
             Server
             <input className="typed-input" type="url" value={url} onChange={e => setUrl(e.target.value)} />
           </label>
-          {mode === 'password' ? (
-            <>
-              <label className="field stacked">
-                Username
-                <input className="typed-input" autoComplete="username" value={username} onChange={e => setUsername(e.target.value)} spellCheck={false} />
-              </label>
-              <label className="field stacked">
-                Password
-                <input className="typed-input" type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} />
-              </label>
-              {needTotp && (
-                <label className="field stacked">
-                  Two-factor code
-                  <span className="field-note">{needTotp}</span>
-                  <input
-                    className="typed-input"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    maxLength={8}
-                    value={totp}
-                    onChange={e => setTotp(e.target.value.replace(/\s/g, ''))}
-                    autoFocus
-                  />
-                </label>
-              )}
-            </>
-          ) : (
+          {useToken && (
             <label className="field stacked">
               API token
               <span className="field-note">Vikunja → Settings → API Tokens. Tokens can be set never to expire.</span>
@@ -494,21 +440,21 @@ function VikunjaSettings({ onError }: { onError: (e: string) => void }) {
             </label>
           )}
           <div className="row">
-            <button type="button" className="plate-button" disabled={busy || !ready} onClick={() => void connect()}>
-              {busy ? 'Signing in…' : mode === 'password' ? 'Sign in' : 'Connect'}
+            <button type="button" className="plate-button" disabled={busy || (useToken && !token.trim())} onClick={() => void connect()}>
+              {busy ? (useToken ? 'Connecting…' : 'Waiting for Vikunja…') : useToken ? 'Connect' : 'Log in with Vikunja'}
             </button>
-            <button
-              type="button"
-              className="text-button"
-              onClick={() => {
-                setMode(m => (m === 'password' ? 'token' : 'password'));
-                setNeedTotp(null);
-              }}
-            >
-              {mode === 'password' ? 'Use an API token instead' : 'Sign in with username instead'}
+            <button type="button" className="text-button" onClick={() => setUseToken(v => !v)}>
+              {useToken ? 'Log in with Vikunja instead' : 'Use an API token instead'}
             </button>
           </div>
-        </div>
+          {!useToken && (
+            <p className="hint">
+              {busy
+                ? 'Log in to Vikunja in the tab that opened (tick “stay logged in”); Spaces picks it up on its own.'
+                : 'Uses the Vikunja sign-in you already have in Chrome. If you’re not logged in, a Vikunja tab opens for you to log in; tick “stay logged in”.'}
+            </p>
+          )}
+        </>
       )}
     </fieldset>
   );

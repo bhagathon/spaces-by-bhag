@@ -16,9 +16,9 @@ const PARENT_TITLE = 'Spaces';
 export interface VikunjaConfig {
   url: string;
   token: string;
-  /** Set when signed in with username and password (a 30-day session token). */
   username?: string;
-  kind?: 'session' | 'api-token';
+  /** 'browser': borrowed from the Vikunja web app's own session (renewed by Spaces). */
+  kind?: 'browser' | 'api-token';
 }
 
 export interface VikunjaTask {
@@ -48,32 +48,7 @@ export async function setVikunjaConfig(c: VikunjaConfig | null) {
   await chrome.storage.local.set({ [CONFIG_KEY]: { url: url.trim().replace(/\/+$/, ''), token: token.trim(), ...rest } });
 }
 
-/** Vikunja wants the 6-digit code from the user's authenticator app. */
-export class NeedsTotp extends Error {}
-
-/**
- * Sign in with username and password (and a two-factor code when the account has one).
- * Vikunja returns a session token valid for 30 days (long_token); only that token is
- * stored, never the password.
- */
-export async function signInVikunja(
-  { url, username, password, totp }: { url: string; username: string; password: string; totp?: string },
-  fetchFn: Fetch = fetch,
-) {
-  const base = url.trim().replace(/\/+$/, '');
-  const res = await fetchFn(`${base}/api/v1/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: username.trim(), password, long_token: true, ...(totp ? { totp_passcode: totp.trim() } : {}) }),
-  });
-  const body = (await res.json().catch(() => ({}))) as { token?: string; code?: number; message?: string };
-  // Vikunja's error codes, not HTTP statuses, say what went wrong (1017: two-factor code needed or wrong).
-  if (body.code === 1017) throw new NeedsTotp(totp ? 'That two-factor code didn’t work. Try the current one.' : 'Enter the 6-digit code from your authenticator app.');
-  if (!res.ok || !body.token) throw new VikunjaError(body.message || `Vikunja answered ${res.status}.`, res.status);
-  await setVikunjaConfig({ url: base, token: body.token, username: username.trim(), kind: 'session' });
-}
-
-export class VikunjaError extends Error {
+class VikunjaError extends Error {
   constructor(
     message: string,
     readonly status?: number,
@@ -82,7 +57,63 @@ export class VikunjaError extends Error {
   }
 }
 
-async function api<T>(path: string, init: RequestInit = {}, fetchFn: Fetch = fetch): Promise<T> {
+/** Seconds until a JWT expires, or Infinity if it isn't one (API tokens don't expire this way). */
+export function jwtSecondsLeft(token: string, now = Date.now()): number {
+  const part = token.split('.')[1];
+  if (!part) return Infinity;
+  try {
+    const { exp } = JSON.parse(atob(part.replace(/-/g, '+').replace(/_/g, '/'))) as { exp?: number };
+    return exp ? exp - now / 1000 : Infinity;
+  } catch {
+    return Infinity;
+  }
+}
+
+/** Keep a borrowed session alive: swap it for a fresh one when it has less than a day left. */
+export async function renewIfNeeded(fetchFn: Fetch = fetch, now = Date.now()) {
+  const c = await getVikunjaConfig();
+  if (!c || c.kind !== 'browser' || jwtSecondsLeft(c.token, now) > 24 * 3600) return;
+  const res = await fetchFn(`${c.url}/api/v1/user/token`, { method: 'POST', headers: { Authorization: `Bearer ${c.token}` } });
+  if (!res.ok) return; // expired already; the next call re-reads the browser session
+  const { token } = (await res.json()) as { token?: string };
+  if (token) await setVikunjaConfig({ ...c, token });
+}
+
+/**
+ * Read the Vikunja web app's session from a tab on the server (it keeps it in
+ * localStorage "token", when "stay logged in" is on). With no Vikunja tab open,
+ * `openIfNeeded` opens one and waits up to two minutes for the user to log in.
+ */
+export async function borrowBrowserSession(url: string, { openIfNeeded = true } = {}): Promise<string> {
+  const origin = new URL(url).origin;
+  let tab = (await chrome.tabs.query({ url: `${origin}/*` }))[0];
+  if (!tab && !openIfNeeded) throw new VikunjaError('No Vikunja tab open to renew the sign-in from.');
+  tab ??= await chrome.tabs.create({ url: origin, active: true });
+  const deadline = Date.now() + 120_000;
+  while (Date.now() < deadline) {
+    const [hit] = await chrome.scripting
+      .executeScript({ target: { tabId: tab.id! }, func: () => localStorage.getItem('token') })
+      .catch(() => [] as chrome.scripting.InjectionResult<string | null>[]);
+    if (hit?.result) return hit.result;
+    if (!openIfNeeded) break;
+    await new Promise(r => setTimeout(r, 1500));
+  }
+  throw new VikunjaError('Didn’t find a Vikunja sign-in. Log in to Vikunja with “stay logged in” checked, then try again.');
+}
+
+/** "Log in with Vikunja": borrow the web app's session, check it, and keep it. */
+export async function logInWithVikunja(url: string, fetchFn: Fetch = fetch) {
+  const base = url.trim().replace(/\/+$/, '');
+  const token = await borrowBrowserSession(base);
+  const res = await fetchFn(`${base}/api/v1/user`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new VikunjaError('Vikunja didn’t accept that session. Log in again in the Vikunja tab and retry.');
+  const { username } = (await res.json()) as { username: string };
+  await setVikunjaConfig({ url: base, token, username, kind: 'browser' });
+  return username;
+}
+
+async function api<T>(path: string, init: RequestInit = {}, fetchFn: Fetch = fetch, retried = false): Promise<T> {
+  await renewIfNeeded(fetchFn).catch(() => {});
   const c = await getVikunjaConfig();
   if (!c) throw new VikunjaError('Connect Vikunja in Settings first.');
   const res = await fetchFn(`${c.url}/api/v1${path}`, {
@@ -90,8 +121,16 @@ async function api<T>(path: string, init: RequestInit = {}, fetchFn: Fetch = fet
     headers: { Authorization: `Bearer ${c.token}`, 'Content-Type': 'application/json', ...(init.headers as Record<string, string> | undefined) },
   });
   if (res.status === 401 || res.status === 403) {
+    // A lapsed borrowed session: quietly re-read it from an open Vikunja tab, once.
+    if (c.kind === 'browser' && !retried) {
+      const fresh = await borrowBrowserSession(c.url, { openIfNeeded: false }).catch(() => null);
+      if (fresh && fresh !== c.token) {
+        await setVikunjaConfig({ ...c, token: fresh });
+        return api<T>(path, init, fetchFn, true);
+      }
+    }
     throw new VikunjaError(
-      c.kind === 'session' ? 'Your Vikunja sign-in has expired. Sign in again in Settings.' : 'Vikunja rejected the token. Check it in Settings.',
+      c.kind === 'browser' ? 'Your Vikunja sign-in has expired. Use Log in with Vikunja in Settings.' : 'Vikunja rejected the token. Check it in Settings.',
       res.status,
     );
   }
