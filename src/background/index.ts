@@ -20,6 +20,7 @@ import { openDashboard, refreshHomeTabs } from './homeTab';
 import { UPDATE_HOST, type UpdateResult } from '../shared/update';
 import { addLooseTabs, forgetLooseTab, markNewTab, updateBadge } from './looseTabs';
 import { editSpace } from './editSpace';
+import { togglePanel, watchPanels } from './panelToggle';
 
 // All listeners are registered synchronously at top level so MV3 can wake the worker for them.
 
@@ -64,7 +65,10 @@ chrome.alarms.onAlarm.addListener(async ({ name }) => {
   else if (name === 'self-update') await reloadIfUpdatedOnDisk();
 });
 
-chrome.commands.onCommand.addListener(command => {
+watchPanels();
+
+chrome.commands.onCommand.addListener((command, tab) => {
+  if (command === 'toggle-panel' && tab?.windowId !== undefined) return togglePanel(tab.windowId);
   if (command === 'open-dashboard') void openDashboard();
 });
 

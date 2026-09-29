@@ -1,6 +1,6 @@
 # Spaces
 
-**[⬇ Download Spaces for Mac (.dmg)](https://github.com/bhagathon/spaces-by-bhag/releases/latest/download/Spaces-1.3.0.dmg)** · [All releases](https://github.com/bhagathon/spaces-by-bhag/releases)
+**[⬇ Download Spaces for Mac (.dmg)](https://github.com/bhagathon/spaces-by-bhag/releases/latest/download/Spaces-1.3.1.dmg)** · [All releases](https://github.com/bhagathon/spaces-by-bhag/releases)
 
 <p>
   <img src="docs/panel.png" width="300" alt="The Spaces side panel: this window's Space as a typed index card, other Spaces filed below as card tops">
@@ -45,6 +45,7 @@ Keys (side panel):
 | `↵` | Take the first match |
 | `1`–`9` | Switch to that card |
 | `V` | Flip the card to its resources |
+| `⌃S` (Control+S) | Show or hide the side panel |
 | `⌥⇧S` | Open the side panel |
 | `⌘⇧S` | Go to this window's home tab (or open the full catalog) |
 | `⌘+` `⌘−` `⌘0` | Panel text size: bigger, smaller, default |
