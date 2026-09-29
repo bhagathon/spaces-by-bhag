@@ -23,6 +23,7 @@ const vk = http.createServer((req, res) => {
   res.setHeader('content-type', 'application/json');
   const url = new URL(req.url, 'http://x');
   if (url.pathname === '/api/v1/user') return res.end(JSON.stringify({ username: 'bc', settings: { default_project_id: 7 } }));
+  if (url.pathname === '/api/v1/projects/9/tasks') return res.end(JSON.stringify([{ id: 50, title: 'Added under a Space', done: false, project_id: 9 }]));
   if (url.pathname === '/api/v1/projects/7/tasks') {
     listCalls++;
     return res.end(JSON.stringify(tasks));
@@ -43,12 +44,14 @@ const ctx = await chromium.launchPersistentContext(mkdtempSync(path.join(tmpdir(
 try {
   const sw = ctx.serviceWorkers()[0] ?? (await ctx.waitForEvent('serviceworker'));
   const extId = new URL(sw.url()).host;
-  await sw.evaluate(url => chrome.storage.local.set({ vikunja: { url, token: 'api-token', kind: 'api-token' } }), vkUrl);
+  // A task added under a Space (in its own project) earlier: the one shared list still shows it.
+  await sw.evaluate(url => chrome.storage.local.set({ vikunja: { url, token: 'api-token', kind: 'api-token' }, vikunjaProjects: { someSpace: 9 } }), vkUrl);
   const windowId = await sw.evaluate(async () => (await chrome.windows.getLastFocused()).id);
   const panel = await ctx.newPage();
   await panel.goto(`chrome-extension://${extId}/panel.html?window=${windowId}`);
 
   await panel.getByText('First task').waitFor({ timeout: 10_000 });
+  check('one list: a task added under a Space is still listed', await panel.getByText('Added under a Space').isVisible());
   const button = panel.getByRole('button', { name: 'Refresh tasks' });
   check('refresh button shows once Vikunja is connected', await button.isVisible());
 

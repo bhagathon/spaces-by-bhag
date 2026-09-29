@@ -7,8 +7,11 @@ import {
   ensureSpaceProject,
   getVikunjaConfig,
   inboxProjectId,
+  getTasksBySpace,
   knownSpaceProject,
+  listAllOpenTasks,
   listOpenTasks,
+  TASKS_BY_SPACE_KEY,
   setTaskDone,
   type VikunjaConfig,
   type VikunjaTask,
@@ -33,6 +36,7 @@ export function Tasks({ onSetUp, onError }: { onSetUp: () => void; onError: (e: 
   const [fresh, setFresh] = useState<Set<number>>(new Set());
   const [draft, setDraft] = useState('');
   const [problem, setProblem] = useState<string | null>(null);
+  const [bySpace, setBySpace] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [updatedAt, setUpdatedAt] = useState<number | null>(null);
   const inFlight = useRef(false);
@@ -50,12 +54,21 @@ export function Tasks({ onSetUp, onError }: { onSetUp: () => void; onError: (e: 
     }
     setRefreshing(true);
     try {
-      // Looking never creates a project; a known one is kept named after its Space.
+      const separate = await getTasksBySpace();
+      setBySpace(separate);
       let id: number | undefined;
-      if (space) id = (await knownSpaceProject(space.id)) !== undefined ? await ensureSpaceProject(space) : undefined;
-      else id = await inboxProjectId();
+      let open: VikunjaTask[];
+      if (separate && space) {
+        // Looking never creates a project; a known one is kept named after its Space.
+        id = (await knownSpaceProject(space.id)) !== undefined ? await ensureSpaceProject(space) : undefined;
+        open = id ? await listOpenTasks(id) : [];
+      } else {
+        // One list everywhere, so switching Spaces never hides a task.
+        const all = await listAllOpenTasks();
+        id = all.inbox;
+        open = all.tasks;
+      }
       setProjectId(id ?? null);
-      const open = id ? await listOpenTasks(id) : [];
       // Keep rows that are mid-check or folding away, so a refresh never yanks them out.
       setTasks(prev => [...open, ...(prev ?? []).filter(t => checkingRef.current.has(t.id) && !open.some(o => o.id === t.id))]);
       setProblem(null);
@@ -74,7 +87,7 @@ export function Tasks({ onSetUp, onError }: { onSetUp: () => void; onError: (e: 
     const timer = setInterval(() => document.visibilityState === 'visible' && void load(), REFRESH_MS);
     const onVisible = () => document.visibilityState === 'visible' && void load();
     const onChanged = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
-      if (area === 'local' && 'vikunja' in changes) void load();
+      if (area === 'local' && ('vikunja' in changes || TASKS_BY_SPACE_KEY in changes)) void load();
     };
     // Coming back from another tab or window (say, Vikunja or BusyCal) refreshes right away.
     let soon: ReturnType<typeof setTimeout> | undefined;
@@ -118,7 +131,7 @@ export function Tasks({ onSetUp, onError }: { onSetUp: () => void; onError: (e: 
     if (!title) return;
     setDraft('');
     try {
-      const id = projectId ?? (space ? await ensureSpaceProject(space) : await inboxProjectId());
+      const id = projectId ?? (bySpace && space ? await ensureSpaceProject(space) : await inboxProjectId());
       setProjectId(id);
       const t = await addTask(id, title);
       setFresh(s => new Set(s).add(t.id));
@@ -130,7 +143,7 @@ export function Tasks({ onSetUp, onError }: { onSetUp: () => void; onError: (e: 
   };
 
   if (config === undefined) return null;
-  const where = space ? space.name : 'Inbox';
+  const where = bySpace && space ? space.name : 'Inbox';
 
   return (
     <section className="tasks" aria-label={`Tasks for ${where}`}>
@@ -178,7 +191,7 @@ export function Tasks({ onSetUp, onError }: { onSetUp: () => void; onError: (e: 
               ))}
             </ul>
           )}
-          {tasks && tasks.length === 0 && !problem && <p className="drawer-note">No open tasks {space ? 'for this Space' : 'in your Inbox'}.</p>}
+          {tasks && tasks.length === 0 && !problem && <p className="drawer-note">No open tasks {bySpace && space ? 'for this Space' : 'in your Inbox'}.</p>}
           <form
             className="task-add"
             onSubmit={e => {

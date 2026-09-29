@@ -8,7 +8,7 @@ import { getStorage } from '../storage';
 import { buildBackup, importBackup } from '../shared/backup';
 import type { Notice } from './notice';
 import { getTextScale, setTextScale, TEXT_SCALES, type TextScale } from './textScale';
-import { getVikunjaConfig, logInWithVikunja, setVikunjaConfig } from '../shared/vikunja';
+import { getTasksBySpace, getVikunjaConfig, logInWithVikunja, setVikunjaConfig, TASKS_BY_SPACE_KEY } from '../shared/vikunja';
 import { getGeminiConfig, setGeminiConfig, type GeminiConfig } from '../shared/gemini';
 import { fetchLatestVersion, isNewer, type UpdateResult } from '../shared/update';
 import { disconnect, GCAL_CLIENT_ID_KEY, GCAL_CONNECTED_KEY, getToken, redirectUri } from '../shared/gcal';
@@ -441,8 +441,10 @@ function VikunjaSettings({ onError }: { onError: (e: string) => void }) {
   const [token, setToken] = useState('');
   const [who, setWho] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [bySpace, setBySpace] = useState(false);
 
   useEffect(() => {
+    void getTasksBySpace().then(setBySpace);
     void getVikunjaConfig().then(async c => {
       if (!c) return;
       setUrl(c.url);
@@ -476,9 +478,19 @@ function VikunjaSettings({ onError }: { onError: (e: string) => void }) {
   return (
     <fieldset>
       <legend>Tasks (Vikunja)</legend>
+      <p className="hint">Shows your open Vikunja tasks at the bottom of the panel. New tasks go to your Vikunja Inbox.</p>
+      <Check
+        label="Separate tasks by Space"
+        checked={bySpace}
+        onChange={v => {
+          setBySpace(v);
+          void chrome.storage.local.set({ [TASKS_BY_SPACE_KEY]: v });
+        }}
+      />
       <p className="hint">
-        Shows each Space’s tasks at the bottom of the panel. Each Space gets its own Vikunja project inside “Spaces”, so it also appears as a
-        calendar in BusyCal.
+        {bySpace
+          ? 'Each Space shows its own tasks, kept in its own Vikunja project inside “Spaces” (and so its own BusyCal calendar).'
+          : 'Off: the same list in every Space, so switching never hides a task.'}
       </p>
       {who ? (
         <div className="row">

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fake, resetFake } from './fakeChrome';
-import { ensureSpaceProject, listOpenTasks, setTaskDone, setVikunjaConfig } from '../src/shared/vikunja';
+import { ensureSpaceProject, listAllOpenTasks, listOpenTasks, setTaskDone, setVikunjaConfig } from '../src/shared/vikunja';
 
 // A tiny in-memory Vikunja: projects and tasks, enough for the calls the panel makes.
 function fakeVikunja() {
@@ -17,6 +17,7 @@ function fakeVikunja() {
     calls.push(`${method} ${u.pathname}`);
     const body = init?.body ? JSON.parse(String(init.body)) : undefined;
     const json = (x: unknown) => new Response(JSON.stringify(x), { status: 200 });
+    if (u.pathname === '/api/v1/user') return json({ username: 'bhag', settings: { default_project_id: 1 } });
     if (u.pathname === '/api/v1/projects' && method === 'GET') return json(projects);
     if (u.pathname === '/api/v1/projects' && method === 'PUT') {
       const p = { id: next++, title: body.title, parent_project_id: body.parent_project_id ?? 0 };
@@ -82,6 +83,22 @@ describe('Vikunja tasks for a Space', () => {
     expect(params.get('filter')).toBe('done = false');
     expect((init?.headers as Record<string, string>).Authorization).toBe('Bearer secret');
     expect(fake.local.vikunja).toBeTruthy();
+  });
+});
+
+describe('one task list for every Space (the default)', () => {
+  it('shows the Inbox plus tasks already in Spaces’ projects, so switching never hides one', async () => {
+    const v = fakeVikunja();
+    await setVikunjaConfig({ url: 'https://tasks.example', token: 't' });
+    await ensureSpaceProject({ id: 's1', name: 'Jobs' }, v.fetchFn);
+    v.tasks.push({ id: 20, title: 'In the Inbox', done: false, project_id: 1 } as (typeof v.tasks)[number]);
+    const { inbox, tasks } = await listAllOpenTasks(v.fetchFn);
+    expect(inbox).toBe(1);
+    expect(tasks.map(t => t.title)).toEqual(['In the Inbox']);
+    // Added earlier, under a Space: still listed.
+    const jobs = v.projects.find(p => p.title === 'Jobs')!.id;
+    v.tasks.push({ id: 21, title: 'Added under Jobs', done: false, project_id: jobs } as (typeof v.tasks)[number]);
+    expect((await listAllOpenTasks(v.fetchFn)).tasks.map(t => t.title)).toEqual(['In the Inbox', 'Added under Jobs']);
   });
 });
 

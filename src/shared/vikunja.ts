@@ -12,6 +12,12 @@ const CONFIG_KEY = 'vikunja';
 /** spaceId → Vikunja project id, per device. */
 const PROJECTS_KEY = 'vikunjaProjects';
 const PARENT_TITLE = 'Spaces';
+/** Whether each Space shows its own tasks. Off: one list everywhere. */
+export const TASKS_BY_SPACE_KEY = 'tasksBySpace';
+
+export async function getTasksBySpace(): Promise<boolean> {
+  return (await chrome.storage.local.get(TASKS_BY_SPACE_KEY))[TASKS_BY_SPACE_KEY] === true;
+}
 
 export interface VikunjaConfig {
   url: string;
@@ -215,6 +221,21 @@ export async function ensureSpaceProject(space: { id: string; name: string }, fe
 export async function knownSpaceProject(spaceId: string): Promise<number | undefined> {
   const map = ((await chrome.storage.local.get(PROJECTS_KEY))[PROJECTS_KEY] ?? {}) as Record<string, number>;
   return map[spaceId];
+}
+
+/**
+ * The one list shown when tasks aren't separated by Space: the Inbox, plus anything
+ * already in the Spaces' own projects, so a task added under a Space never goes missing.
+ */
+export async function listAllOpenTasks(fetchFn: Fetch = fetch): Promise<{ inbox: number; tasks: VikunjaTask[] }> {
+  const inbox = await inboxProjectId(fetchFn);
+  const map = ((await chrome.storage.local.get(PROJECTS_KEY))[PROJECTS_KEY] ?? {}) as Record<string, number>;
+  const others = [...new Set(Object.values(map))].filter(id => id !== inbox);
+  const [first, ...rest] = await Promise.all([
+    listOpenTasks(inbox, fetchFn),
+    ...others.map(id => listOpenTasks(id, fetchFn).catch(() => [] as VikunjaTask[])), // a project deleted in Vikunja
+  ]);
+  return { inbox, tasks: [...first, ...rest.flat()].sort((a, b) => a.id - b.id) };
 }
 
 export async function listOpenTasks(projectId: number, fetchFn: Fetch = fetch): Promise<VikunjaTask[]> {
