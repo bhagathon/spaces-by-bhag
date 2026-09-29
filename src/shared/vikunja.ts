@@ -174,7 +174,9 @@ export async function knownSpaceProject(spaceId: string): Promise<number | undef
 }
 
 export async function listOpenTasks(projectId: number, fetchFn: Fetch = fetch): Promise<VikunjaTask[]> {
-  const tasks = await api<VikunjaTask[]>(`/projects/${projectId}/tasks?per_page=100&sort_by=position&order_by=asc`, {}, fetchFn);
+  // Open tasks, oldest first. (sort_by=position needs a project view ID on Vikunja 2.x: error 4026.)
+  const q = new URLSearchParams({ per_page: '100', filter: 'done = false', sort_by: 'id', order_by: 'asc' });
+  const tasks = await api<VikunjaTask[]>(`/projects/${projectId}/tasks?${q}`, {}, fetchFn);
   return (tasks ?? []).filter(t => !t.done);
 }
 

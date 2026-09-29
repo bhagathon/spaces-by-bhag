@@ -75,7 +75,11 @@ describe('Vikunja tasks for a Space', () => {
     await setVikunjaConfig({ url: 'https://tasks.example/', token: 'secret' });
     const tasks = await listOpenTasks(5, v.fetchFn);
     expect(tasks.map(t => t.title)).toEqual(['Open task']);
-    const [, init] = v.fetchFn.mock.calls.at(-1)!;
+    const [url, init] = v.fetchFn.mock.calls.at(-1)!;
+    // Vikunja 2.x rejects sort_by=position without a view ID (error 4026); ask for open tasks by id.
+    const params = new URL(String(url)).searchParams;
+    expect(params.get('sort_by')).toBe('id');
+    expect(params.get('filter')).toBe('done = false');
     expect((init?.headers as Record<string, string>).Authorization).toBe('Bearer secret');
     expect(fake.local.vikunja).toBeTruthy();
   });
